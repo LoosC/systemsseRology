@@ -9,15 +9,10 @@ path_systemsseRology = "/Users/cl24/Dropbox (Partners HealthCare)/PostDoc/system
 
 ```{r colors and shapes etc} 
 myColors = list(
-    #TP = c(D30 = "#C5ADFF", D60 = "#7857B1", D360 = "#531B93", D390 = "#310a59"),
-    #Adjuvant = c(AS01B = "#2839C1", AS01E = "#67A1F4", AS03 = "#6DAF5D", AS04 = "#D4513A", 
-    #            Alum = "#5E5E5E"),
     feature_class = c(titer = "#797d7f", FcR = "#424949", func = "#cacfd2"),
     antigen = c(ag1 = "#FB9301", ag2 = "#0B1892", ag3 = "#9A1C73", ag4 = "#1A8E00"),
     class = c(class1 = "#1f618d", class2 = "#5dade2")
     )
-
-#myShapes = list(TP = c(D30 = 21, D60 = 22, D360 = 23, D390 = 24))
 ```
 
 ```{r load data} 
@@ -45,7 +40,6 @@ feature_annot <- data.frame(label = feature_names,
                          feature_class = rep(c("func", "FcR", "titer"), c(8, 8, 12)))
 feature_annot$antigen <- factor(feature_annot$antigen, levels = antigen)
 rownames(feature_annot) <- colnames(X)
-
 ```
 
 ```{r heatmap, fig.width = 15, fig.height = 5} 
@@ -66,7 +60,6 @@ p <-  pheatmap(X, cellwidth = 5, cellheight = 5, fontsize = 6,
 print(p)
 dev.off()
 print(p)
-
 ```
 
 Two flavors of univariate dotplots
