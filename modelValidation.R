@@ -73,6 +73,8 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                   trainedModel <- opls(XTrainSel, yTrain, predI = 1, orthoI = 1, 
                                        permI = 0, crossValI = 5, info.txtC = "none", fig.pdfC = "none")
                 }
+            } else if (method == "logisticRegression") {
+                # todo
             }
             
             if (nFolds > 1) {
@@ -87,7 +89,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
             
             if (nPerms > 0 & nFolds > 1) {
                 for (iPerm in 1:nPerms) {
-                  # null model 1:
+                  # null model 1 (random feature set of same length):
                   if (length(selFeatures) == 1) {
                     indPerm <- randperm(dim(X)[2])[1:length(XTrainSel)]
                   } else {
@@ -116,7 +118,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                     yPredPerm1[folds[[iFold]], iPerm] <- predict(trainedModel, newdata = XTestSelPerm1)
                   }
                   
-                  # null model 2: feature selection and model training is done with permuted data
+                  # null model 2 feature selection and model training is done with permuted data):
                   yPerm <- y[sample(1:length(y), size = length(y), replace = FALSE)]
                   yTrainPerm <- yPerm[-folds[[iFold]]]
                   selFeaturesPerm <- featureSelection(XTrain, as.vector(yTrainPerm), 

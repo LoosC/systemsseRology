@@ -16,20 +16,24 @@ myColors = list(
 ```
 
 ```{r load data} 
+# generate random data as an example
 X_unscaled <- matrix(rnorm(30*4*7), 30, 4*7)  
 X_unscaled[1:10, 3] <- X_unscaled[1:10, 3] - 0.5
 X_unscaled[1:10, 5] <- X_unscaled[1:10, 3] + 0.5
 X_unscaled[, 4] <- X_unscaled[, 5] + rnorm(30)/10
 rownames(X_unscaled) <- seq(1:30)
+
 measurement <- c("IgG1", "IgG2", "IgG3", "Fcg2AR", "Fcg3AR", "ADCP", "ADNP")
 antigen <- c("ag1", "ag2", "ag3", "ag4")
-feature_names <- apply(expand.grid(measurement, antigen), 1, paste, collapse="_")
+feature_names <- apply(expand.grid(measurement, antigen), 1, paste, collapse = "_")
 feature_names <- feature_names[order(feature_names)]
 colnames(X_unscaled) <- feature_names
+
 X <- scale(X_unscaled, center = TRUE, scale = TRUE) 
 
 y <- rep(c(0,1), c(10, 20))
 yName <- rep(c("class1", "class2"), c(10, 20))
+
 nAntigens <- 4
 nSamples <- dim(X)[1]
   
