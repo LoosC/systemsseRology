@@ -1,8 +1,8 @@
-# ****************************************************************************** 
-# Description: Plots the out-of-bag error for
-#              recursive feature elimination (RFE) for random forest 
-# Dependencies: randomForest
-# ******************************************************************************
+#' Plots the out-of-bag error for recursive feature elimination (RFE) for random
+#' forest
+#' @param X data matrix
+#' @param y label
+#' @export
 
 visualizeRandomForest_RFE <- function(X, y) {
     

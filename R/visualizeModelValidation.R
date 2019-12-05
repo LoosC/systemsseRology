@@ -1,3 +1,4 @@
+#' export
 visualizeModelValidation <- function(res, type, saveFlag = FALSE, strSave = "", modelColor = "gray") {
     
     if (type == "classification") {

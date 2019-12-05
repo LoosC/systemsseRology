@@ -1,4 +1,5 @@
-plsBarplot <- function(oplsda, y, X_sel, saveFlag = FALSE, fileStr = "", 
+#' export
+plsBarplot <- function(oplsda, y, X_sel, saveFlag = FALSE, fileStr = "",
                        color1 = "red", color2 = "blue", feature_annot = data.frame()) {
     
     if (dim(feature_annot)[1] == 0) {

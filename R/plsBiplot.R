@@ -1,8 +1,7 @@
+#' export
 plsBiplot <- function(oplsda, y, saveFlag = FALSE, fileStr = "", color1 = "red", color2 = "blue", shape1 = 21, shape2 = 21, fontsize = 4, 
     alpha_loading = 1, feature_annot = data.frame()) {
     
-    library("ggrepel")
-
     scoresLV1 <- getScoreMN(oplsda)
     scoresTmp <- getScoreMN(oplsda, orthoL = TRUE)
     dfScores <- data.frame(LV1 = scoresLV1, 

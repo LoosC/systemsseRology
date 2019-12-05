@@ -1,4 +1,5 @@
-featureSelection <- function(X, y, method = "lasso", type = "classification", 
+#' export
+featureSelection <- function(X, y, method = "lasso", type = "classification",
                              nFeatRep = 100, chooseS = "min", nLassoFolds = 5, thresh = 1, 
                              alpha = 1) {
     

@@ -1,12 +1,11 @@
-modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, 
+#' export
+modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                             nTop = 5, featureMethod = "lasso", method = "pls",
                             type = "classification", 
                             nFeatRep = 100, nLassoFolds = 5, thresh = 1, 
                             alpha = 1, chooseS = "min", saveFlag = FALSE, 
                             fileStr = "accuraciesFullModel_withPerm") {
-    library("caret")
-    library("pracma")
-    
+                                
     yPred <- matrix(NA, nrow = length(y), ncol = 1)
     acc <- matrix(NA, nrow = nReps, ncol = 1)
     corr <- matrix(NA, nrow = nReps, ncol = 1)
