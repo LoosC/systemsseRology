@@ -1,8 +1,9 @@
-#' export
+#' @export
+
 featureSelection <- function(X, y, method = "lasso", type = "classification",
-                             nFeatRep = 100, chooseS = "min", nLassoFolds = 5, thresh = 1, 
+                             nFeatRep = 100, chooseS = "min", nLassoFolds = 5, thresh = 1,
                              alpha = 1) {
-    
+
     if (method == "none") {
         selFeatures <- colnames(X)
     } else if (method == "randomForest_RFE") {
@@ -24,14 +25,14 @@ featureSelection <- function(X, y, method = "lasso", type = "classification",
                 featSel[remFeature, ind:dim(X)[2]] <- 0
             }
         }
-        selFeatures <- colnames(X)[which(featSel[1:(dim(featSel)[1] - 1), 
+        selFeatures <- colnames(X)[which(featSel[1:(dim(featSel)[1] - 1),
                                                  which(featSel["oob", ] == min(featSel["oob", ]))] == 1)]
     } else if (method == "lasso") {
         tmpFeat <- data.frame(features = c("(Intercept)", colnames(X)))
         lastZero <- data.frame(features = c("(Intercept)", colnames(X)))
         mses <- rep(NA, nFeatRep)
         for (iRep in 1:nFeatRep) {
-            resLasso <- cv.glmnet(X, y, type.measure = "mse", alpha = alpha, 
+            resLasso <- cv.glmnet(X, y, type.measure = "mse", alpha = alpha,
                                   family = "gaussian", nfolds = nLassoFolds)
             mses[iRep] <- resLasso$cvm[which(resLasso$lambda == resLasso$lambda.min)]
             if (chooseS == "min") {
@@ -48,7 +49,7 @@ featureSelection <- function(X, y, method = "lasso", type = "classification",
             selec <- rep(0, dim(X)[2] + 1)
             selec[tmpInds] <- 1
             tmpFeat <- cbind(tmpFeat, selec)
-            
+
             # last coefficient to set to 0
             indLastZero <- which(resLasso$glmnet.fit$df > 1)[1]
             if (!is.na(indLastZero)) {

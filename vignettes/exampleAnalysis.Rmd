@@ -16,6 +16,11 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(systemsseRology)
+library(caret)
+library(pracma)
+library(glmnet)
+library(ropls)
+library(ggrepel)
 ```
 
 ```{r colors and shapes etc} 
@@ -111,10 +116,10 @@ for (ind in 1:(dim(X)[2]/nAntigens)){
 }
 p <- ggarrange(plotlist = plt, ncol = ceiling((dim(X)[2]/nAntigens)/4), nrow = 4)
 
-pdf("Figures/univariate_dotPlot1.pdf", width = ceiling((dim(X)[2]/nAntigens)), height = 8) 
+#pdf("univariate_dotPlot1.pdf", width = ceiling((dim(X)[2]/nAntigens)), height = 8) 
 print(p)
-dev.off()
-print(p)
+#dev.off()
+#print(p)
 ```
 
 ```{r univariate dotplots 2} 
@@ -144,10 +149,10 @@ p <- ggplot(dfUniv, aes(x = antigen, y = value, fill = antigen)) +
             legend.title = element_blank()
             ) 
 
-pdf("Figures/univariate_dotPlot2.pdf", width = ceiling((dim(X)[2]/nAntigens)), height = 8) 
+#pdf("nivariate_dotPlot2.pdf", width = ceiling((dim(X)[2]/nAntigens)), height = 8) 
 print(p)
-dev.off()
-print(p)
+#dev.off()
+#print(p)
 ```
 
 ```{r PCA} 
@@ -155,11 +160,6 @@ print(p)
 ```
 
 ```{r  LASSO OPLS-DA for visualization} 
-library(glmnet)
-library(ropls) 
-
-source(paste(path_systemsseRology, "/featureSelection.R", sep = ""))
-
 selFeatures <- featureSelection(X, y, method = "lasso",
                                 nFeatRep = 100, nLassoFolds = 5, thresh = 25, alpha = 1)
 print(selFeatures)
@@ -173,9 +173,6 @@ if (isError) {
 ```
 
 ```{r Visualization} 
-source(paste(path_systemsseRology, "/plsBiplot.R", sep = ""))
-source(paste(path_systemsseRology, "/plsBarplot.R", sep = ""))
-
 feature_annot$useColor <- myColors$antigen[feature_annot$antigen]
 plsBiplot(oplsda, y, color1 = myColors$class[["class1"]], color2 = myColors$class[["class2"]], alpha_loading = 0.5,
           feature_annot = feature_annot)
@@ -186,9 +183,6 @@ plsBarplot(oplsda, y, X_sel, color1 = myColors$class[["class1"]], color2 = myCol
 ```
 
 ```{r Model validation} 
-source(paste(path_systemsseRology, "/modelValidation.R", sep = ""))
-source(paste(path_systemsseRology, "/visualizeModelValidation.R", sep = ""))
-
 modVal <- modelValidation(X, y, nFolds = 5, nReps = 1, nPerms = 10, 
                           nFeatRep = 10, thresh = 3)
 
@@ -201,6 +195,8 @@ library(tidyverse)
 library(corrr)
 library(igraph)
 library(ggraph)
+library(ggrepel)
+
 
 tidyCors <- X %>% 
   correlate(method = "spearman") %>% 
