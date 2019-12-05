@@ -183,10 +183,12 @@ plsBarplot(oplsda, y, X_sel, color1 = myColors$class[["class1"]], color2 = myCol
 ```
 
 ```{r Model validation} 
+# change it to 1 and 2 in order to work?
 modVal <- modelValidation(X, y, nFolds = 5, nReps = 1, nPerms = 10, 
                           nFeatRep = 10, thresh = 3)
 
 pvals <- visualizeModelValidation(modVal, type = "classification", modelColor = "gray")
+print(median(pvals))
 ```
 
 
