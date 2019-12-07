@@ -43,7 +43,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                 XTest <- X
                 yTest <- y
             }
-            selFeatures <- featureSelection(XTrain, as.vector(yTrain),
+            selFeatures <- featureSelection(XTrain, yTrain,
                                             method = featureMethod, type = type,
                                             chooseS = chooseS, nFeatRep = nFeatRep,
                                             nLassoFolds = nLassoFolds,
@@ -74,17 +74,30 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                                        permI = 0, crossValI = 5, info.txtC = "none", fig.pdfC = "none")
                 }
             } else if (method == "logisticRegression") {
-                # todo
+                cv.lasso <- cv.glmnet(XTrainSel, yTrain, alpha = 1, family = "binomial")
+                trainedModel <- glmnet(XTrainSel, yTrain, alpha = 1, family = "binomial",
+                                       lambda = cv.lasso$lambda.min)
             }
-
-            if (nFolds > 1) {
-                if (length(y) == nFolds) {
-                  yPred[folds[[iFold]]] <- predict(trainedModel, newdata = as.vector(t(XTestSel)))
+            if  (method == "logisticRegression") {
+                if (nFolds > 1) {
+                    if (length(y) == nFolds) {
+                        yPred[folds[[iFold]]] <- predict(trainedModel, newx = as.vector(t(XTestSel)), type = "class")
+                    } else {
+                        yPred[folds[[iFold]]] <- predict(trainedModel, newx = as.matrix(XTestSel), type = "class")
+                    }
                 } else {
-                  yPred[folds[[iFold]]] <- predict(trainedModel, newdata = as.matrix(XTestSel))
+                    yPred <- predict(trainedModel, newx = XTest, type = "class")
                 }
             } else {
-                yPred <- predict(trainedModel, newdata = XTest)
+                if (nFolds > 1) {
+                    if (length(y) == nFolds) {
+                      yPred[folds[[iFold]]] <- predict(trainedModel, newdata = as.vector(t(XTestSel)))
+                    } else {
+                      yPred[folds[[iFold]]] <- predict(trainedModel, newdata = as.matrix(XTestSel))
+                    }
+                } else {
+                    yPred <- predict(trainedModel, newdata = XTest)
+                }
             }
 
             if (nPerms > 0 & nFolds > 1) {
@@ -110,6 +123,10 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                                            permI = 0, crossValI = 5, info.txtC = "none",
                         fig.pdfC = "none")
                     }
+                  } else if (method == "logisticRegression") {
+                      cv.lasso <- cv.glmnet(XTrainSelPerm1, yTrain, alpha = 1, family = "binomial")
+                      trainedModel <- glmnet(XTrainSelPerm1, yTrain, alpha = 1, family = "binomial",
+                                             lambda = cv.lasso$lambda.min)
                   }
 
                   if (length(y) == nFolds) {
@@ -121,7 +138,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                   # null model 2 feature selection and model training is done with permuted data):
                   yPerm <- y[sample(1:length(y), size = length(y), replace = FALSE)]
                   yTrainPerm <- yPerm[-folds[[iFold]]]
-                  selFeaturesPerm <- featureSelection(XTrain, as.vector(yTrainPerm),
+                  selFeaturesPerm <- featureSelection(XTrain, yTrainPerm,
                                                       method = featureMethod, type = type, chooseS = chooseS,
                                                       nFeatRep = nFeatRep, nLassoFolds = nLassoFolds,
                                                       thresh = thresh, alpha = alpha)
@@ -146,6 +163,10 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                                            permI = 0, crossValI = 5, info.txtC = "none",
                         fig.pdfC = "none")
                     }
+                  } else if (method == "logisticRegression") {
+                      cv.lasso <- cv.glmnet(XTrainSelPerm2, yTrainPerm, alpha = 1, family = "binomial")
+                      trainedModel <- glmnet(XTrainSelPerm2, yTrainPerm, alpha = 1, family = "binomial",
+                                                 lambda = cv.lasso$lambda.min)
                   }
                   if (length(y) == nFolds) {
                     yPredPerm2[folds[[iFold]], iPerm] <- predict(trainedModel, newdata = as.vector(XTestSelPerm2))
@@ -157,8 +178,16 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
         }
 
         if (type == "classification") {
+            yPred[which(yPred == 1)] <- levels(y)[1]
+            yPred[which(yPred == 2)] <- levels(y)[2]
+
             acc[iRep] <- length(which(yPred == y))/length(y)
             if (nPerms > 0) {
+                yPredPerm1[which(yPredPerm1 == 1)] <- levels(y)[1]
+                yPredPerm1[which(yPredPerm1 == 2)] <- levels(y)[2]
+
+                yPredPerm2[which(yPredPerm2 == 1)] <- levels(y)[1]
+                yPredPerm2[which(yPredPerm2 == 2)] <- levels(y)[2]
                 for (iPerm in 1:nPerms) {
                   accPerm1[iRep, iPerm] <- length(which(yPredPerm1[, iPerm] == y))/length(y)
                   accPerm2[iRep, iPerm] <- length(which(yPredPerm2[, iPerm] == y))/length(y)

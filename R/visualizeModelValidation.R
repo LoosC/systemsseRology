@@ -1,6 +1,6 @@
 #' @export
 
-visualizeModelValidation <- function(res, type, saveFlag = FALSE, strSave = "", modelColor = "gray") {
+visualizeModelValidation <- function(res, type, saveFlag = FALSE, fileStr = "modelValidation_acc", modelColor = "gray") {
 
     if (type == "classification") {
         value <- c(as.vector(res$acc),
@@ -35,7 +35,7 @@ visualizeModelValidation <- function(res, type, saveFlag = FALSE, strSave = "", 
             stat_compare_means(comparisons = myComparisons, size = 0)
 
         if (saveFlag) {
-            pdf(paste("Figures/modelValidation_acc_", strSave, ".pdf", sep = ""), width = 5, height = 3)
+            pdf(paste(fileStr, ".pdf", sep = ""), width = 5, height = 3)
         }
         print(pltVio)
         dev.off()

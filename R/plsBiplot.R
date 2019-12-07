@@ -7,7 +7,7 @@ plsBiplot <- function(oplsda, y, saveFlag = FALSE, fileStr = "", color1 = "red",
     scoresTmp <- getScoreMN(oplsda, orthoL = TRUE)
     dfScores <- data.frame(LV1 = scoresLV1,
                            LV2 = scoresTmp[, 1],
-                           class = factor(y))
+                           class = y)
     colnames(dfScores) <- c("LV1", "LV2", "class")
 
     pltScores <- ggplot(dfScores, aes(LV1, LV2, color = class, shape = class)) +
@@ -15,8 +15,8 @@ plsBiplot <- function(oplsda, y, saveFlag = FALSE, fileStr = "", color1 = "red",
         stroke = 0.6) + theme(aspect.ratio = 1) +
         labs(x = paste("scores on LV1 (", toString(oplsda@modelDF$R2X[1] * 100), "%)", sep = ""),
              y = paste("scores on LV2 (", toString(oplsda@modelDF$R2X[2] * 100), "%)", sep = "")) +
-        scale_shape_manual(breaks = unique(factor(y)), values = c(shape1, shape2)) +
-        scale_fill_manual(breaks = unique(factor(y)), values = c(color1, color2)) +
+        scale_shape_manual(breaks = levels(y), values = c(shape1, shape2)) +
+        scale_fill_manual(breaks = levels(y), values = c(color1, color2)) +
         theme(panel.background = element_blank(),
               axis.line = element_line(colour = "black"),
               panel.grid.major = element_blank(),
