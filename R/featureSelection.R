@@ -106,9 +106,13 @@ featureSelection <- function(X, y, method = "lasso", type = "classification",
             selFeatures <- tmpFeat$features[indSel]
             selFeatures <- selFeatures[2:length(selFeatures)]  # remove intercept
         } else if (method == "lasso_min_mse") {
-            indSel <- which(tmpFeat[, which(mses == min(mses)) + 1] == 1)
-            selFeatures <- tmpFeat$features[indSel]
+            indSel2 <- which(tmpFeat[, which(mses == min(mses)) + 1] == 1)
+            selFeatures <- tmpFeat$features[indSel2]
             selFeatures <- selFeatures[2:length(selFeatures)]  # remove intercep
+            if (length(selFeatures) < 2) {
+                selFeatures <- tmpFeat$features[indSel]
+                selFeatures <- selFeatures[2:length(selFeatures)]  # remove intercept
+            }
         }
 
     }

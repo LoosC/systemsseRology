@@ -70,8 +70,8 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                   fig.pdfC = "none"))
                 isError <- is(pre_symbol, "try-error")
                 if (isError) {
-                  trainedModel <- opls(XTrainSel, yTrain, predI = 1, orthoI = 1,
-                                       permI = 0, crossValI = 5, info.txtC = "none", fig.pdfC = "none")
+                    trainedModel <- opls(XTrainSel, yTrain, orthoI = 1, predI = 1,
+                                         permI = 0, crossValI = 5, info.txtC = "none", fig.pdfC = "none")
                 }
             } else if (method == "logisticRegression") {
                 cv.lasso <- cv.glmnet(XTrainSel, yTrain, alpha = 1, family = "binomial")
@@ -119,9 +119,10 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                       fig.pdfC = "none"))
                     isError <- is(pre_symbol, "try-error")
                     if (isError) {
-                      trainedModel <- opls(XTrainSelPerm1, yTrain, predI = 1, orthoI = 1,
-                                           permI = 0, crossValI = 5, info.txtC = "none",
-                        fig.pdfC = "none")
+                        trainedModel <- opls(XTrainSelPerm1, yTrain, orthoI = 1,  predI = 1,
+                                             permI = 0, crossValI = 5, info.txtC = "none",
+                                             fig.pdfC = "none")
+
                     }
                   } else if (method == "logisticRegression") {
                       cv.lasso <- cv.glmnet(XTrainSelPerm1, yTrain, alpha = 1, family = "binomial")
@@ -159,9 +160,9 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                       fig.pdfC = "none"))
                     isError <- is(pre_symbol, "try-error")
                     if (isError) {
-                      trainedModel <- opls(as.matrix(XTrainSelPerm2), yTrainPerm, predI = 1, orthoI = 1,
-                                           permI = 0, crossValI = 5, info.txtC = "none",
-                        fig.pdfC = "none")
+                        trainedModel <- opls(as.matrix(XTrainSelPerm2), yTrainPerm, predI = 1, orthoI = 1,
+                                             permI = 0, crossValI = 5, info.txtC = "none",
+                                             fig.pdfC = "none")
                     }
                   } else if (method == "logisticRegression") {
                       cv.lasso <- cv.glmnet(XTrainSelPerm2, yTrainPerm, alpha = 1, family = "binomial")
