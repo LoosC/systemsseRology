@@ -104,7 +104,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                 for (iPerm in 1:nPerms) {
                   # null model 1 (random feature set of same length):
                   if (length(selFeatures) == 1) {
-                    indPerm <- randperm(dim(X)[2])[1:length(XTrainSel)]
+                    indPerm <- randperm(dim(X)[2])[1]
                   } else {
                     indPerm <- randperm(dim(X)[2])[1:dim(XTrainSel)[2]]
                   }
@@ -112,7 +112,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                   XTestSelPerm1 <- XTest[, indPerm]
 
                   if (method == "randomForest") {
-                    trainedModel <- randomForest(as.matrix(XTrainSelPerm1), yTrain)
+                     trainedModel <- randomForest(as.matrix(XTrainSelPerm1), yTrain)
                   } else if (method == "pls") {
                     pre_symbol <- try(trainedModel <- opls(XTrainSelPerm1, yTrain, orthoI = NA,
                                                            permI = 0, crossValI = 5, info.txtC = "none",
