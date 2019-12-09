@@ -133,7 +133,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                   if (length(y) == nFolds) {
                     yPredPerm1[folds[[iFold]], iPerm] <- predict(trainedModel, newdata = as.matrix(t(XTestSelPerm1)))
                   } else {
-                    yPredPerm1[folds[[iFold]], iPerm] <- predict(trainedModel, newdata = XTestSelPerm1)
+                    yPredPerm1[folds[[iFold]], iPerm] <- predict(trainedModel, newdata = as.matrix(XTestSelPerm1))
                   }
 
                   # null model 2 feature selection and model training is done with permuted data):

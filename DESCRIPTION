@@ -18,7 +18,8 @@ Imports:
 	ggplot2,
 	randomForest,
 	ropls,
-	glmnet
+	glmnet,
+	DMwR
 RoxygenNote: 7.0.2
 Suggests: 
     knitr,
