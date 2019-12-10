@@ -72,32 +72,32 @@ featureSelection <- function(X, y, method = "lasso", type = "classification",
             }
         }
         if (nFeatRep == 1) {
-            indSel <- which(tmpFeat[, -1] > thresh)
+            indSel <- which(tmpFeat[, -1] >= thresh)
         } else {
-            indSel <- which(rowSums(tmpFeat[, -1]) > thresh)
+            indSel <- which(rowSums(tmpFeat[, -1]) >= thresh)
         }
         thresh2 <- thresh - 1
         while (length(indSel) < 3 && thresh2 > 0) {
             if (nFeatRep == 1) {
-                indSel <- which(tmpFeat[, -1] > thresh2)
+                indSel <- which(tmpFeat[, -1] >= thresh2)
             } else {
-                indSel <- which(rowSums(tmpFeat[, -1]) > thresh2)
+                indSel <- which(rowSums(tmpFeat[, -1]) >= thresh2)
             }
             thresh2 <- thresh2 - 1
         }
         if (length(indSel) < 3 & !is.na(indLastZero)) {
             if (nFeatRep == 1) {
-                indSel <- which(lastZero[, -1] > thresh)
+                indSel <- which(lastZero[, -1] >= thresh)
             } else {
-                indSel <- which(rowSums(lastZero[, -1]) > thresh)
+                indSel <- which(rowSums(lastZero[, -1]) >= thresh)
             }
-            indSel <- which(rowSums(lastZero[, -1]) > thresh)
+            indSel <- which(rowSums(lastZero[, -1]) >= thresh)
             thresh2 <- thresh - 1
             while (length(indSel) < 3 && thresh2 > 0) {
                 if (nFeatRep == 1) {
-                    indSel <- which(lastZero[, -1] > thresh2)
+                    indSel <- which(lastZero[, -1] >= thresh2)
                 } else {
-                    indSel <- which(rowSums(lastZero[, -1]) > thresh2)
+                    indSel <- which(rowSums(lastZero[, -1]) >= thresh2)
                 }
                 thresh2 <- thresh2 - 1
             }
@@ -107,11 +107,12 @@ featureSelection <- function(X, y, method = "lasso", type = "classification",
             selFeatures <- selFeatures[2:length(selFeatures)]  # remove intercept
         } else if (method == "lasso_min_mse") {
             indSel2 <- which(tmpFeat[, which(mses == min(mses)) + 1] == 1)
-            selFeatures <- tmpFeat$features[indSel2]
-            selFeatures <- selFeatures[2:length(selFeatures)]  # remove intercep
-            if (length(selFeatures) < 2) {
+            if (length(indSel2) < 3) {
                 selFeatures <- tmpFeat$features[indSel]
                 selFeatures <- selFeatures[2:length(selFeatures)]  # remove intercept
+            } else {
+                selFeatures <- tmpFeat$features[indSel2]
+                selFeatures <- selFeatures[2:length(selFeatures)]  # remove intercep
             }
         }
 

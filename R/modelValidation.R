@@ -65,12 +65,12 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
             if (method == "randomForest") {
                 trainedModel <- randomForest(as.matrix(XTrainSel), yTrain)
             } else if (method == "pls") {
-                pre_symbol <- try(trainedModel <- opls(XTrainSel, yTrain, orthoI = NA,
+                pre_symbol <- try(trainedModel <- opls(as.matrix(XTrainSel), yTrain, orthoI = NA,
                                                        permI = 0, crossValI = 5, info.txtC = "none",
-                  fig.pdfC = "none"))
+                                                       fig.pdfC = "none"))
                 isError <- is(pre_symbol, "try-error")
                 if (isError) {
-                    trainedModel <- opls(XTrainSel, yTrain, orthoI = 1, predI = 1,
+                    trainedModel <- opls(as.matrix(XTrainSel), yTrain, orthoI = 1, predI = 1,
                                          permI = 0, crossValI = 5, info.txtC = "none", fig.pdfC = "none")
                 }
             } else if (method == "logisticRegression") {
@@ -102,6 +102,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
 
             if (nPerms > 0 & nFolds > 1) {
                 for (iPerm in 1:nPerms) {
+                  print(paste("Repetition:", iRep, "Permutation:", iPerm, "Fold:", iFold, "/", nFolds, sep = " "))
                   # null model 1 (random feature set of same length):
                   if (length(selFeatures) == 1) {
                     indPerm <- randperm(dim(X)[2])[1]
