@@ -2,5 +2,5 @@
 .DS_Store
 .Rhistory
 .Rproj.user
-doc
 Meta
+*.html
