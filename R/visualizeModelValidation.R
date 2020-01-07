@@ -24,6 +24,7 @@ visualizeModelValidation <- function(res, type, saveFlag = FALSE, fileStr = "mod
             stat_summary(fun.data = mean_sd, geom = "pointrange", color = "black") +
             scale_fill_manual(values = c(modelColor, "gray", "gray")) +
             labs(x = "", y = "accuracy") +
+            ylim(c(0,1)) +
             theme(panel.background = element_blank(),
                   panel.grid.major = element_blank(),
                   panel.grid.minor = element_blank(),

@@ -12,7 +12,7 @@ plsBiplot <- function(oplsda, y, saveFlag = FALSE, fileStr = "", color1 = "red",
 
     pltScores <- ggplot(dfScores, aes(LV1, LV2, color = class, shape = class)) +
         geom_point(aes(fill = class), color = "black", size = 3,
-        stroke = 0.6) + theme(aspect.ratio = 1) +
+                   stroke = 0.6) + theme(aspect.ratio = 1) +
         labs(x = paste("scores on LV1 (", toString(oplsda@modelDF$R2X[1] * 100), "%)", sep = ""),
              y = paste("scores on LV2 (", toString(oplsda@modelDF$R2X[2] * 100), "%)", sep = "")) +
         scale_shape_manual(breaks = levels(y), values = c(shape1, shape2)) +

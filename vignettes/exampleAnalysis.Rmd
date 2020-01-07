@@ -14,7 +14,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+## Load packages
+
+```{r setup, message=FALSE}
 library(systemsseRology)
 library(caret)
 library(pracma)
@@ -23,6 +25,8 @@ library(ropls)
 library(ggrepel)
 ```
 
+## Define colors and shapes
+
 ```{r colors and shapes etc} 
 myColors = list(
     feature_class = c(titer = "#797d7f", FcR = "#424949", func = "#cacfd2"),
@@ -30,6 +34,8 @@ myColors = list(
     class = c(class1 = "#1f618d", class2 = "#5dade2")
     )
 ```
+
+## Generate toy data
 
 ```{r load data} 
 # generate random data as an example
@@ -47,8 +53,8 @@ colnames(X_unscaled) <- feature_names
 
 X <- scale(X_unscaled, center = TRUE, scale = TRUE) 
 
-y <- rep(c(0,1), c(10, 20))
-yName <- rep(c("class1", "class2"), c(10, 20))
+#y <- rep(c(0,1), c(10, 20))
+yName <- factor(rep(c("class1", "class2"), c(10, 20), levels = c("class1", "class2")))
 
 nAntigens <- 4
 nSamples <- dim(X)[1]
@@ -62,7 +68,9 @@ feature_annot$antigen <- factor(feature_annot$antigen, levels = antigen)
 rownames(feature_annot) <- colnames(X)
 ```
 
-```{r heatmap, fig.width = 15, fig.height = 5} 
+## Heatmap of data
+
+```{r heatmap, fig.height=6, fig.width=6, message=TRUE}
 library(pheatmap)
 
 annotation_row = data.frame(class = yName)
@@ -78,13 +86,13 @@ p <-  pheatmap(X, cellwidth = 5, cellheight = 5, fontsize = 6,
                cluster_cols = FALSE)
 #pdf("Figures/heatmap.pdf", width = 12, height = 5) 
 print(p)
-dev.off()
-print(p)
+#garb <- dev.off()
+#print(p)
 ```
 
-Two flavors of univariate dotplots
+## Two flavors of univariate dotplots
 
-```{r univariate dotplots 1} 
+```{r univariate dotplots 1, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
 library(ggplot2)
 library(reshape2)
 library(ggpubr)
@@ -94,14 +102,15 @@ dfUniv$antigen <- sub(".*_","", dfUniv$variable)
 dfUniv$variable <- sub("_.*","", dfUniv$variable)
 
 plt <- list()
-for (ind in 1:(dim(X)[2]/nAntigens)){
+for (ind in 1:(dim(X)[2]/nAntigens)) {
   plt[[ind]] <- ggplot(dfUniv[dfUniv$variable == unique(dfUniv$variable)[ind],], 
                        aes(x = antigen, y = value, fill = antigen)) +
-          geom_dotplot(binaxis = "y",  stackdir = "center", bins = 25, binposition = "all", stackratio = 0.7, dotsize = 1.5) +
+          geom_dotplot(binaxis = "y",  stackdir = "center", stackratio = 0.7, dotsize = 1.5) +
           stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,
                   eom = "crossbar", width = 0.5, size = 0.3) +
           scale_fill_manual(values = myColors$antigen) + 
-          labs(x = "",  y = feature_annot$unit[which(feature_annot$measurement == unique(dfUniv$variable)[ind])[1]]) +
+          labs(x = "",  y = feature_annot$unit[which(feature_annot$measurement == 
+                                                       unique(dfUniv$variable)[ind])[1]]) +
           ggtitle(unique(dfUniv$variable)[ind]) + 
           theme(panel.background = element_blank(),
                   panel.grid.major = element_blank(),
@@ -118,11 +127,11 @@ p <- ggarrange(plotlist = plt, ncol = ceiling((dim(X)[2]/nAntigens)/4), nrow = 4
 
 #pdf("univariate_dotPlot1.pdf", width = ceiling((dim(X)[2]/nAntigens)), height = 8) 
 print(p)
-#dev.off()
+#garb <- dev.off()
 #print(p)
 ```
 
-```{r univariate dotplots 2} 
+```{r univariate dotplots 2, message=FALSE, fig.width=10, fig.height=6}
 library(ggplot2)
 library(reshape2)
 
@@ -131,7 +140,7 @@ dfUniv$antigen <- sub(".*_","", dfUniv$variable)
 dfUniv$variable <- sub("_.*","", dfUniv$variable)
 
 p <- ggplot(dfUniv, aes(x = antigen, y = value, fill = antigen)) +
-      geom_dotplot(binaxis = 'y', stackdir = 'center', bins = 25, binposition = "all", stackratio = 0.7, dotsize = 1.5) + 
+      geom_dotplot(binaxis = 'y', stackdir = 'center', stackratio = 0.7, dotsize = 1.5) + 
       stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,
                  geom = "crossbar", width = 0.5, size = 0.3) +
       scale_fill_manual(values = myColors$antigen) + 
@@ -149,50 +158,66 @@ p <- ggplot(dfUniv, aes(x = antigen, y = value, fill = antigen)) +
             legend.title = element_blank()
             ) 
 
-#pdf("nivariate_dotPlot2.pdf", width = ceiling((dim(X)[2]/nAntigens)), height = 8) 
+#pdf("univariate_dotPlot2.pdf", width = ceiling((dim(X)[2]/nAntigens)), height = 8) 
 print(p)
-#dev.off()
+#garb <- dev.off()
 #print(p)
 ```
+
+## PCA
 
 ```{r PCA} 
 
 ```
 
-```{r  LASSO OPLS-DA for visualization} 
-selFeatures <- featureSelection(X, y, method = "lasso",
+## LASSO OPLS-DA
+
+For the generation of this markdown, the warnings are turned off. Generally, this is not recommended!
+
+```{r  LASSO OPLS-DA for visualization, fig.width=10, fig.height=6, warnings=FALSE, message=FALSE} 
+selFeatures <- featureSelection(X, yName, method = "lasso",
                                 nFeatRep = 100, nLassoFolds = 5, thresh = 25, alpha = 1)
 print(selFeatures)
   
 X_sel <- X[,which(colnames(X) %in% selFeatures)]
-pre_symbol <- try(oplsda <- opls(X_sel, factor(y), orthoI = NA, permI = 0, crossValI = 5))
+pre_symbol <- try(oplsda <- opls(X_sel, yName, orthoI = NA, permI = 0, crossValI = 5))
 isError <- is(pre_symbol, 'try-error')
 if (isError) {
-  oplsda <- opls(X_sel, factor(y), predI = 1, orthoI = 1, permI = 0, crossValI = 5)
+  oplsda <- opls(X_sel, yName, predI = 1, orthoI = 1, permI = 0, crossValI = 5)
 }
 ```
 
+## Visualization PLS-DA
+
 ```{r Visualization} 
 feature_annot$useColor <- myColors$antigen[feature_annot$antigen]
-plsBiplot(oplsda, y, color1 = myColors$class[["class1"]], color2 = myColors$class[["class2"]], alpha_loading = 0.5,
+plsBiplot(oplsda, yName, color1 = myColors$class[["class1"]], 
+          color2 = myColors$class[["class2"]], alpha_loading = 0.5,
           feature_annot = feature_annot)
 
-plsBarplot(oplsda, y, X_sel, color1 = myColors$class[["class1"]], color2 = myColors$class[["class2"]], 
+plsBarplot(oplsda, yName, X_sel, color1 = myColors$class[["class1"]], 
+           color2 = myColors$class[["class2"]], 
            feature_annot = feature_annot)
 
 ```
 
-```{r Model validation} 
-# change it to 1 and 2 in order to work?
-modVal <- modelValidation(X, y, nFolds = 5, nReps = 1, nPerms = 10, 
+## Model validation
+
+For the generation of this markdown, the warnings are turned off. Generally, this is not recommended!
+
+```{r Model validation, echo=FALSE, message=FALSE, warnings=FALSE, results='hide',} 
+knitr::opts_chunk$set(warning = FALSE)
+
+modVal <- modelValidation(X, yName, nFolds = 5, nReps = 2, nPerms = 10, 
                           nFeatRep = 10, thresh = 3)
 
 pvals <- visualizeModelValidation(modVal, type = "classification", modelColor = "gray")
-print(median(pvals))
+print(pvals)
 ```
 
+## Co-correlation network
 
-```{r Co-correlation network} 
+```{r Co-correlation network, message=FALSE} 
 library(tidyverse)
 library(corrr)
 library(igraph)

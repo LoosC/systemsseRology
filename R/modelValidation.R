@@ -5,7 +5,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                             type = "classification",
                             nFeatRep = 100, nLassoFolds = 5, thresh = 1,
                             alpha = 1, chooseS = "min", saveFlag = FALSE,
-                            fileStr = "accuraciesFullModel_withPerm") {
+                            fileStr = "accuraciesFullModel_withPerm", yPredOut = FALSE) {
 
     yPred <- matrix(NA, nrow = length(y), ncol = 1)
     acc <- matrix(NA, nrow = nReps, ncol = 1)
@@ -216,7 +216,11 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                               accPerm1 = accPerm1,
                               accPerm2 = accPerm2)
             } else {
-                output = list(acc = acc)
+                if (yPredOut) {
+                    output = list(acc = acc, yPred = yPred)
+                } else {
+                    output = list(acc = acc)
+                }
             }
         } else {
             if (nPerms > 0) {
@@ -227,8 +231,14 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                               rmsesPerm1 = rmsesPerm1,
                               rmsesPerm2 = rmsesPerm2)
             } else {
-                output = list(corr = corr,
-                              rmses = rmses)
+                if (yPredOut) {
+                    output = list(corr = corr,
+                                  rmses = rmses,
+                                  yPred = yPred)
+                } else {
+                    output = list(corr = corr,
+                                rmses = rmses)
+                }
             }
         }
         save(output, file = paste(fileStr, ".RData", sep = ""))
@@ -240,7 +250,11 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                           accPerm1 = accPerm1,
                           accPerm2 = accPerm2)
         } else {
-            output = list(acc = acc)
+            if (yPredOut) {
+                output = list(acc = acc, yPred = yPred)
+            } else {
+                output = list(acc = acc)
+            }
         }
     } else {
         if (nPerms > 0) {
@@ -251,8 +265,14 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                           rmsesPerm1 = rmsesPerm1,
                           rmsesPerm2 = rmsesPerm2)
         } else {
-            output = list(corr = corr,
-                          rmses = rmses)
+            if (yPredOut) {
+                output = list(corr = corr,
+                              rmses = rmses,
+                              yPred = yPred)
+            } else {
+                output = list(corr = corr,
+                              rmses = rmses)
+            }
         }
     }
 

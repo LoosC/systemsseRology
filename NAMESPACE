@@ -2,6 +2,7 @@
 
 export(featureSelection)
 export(modelValidation)
+export(pcaBiplot)
 export(plsBarplot)
 export(plsBiplot)
 export(visualizeModelValidation)
