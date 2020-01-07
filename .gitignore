@@ -4,3 +4,5 @@
 .Rproj.user
 Meta
 *.html
+doc/exampleAnalysis.R
+doc/exampleAnalysis.Rmd
