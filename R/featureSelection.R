@@ -31,15 +31,20 @@ featureSelection <- function(X, y, method = "lasso", type = "classification",
         tmpFeat <- data.frame(features = c("(Intercept)", colnames(X)))
         lastZero <- data.frame(features = c("(Intercept)", colnames(X)))
         mses <- rep(NA, nFeatRep)
-        if (type == "classification") {
-            y_vec <- rep(NA, length(y))
-            for (indClass in 1:length(unique(y))) {
-                y_vec[which(y == levels(y)[indClass])] <- indClass - 1
-            }
-        }
+        # if (type == "regression") {
+        #     y_vec <- rep(NA, length(y))
+        #     for (indClass in 1:length(unique(y))) {
+        #         y_vec[which(y == levels(y)[indClass])] <- indClass - 1
+        #     }
+        # }
         for (iRep in 1:nFeatRep) {
-            resLasso <- cv.glmnet(X, y_vec, type.measure = "mse", alpha = alpha,
-                                  family = "gaussian", nfolds = nLassoFolds)
+            if (type == "classification") {
+              resLasso <- cv.glmnet(X, y, type.measure = "mse", alpha = alpha,
+                                    family = "binomial", nfolds = nLassoFolds)
+            } else {
+              resLasso <- cv.glmnet(X, y, type.measure = "mse", alpha = alpha,
+                                    family = "gaussian", nfolds = nLassoFolds)
+            }
             mses[iRep] <- resLasso$cvm[which(resLasso$lambda == resLasso$lambda.min)]
             if (chooseS == "min") {
                 c <- coef(resLasso, s = "lambda.min")
