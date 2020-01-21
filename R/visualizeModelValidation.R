@@ -1,6 +1,6 @@
 #' @export
 
-visualizeModelValidation <- function(res, type, saveFlag = FALSE, fileStr = "modelValidation_acc", modelColor = "gray") {
+visualizeModelValidation <- function(res, type, saveFlag = FALSE, strSave = "", modelColor = "gray") {
 
     if (type == "classification") {
         value <- c(as.vector(res$acc),
@@ -36,7 +36,7 @@ visualizeModelValidation <- function(res, type, saveFlag = FALSE, fileStr = "mod
             stat_compare_means(comparisons = myComparisons, size = 0)
 
         if (saveFlag) {
-            pdf(paste(fileStr, ".pdf", sep = ""), width = 5, height = 3)
+            pdf(paste("Figures/modelValidation_acc_", strSave, ".pdf", sep = ""), width = 5, height = 3)
         }
         print(pltVio)
         dev.off()
@@ -84,6 +84,10 @@ visualizeModelValidation <- function(res, type, saveFlag = FALSE, fileStr = "mod
         dev.off()
         print(pltVio1)
 
+        value <- c(as.vector(res$rmses),
+                   as.vector(res$rmsesPerm1),
+                   as.vector(res$rmsesPerm2))
+        dfBox$value <- value
         pltVio2 <- ggplot(dfBox, aes(x = model, y = value, fill = model)) +
             geom_violin() +
             stat_summary(fun.y = "mean", colour = "black", size = 2, geom = "point") +
