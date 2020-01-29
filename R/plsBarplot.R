@@ -52,8 +52,9 @@ plsBarplot <- function(oplsda, y, X_sel, saveFlag = FALSE, fileStr = "",
         xlab("") +
         ylab("LV1 loadings") +
         theme(legend.position = "none",
-              axis.text.y = element_text(colour = feature_annot$useColor[match(dfBar$features[order(dfBar$vipScores)],
-                                                                               rownames(feature_annot))]))
+              axis.text.y = element_text(colour = as.character(
+                  feature_annot$useColor[match(dfBar$features[order(dfBar$vipScores)],
+                                               rownames(feature_annot))])))
 
     if (saveFlag) {
         pdf(paste(fileStr, "barPlot.pdf", sep = "_"), width = width, height = height)
@@ -70,8 +71,9 @@ plsBarplot <- function(oplsda, y, X_sel, saveFlag = FALSE, fileStr = "",
         theme_minimal() + coord_flip() + xlab("") +
         ylab("VIP scores") +
         theme(legend.position = "none",
-              axis.text.y = element_text(colour = feature_annot$useColor[match(dfBar$features[order(dfBar$vipScores)],
-                                                                               rownames(feature_annot))]))
+              axis.text.y = element_text(colour = as.character(
+                  feature_annot$useColor[match(dfBar$features[order(dfBar$vipScores)],
+                                               rownames(feature_annot))])))
     if (saveFlag) {
         pdf(paste(fileStr, "vipPlot.pdf", sep = "_"), width = width, height = height)
         print(pltVip)
@@ -79,7 +81,7 @@ plsBarplot <- function(oplsda, y, X_sel, saveFlag = FALSE, fileStr = "",
     }
     print(pltVip)
 
-    output <- list(pltBar = pltBar, pltVip = pltVip)
+    output <- list(pltBar = pltBar, pltVip = pltVip, dfBar = dfBar)
     return(output)
 
 }

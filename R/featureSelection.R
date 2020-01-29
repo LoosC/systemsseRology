@@ -3,7 +3,7 @@
 featureSelection <- function(X, y, method = "lasso", type = "classification",
                              nFeatRep = 100, chooseS = "min", nLassoFolds = 5, thresh = 1,
                              alpha = 1) {
-
+    nClasses <- length(unique(y))
     if (method == "none") {
         selFeatures <- colnames(X)
     } else if (method == "randomForest_RFE") {
@@ -31,49 +31,69 @@ featureSelection <- function(X, y, method = "lasso", type = "classification",
         tmpFeat <- data.frame(features = c("(Intercept)", colnames(X)))
         lastZero <- data.frame(features = c("(Intercept)", colnames(X)))
         mses <- rep(NA, nFeatRep)
-        # if (type == "regression") {
-        #     y_vec <- rep(NA, length(y))
-        #     for (indClass in 1:length(unique(y))) {
-        #         y_vec[which(y == levels(y)[indClass])] <- indClass - 1
-        #     }
-        # }
+        if (type == "classification") {
+            if (nClasses > 2) {
+                family = "multinomial"
+            }else {
+                family = "binomial"
+            }
+        } else {
+            family <- "gaussian"
+        }
         for (iRep in 1:nFeatRep) {
-            if (type == "classification") {
-              resLasso <- cv.glmnet(X, y, type.measure = "mse", alpha = alpha,
-                                    family = "binomial", nfolds = nLassoFolds)
-            } else {
-              resLasso <- cv.glmnet(X, y, type.measure = "mse", alpha = alpha,
-                                    family = "gaussian", nfolds = nLassoFolds)
-            }
+            resLasso <- cv.glmnet(X, y, type.measure = "mse", alpha = alpha,
+                                  family = family, nfolds = nLassoFolds)
             mses[iRep] <- resLasso$cvm[which(resLasso$lambda == resLasso$lambda.min)]
-            if (chooseS == "min") {
-                c <- coef(resLasso, s = "lambda.min")
-            } else {
-                c <- coef(resLasso, s = "lambda.1se")  # check again
-            }
-            tmpInds <- 1
-            for (ind in 2:length(c)) {
-                if (c[ind] != 0) {
-                  tmpInds <- c(tmpInds, ind)
-                }
-            }
-            selec <- rep(0, dim(X)[2] + 1)
-            selec[tmpInds] <- 1
-            tmpFeat <- cbind(tmpFeat, selec)
 
-            # last coefficient to set to 0
-            indLastZero <- which(resLasso$glmnet.fit$df > 1)[1]
-            if (!is.na(indLastZero)) {
-                c <- coef(resLasso, s = resLasso$lambda[indLastZero])
+            if (type == "classification" & nClasses > 2) {
+                if (chooseS == "min") {
+                    coefs <- coef(resLasso, s = "lambda.min")
+                } else {
+                    coefs <- coef(resLasso, s = "lambda.1se")  # check again
+                }
                 tmpInds <- 1
-                for (ind in 2:length(c)) {
-                  if (c[ind] != 0) {
-                    tmpInds <- c(tmpInds, ind)
-                  }
+                for (indY in 1:length(coefs)) {
+                    tmpCoefs <- coefs[[indY]]
+                    for (ind in 2:length(tmpCoefs)) {
+                        if (tmpCoefs[ind] != 0) {
+                            tmpInds <- c(tmpInds, ind)
+                        }
+                    }
+                }
+                selec <- rep(0, dim(X)[2] + 1)
+                selec[unique(tmpInds)] <- 1
+                tmpFeat <- cbind(tmpFeat, selec)
+                indLastZero <- NA
+            } else {
+                if (chooseS == "min") {
+                    coefs <- coef(resLasso, s = "lambda.min")
+                } else {
+                    coefs <- coef(resLasso, s = "lambda.1se")  # check again
+                }
+                tmpInds <- 1
+                for (ind in 2:length(coefs)) {
+                    if (coefs[ind] != 0) {
+                      tmpInds <- c(tmpInds, ind)
+                    }
                 }
                 selec <- rep(0, dim(X)[2] + 1)
                 selec[tmpInds] <- 1
-                lastZero <- cbind(lastZero, selec)
+                tmpFeat <- cbind(tmpFeat, selec)
+
+                # last coefficient to set to 0
+                indLastZero <- which(resLasso$glmnet.fit$df > 1)[1]
+                if (!is.na(indLastZero)) {
+                    coefs <- coef(resLasso, s = resLasso$lambda[indLastZero])
+                    tmpInds <- 1
+                    for (ind in 2:length(coefs)) {
+                      if (coefs[ind] != 0) {
+                        tmpInds <- c(tmpInds, ind)
+                      }
+                    }
+                    selec <- rep(0, dim(X)[2] + 1)
+                    selec[tmpInds] <- 1
+                    lastZero <- cbind(lastZero, selec)
+                }
             }
         }
         if (nFeatRep == 1) {

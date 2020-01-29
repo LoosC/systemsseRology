@@ -65,13 +65,24 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
             if (method == "randomForest") {
                 trainedModel <- randomForest(as.matrix(XTrainSel), yTrain)
             } else if (method == "pls") {
-                pre_symbol <- try(trainedModel <- opls(as.matrix(XTrainSel), yTrain, orthoI = NA,
-                                                       permI = 0, crossValI = 5, info.txtC = "none",
-                                                       fig.pdfC = "none"))
-                isError <- is(pre_symbol, "try-error")
-                if (isError) {
-                    trainedModel <- opls(as.matrix(XTrainSel), yTrain, orthoI = 1, predI = 1,
-                                         permI = 0, crossValI = 5, info.txtC = "none", fig.pdfC = "none")
+                if (length(levels(y)) > 2) {
+                    pre_symbol <- try(trainedModel <- opls(as.matrix(XTrainSel), yTrain,
+                                                           permI = 0, crossValI = 5, info.txtC = "none",
+                                                           fig.pdfC = "none"))
+                    isError <- is(pre_symbol, "try-error")
+                    if (isError) {
+                        trainedModel <- opls(as.matrix(XTrainSel), yTrain, predI = 2,
+                                             permI = 0, crossValI = 5, info.txtC = "none", fig.pdfC = "none")
+                    }
+                } else {
+                    pre_symbol <- try(trainedModel <- opls(as.matrix(XTrainSel), yTrain, orthoI = NA,
+                                                           permI = 0, crossValI = 5, info.txtC = "none",
+                                                           fig.pdfC = "none"))
+                    isError <- is(pre_symbol, "try-error")
+                    if (isError) {
+                        trainedModel <- opls(as.matrix(XTrainSel), yTrain, orthoI = 1, predI = 1,
+                                             permI = 0, crossValI = 5, info.txtC = "none", fig.pdfC = "none")
+                    }
                 }
             } else if (method == "logisticRegression") {
                 cv.lasso <- cv.glmnet(XTrainSel, yTrain, alpha = 1, family = "binomial")
@@ -115,16 +126,29 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                   if (method == "randomForest") {
                      trainedModel <- randomForest(as.matrix(XTrainSelPerm1), yTrain)
                   } else if (method == "pls") {
-                    pre_symbol <- try(trainedModel <- opls(XTrainSelPerm1, yTrain, orthoI = NA,
-                                                           permI = 0, crossValI = 5, info.txtC = "none",
-                      fig.pdfC = "none"))
-                    isError <- is(pre_symbol, "try-error")
-                    if (isError) {
-                        trainedModel <- opls(XTrainSelPerm1, yTrain, orthoI = 1,  predI = 1,
-                                             permI = 0, crossValI = 5, info.txtC = "none",
-                                             fig.pdfC = "none")
+                      if (length(levels(y)) > 2) {
+                          pre_symbol <- try(trainedModel <- opls(XTrainSelPerm1, yTrain,
+                                                                 permI = 0, crossValI = 5, info.txtC = "none",
+                                                                 fig.pdfC = "none"))
+                          isError <- is(pre_symbol, "try-error")
+                          if (isError) {
+                              trainedModel <- opls(XTrainSelPerm1, yTrain, predI = 2,
+                                                   permI = 0, crossValI = 5, info.txtC = "none",
+                                                   fig.pdfC = "none")
 
-                    }
+                          }
+                      } else {
+                        pre_symbol <- try(trainedModel <- opls(XTrainSelPerm1, yTrain, orthoI = NA,
+                                                               permI = 0, crossValI = 5, info.txtC = "none",
+                          fig.pdfC = "none"))
+                        isError <- is(pre_symbol, "try-error")
+                        if (isError) {
+                            trainedModel <- opls(XTrainSelPerm1, yTrain, orthoI = 1,  predI = 1,
+                                                 permI = 0, crossValI = 5, info.txtC = "none",
+                                                 fig.pdfC = "none")
+
+                        }
+                      }
                   } else if (method == "logisticRegression") {
                       cv.lasso <- cv.glmnet(XTrainSelPerm1, yTrain, alpha = 1, family = "binomial")
                       trainedModel <- glmnet(XTrainSelPerm1, yTrain, alpha = 1, family = "binomial",
@@ -156,15 +180,27 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                   if (method == "randomForest") {
                     trainedModel <- randomForest(as.matrix(XTrainSelPerm2), yTrainPerm)
                   } else if (method == "pls") {
-                    pre_symbol <- try(trainedModel <- opls(as.matrix(XTrainSelPerm2), yTrainPerm, orthoI = NA,
-                                                           permI = 0, crossValI = 5, info.txtC = "none",
-                      fig.pdfC = "none"))
-                    isError <- is(pre_symbol, "try-error")
-                    if (isError) {
-                        trainedModel <- opls(as.matrix(XTrainSelPerm2), yTrainPerm, predI = 1, orthoI = 1,
-                                             permI = 0, crossValI = 5, info.txtC = "none",
-                                             fig.pdfC = "none")
-                    }
+                      if (length(levels(y)) > 2) {
+                          pre_symbol <- try(trainedModel <- opls(as.matrix(XTrainSelPerm2), yTrainPerm,
+                                                                 permI = 0, crossValI = 5, info.txtC = "none",
+                                                                 fig.pdfC = "none"))
+                          isError <- is(pre_symbol, "try-error")
+                          if (isError) {
+                              trainedModel <- opls(as.matrix(XTrainSelPerm2), yTrainPerm, predI = 2,
+                                                   permI = 0, crossValI = 5, info.txtC = "none",
+                                                   fig.pdfC = "none")
+                          }
+                      } else {
+                        pre_symbol <- try(trainedModel <- opls(as.matrix(XTrainSelPerm2), yTrainPerm, orthoI = NA,
+                                                               permI = 0, crossValI = 5, info.txtC = "none",
+                          fig.pdfC = "none"))
+                        isError <- is(pre_symbol, "try-error")
+                        if (isError) {
+                            trainedModel <- opls(as.matrix(XTrainSelPerm2), yTrainPerm, predI = 1, orthoI = 1,
+                                                 permI = 0, crossValI = 5, info.txtC = "none",
+                                                 fig.pdfC = "none")
+                        }
+                      }
                   } else if (method == "logisticRegression") {
                       cv.lasso <- cv.glmnet(XTrainSelPerm2, yTrainPerm, alpha = 1, family = "binomial")
                       trainedModel <- glmnet(XTrainSelPerm2, yTrainPerm, alpha = 1, family = "binomial",
@@ -180,19 +216,14 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
         }
 
         if (type == "classification") {
-            yPred[which(yPred == 1)] <- levels(y)[1]
-            yPred[which(yPred == 2)] <- levels(y)[2]
-
+            yPred <- levels(y)[as.numeric(yPred)]
             acc[iRep] <- length(which(yPred == y))/length(y)
             if (nPerms > 0) {
-                yPredPerm1[which(yPredPerm1 == 1)] <- levels(y)[1]
-                yPredPerm1[which(yPredPerm1 == 2)] <- levels(y)[2]
-
-                yPredPerm2[which(yPredPerm2 == 1)] <- levels(y)[1]
-                yPredPerm2[which(yPredPerm2 == 2)] <- levels(y)[2]
                 for (iPerm in 1:nPerms) {
-                  accPerm1[iRep, iPerm] <- length(which(yPredPerm1[, iPerm] == y))/length(y)
-                  accPerm2[iRep, iPerm] <- length(which(yPredPerm2[, iPerm] == y))/length(y)
+                    yPredPerm1_tmp <- levels(y)[yPredPerm1[,iPerm]]
+                    yPredPerm2_tmp <- levels(y)[yPredPerm2[,iPerm]]
+                    accPerm1[iRep, iPerm] <- length(which(yPredPerm1_tmp == y))/length(y)
+                    accPerm2[iRep, iPerm] <- length(which(yPredPerm2_tmp == y))/length(y)
                 }
             }
         } else {
@@ -207,43 +238,41 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
                 }
             }
         }
-    }
-
-    if (saveFlag) {
-        if (type == "classification") {
-            if (nPerms > 0) {
-                output = list(acc = acc,
-                              accPerm1 = accPerm1,
-                              accPerm2 = accPerm2)
-            } else {
-                if (yPredOut) {
-                    output = list(acc = acc, yPred = yPred)
+        if (saveFlag) {
+            if (type == "classification") {
+                if (nPerms > 0) {
+                    output = list(acc = acc,
+                                  accPerm1 = accPerm1,
+                                  accPerm2 = accPerm2)
                 } else {
-                    output = list(acc = acc)
+                    if (yPredOut) {
+                        output = list(acc = acc, yPred = yPred)
+                    } else {
+                        output = list(acc = acc)
+                    }
                 }
-            }
-        } else {
-            if (nPerms > 0) {
-                output = list(corr = corr,
-                              corrPerm1 = corrPerm1,
-                              corrPerm2 = corrPerm2,
-                              rmses = rmses,
-                              rmsesPerm1 = rmsesPerm1,
-                              rmsesPerm2 = rmsesPerm2)
             } else {
-                if (yPredOut) {
+                if (nPerms > 0) {
                     output = list(corr = corr,
+                                  corrPerm1 = corrPerm1,
+                                  corrPerm2 = corrPerm2,
                                   rmses = rmses,
-                                  yPred = yPred)
+                                  rmsesPerm1 = rmsesPerm1,
+                                  rmsesPerm2 = rmsesPerm2)
                 } else {
-                    output = list(corr = corr,
-                                rmses = rmses)
+                    if (yPredOut) {
+                        output = list(corr = corr,
+                                      rmses = rmses,
+                                      yPred = yPred)
+                    } else {
+                        output = list(corr = corr,
+                                      rmses = rmses)
+                    }
                 }
             }
+            save(output, file = paste(fileStr, ".RData", sep = ""))
         }
-        save(output, file = paste(fileStr, ".RData", sep = ""))
     }
-
     if (type == "classification") {
         if (nPerms > 0) {
             output = list(acc = acc,
