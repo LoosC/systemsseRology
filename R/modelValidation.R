@@ -1,11 +1,30 @@
+#' Model validation using permutation testing
+#'
+#' @param X data matrix
+#' @param y label/values
+#' @param nFolds for n-fold crossvalidatoin
+#' @param nReps number of repetitions
+#' @param nPerms number of permutations per repetition
+#' @param type "classification" or "regression"
+#' @param method for classification/regression, options are "pls", "randomForest", "logisticRegression",
+#' @param featureMethod for feature selection, see featureSelection.R
+#' @param nFeatRep see featureSelection.R
+#' @param nLassoFolds see featureSelection.R
+#' @param thresh see featureSelection.R
+#' @param alpha see featureSelection.R
+#' @param chooseS see featureSelection.R
+#' @param saveFlag whether to save the output
+#' @param fileStr string where RData should be saved
+#' @param yPredOut flag whether predicted output should be returned
+#' @return metrics of performance (accuracy or correlation/rmses) for models based on
+#' real data or prandom features/ ermuted labels
 #' @export
 
-modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100,
-                            nTop = 5, featureMethod = "lasso", method = "pls",
-                            type = "classification",
-                            nFeatRep = 100, nLassoFolds = 5, thresh = 1,
-                            alpha = 1, chooseS = "min", saveFlag = FALSE,
-                            fileStr = "accuraciesFullModel_withPerm", yPredOut = FALSE) {
+modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "classification",
+                            method = "pls", featureMethod = "lasso",
+                            nFeatRep = 100, nLassoFolds = 5, thresh = 1, alpha = 1, chooseS = "min",
+                            saveFlag = FALSE, fileStr = "accuraciesFullModel_withPerm",
+                            yPredOut = FALSE) {
 
     yPred <- matrix(NA, nrow = length(y), ncol = 1)
     acc <- matrix(NA, nrow = nReps, ncol = 1)

@@ -1,10 +1,27 @@
+#' Visualization for PLS-R/PLS-DA results
+#'
+#' @param oplsda PLS object
+#' @param y label/values
+#' @param type "classification" or "regression"
+#' @param saveFlag whether to save the figures
+#' @param fileStr string where figures should be saved
+#' @param alpha_loading value for plotting the loadings vectors
+#' @param orth flag whether orthogonalized version of PLS is used
+#' @param feature_annot data frame with annotations for the features (colors,...)
+#' @return
 #' @export
 
-plsBiplot <- function(oplsda, y, saveFlag = FALSE, fileStr = "",
+plsBiplot <- function(oplsda, y, type = "classification",
+                      feature_annot = data.frame(),
+                      saveFlag = FALSE, fileStr = "",
+                      alpha_loading = 1,
                       color1 = "red", color2 = "blue", myColors_class = NA,
                       shape1 = 21, shape2 = 21, fontsize = 4,
-                      alpha_loading = 1, feature_annot = data.frame(),
                       orth = TRUE) {
+
+    if (type == "classification") {
+        nClasses <- length(levels(y))
+    }
 
     if (is.na(myColors_class[[1]])) {
         myColors_class <- c(color1, color2)
