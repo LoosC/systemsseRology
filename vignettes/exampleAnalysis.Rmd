@@ -90,6 +90,17 @@ print(p)
 #print(p)
 ```
 
+## Correlation matrix
+
+```{r correlation matrix, fig.height=2, fig.width=2, message=TRUE}
+tmpCor <- cor(X_unscaled, method = "spearman")
+p <- pheatmap(tmpCor, cluster_cols = FALSE, cluster_rows = FALSE,
+        cellwidth = 5, cellheight = 5, fontsize = 6, border_color = NA,
+        color = colorRampPalette(brewer.pal(n = 10, name = "RdBu"))(100), 
+        breaks = seq(-1, 1, length = 100),)
+print(p)
+```
+
 ## Two flavors of univariate dotplots
 
 ```{r univariate dotplots 1, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
