@@ -31,7 +31,7 @@ library(ggrepel)
 myColors = list(
     feature_class = c(titer = "#797d7f", FcR = "#424949", func = "#cacfd2"),
     antigen = c(ag1 = "#FB9301", ag2 = "#0B1892", ag3 = "#9A1C73", ag4 = "#1A8E00"),
-    class = c(class1 = "#1f618d", class2 = "#5dade2")
+    class = c(class1 = "#1f618d", class2 = "#5dade2", class3 = "red")
     )
 ```
 
@@ -54,7 +54,7 @@ colnames(X_unscaled) <- feature_names
 X <- scale(X_unscaled, center = TRUE, scale = TRUE) 
 
 #y <- rep(c(0,1), c(10, 20))
-yName <- factor(rep(c("class1", "class2"), c(10, 20), levels = c("class1", "class2")))
+yName <- factor(rep(c("class1", "class2", "class3"), c(10, 15, 5), levels = c("class1", "class2", "class3")))
 
 nAntigens <- 4
 nSamples <- dim(X)[1]
@@ -191,10 +191,10 @@ selFeatures <- featureSelection(X, yName, method = "lasso",
 print(selFeatures)
   
 X_sel <- X[,which(colnames(X) %in% selFeatures)]
-pre_symbol <- try(oplsda <- opls(X_sel, yName, orthoI = NA, permI = 0, crossValI = 5))
+pre_symbol <- try(oplsda <- opls(X_sel, yName,  permI = 0, crossValI = 5))
 isError <- is(pre_symbol, 'try-error')
 if (isError) {
-  oplsda <- opls(X_sel, yName, predI = 1, orthoI = 1, permI = 0, crossValI = 5)
+  oplsda <- opls(X_sel, yName, predI = 2,  permI = 0, crossValI = 5)
 }
 ```
 
@@ -202,8 +202,7 @@ if (isError) {
 
 ```{r Visualization} 
 feature_annot$useColor <- myColors$antigen[feature_annot$antigen]
-plsBiplot(oplsda, yName, color1 = myColors$class[["class1"]], 
-          color2 = myColors$class[["class2"]], alpha_loading = 0.5,
+plsBiplot(oplsda, yName, colors_y = myColors$class, alpha_loading = 0.5,
           feature_annot = feature_annot)
 
 plsBarplot(oplsda, yName, X_sel, color1 = myColors$class[["class1"]], 

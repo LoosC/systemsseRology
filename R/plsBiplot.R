@@ -15,17 +15,22 @@ plsBiplot <- function(oplsda, y, type = "classification",
                       feature_annot = data.frame(),
                       saveFlag = FALSE, fileStr = "",
                       alpha_loading = 1,
-                      color1 = "red", color2 = "blue", myColors_class = NA,
+                      colors_y = NA,
                       shape1 = 21, shape2 = 21, fontsize = 4,
                       orth = TRUE) {
 
     if (type == "classification") {
         nClasses <- length(levels(y))
+        if (is.na(colors_y[[1]])) {
+            colors_y <- brewer.pal(nClasses, "Spectral")
+            names(colors_y) <- levels(y)
+        }
+    } else {
+        if (is.na(colors_y[[1]])) {
+            colors_y <- brewer.pal(100, "Dark2")
+        }
     }
 
-    if (is.na(myColors_class[[1]])) {
-        myColors_class <- c(color1, color2)
-    }
     if (orth) {
         scoresLV1 <- getScoreMN(oplsda)
         scoresTmp <- getScoreMN(oplsda, orthoL = TRUE)
@@ -36,13 +41,13 @@ plsBiplot <- function(oplsda, y, type = "classification",
         scoresLV1_2 <- getScoreMN(oplsda)
         dfScores <- data.frame(LV1 = scoresLV1_2[ ,1],
                                LV2 = scoresLV1_2[, 2],
-                               class = y)
+                               y = y)
     }
-    colnames(dfScores) <- c("LV1", "LV2", "class")
+    colnames(dfScores) <- c("LV1", "LV2", "y")
 
     if (length(unique(y)) == 2) {
-        pltScores <- ggplot(dfScores, aes(LV1, LV2, color = class, shape = class)) +
-            geom_point(aes(fill = class), color = "black", size = 3,
+        pltScores <- ggplot(dfScores, aes(LV1, LV2, color = y, shape = class)) +
+            geom_point(aes(fill = y), color = "black", size = 3,
                        stroke = 0.6) + theme(aspect.ratio = 1) +
             scale_fill_manual(breaks = levels(y), values = myColors_class) +
             labs(x = paste("scores on LV1 (", toString(oplsda@modelDF$R2X[1] * 100), "%)", sep = ""),
@@ -56,17 +61,18 @@ plsBiplot <- function(oplsda, y, type = "classification",
             geom_hline(yintercept = 0, size = 0.3) +
             scale_shape_manual(breaks = levels(y), values = c(shape1, shape2))
     } else {
-        pltScores <- ggplot(dfScores, aes(LV1, LV2, color = class)) +
+        pltScores <- ggplot(dfScores, aes(LV1, LV2, color = y)) +
             geom_point(size = 3,
                        stroke = 0.6) + theme(aspect.ratio = 1) +
-            scale_color_manual(values = myColors_class) +
+            scale_color_manual(values = colors_y) +
             labs(x = paste("scores on LV1 (", toString(oplsda@modelDF$R2X[1] * 100), "%)", sep = ""),
                  y = paste("scores on LV2 (", toString(oplsda@modelDF$R2X[2] * 100), "%)", sep = "")) +
             theme(panel.background = element_blank(),
                   axis.line = element_line(colour = "black"),
                   panel.grid.major = element_blank(),
-                  legend.key = element_blank(),
-                  legend.position = "none") +
+                  #legend.key = element_blank(),
+                  #legend.position = "none"
+                  ) +
             geom_vline(xintercept = 0, size = 0.3) +
             geom_hline(yintercept = 0, size = 0.3)
     }
