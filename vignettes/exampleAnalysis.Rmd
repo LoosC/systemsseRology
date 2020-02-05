@@ -35,6 +35,14 @@ myColors = list(
     )
 ```
 
+```{r colors and shapes etc} 
+myColors = list(
+    feature_class = c(titer = "#797d7f", FcR = "#424949", func = "#cacfd2"),
+    antigen = c(ag1 = "#FB9301", ag2 = "#0B1892", ag3 = "#9A1C73", ag4 = "#1A8E00"),
+    class = c(class1 = "#1f618d", class2 = "#5dade2")
+    )
+```
+
 ## Generate toy data
 
 ```{r load data} 
@@ -54,7 +62,8 @@ colnames(X_unscaled) <- feature_names
 X <- scale(X_unscaled, center = TRUE, scale = TRUE) 
 
 #y <- rep(c(0,1), c(10, 20))
-yName <- factor(rep(c("class1", "class2", "class3"), c(10, 15, 5), levels = c("class1", "class2", "class3")))
+#yName <- factor(rep(c("class1", "class2", "class3"), c(10, 15, 5), levels = c("class1", "class2", "class3")))
+yName <- factor(rep(c("class1", "class2"), c(10, 20), levels = c("class1", "class2")))
 
 nAntigens <- 4
 nSamples <- dim(X)[1]
@@ -187,7 +196,7 @@ For the generation of this markdown, the warnings are turned off. Generally, thi
 
 ```{r  LASSO OPLS-DA for visualization, fig.width=10, fig.height=6, warnings=FALSE, message=FALSE} 
 selFeatures <- featureSelection(X, yName, method = "lasso",
-                                nFeatRep = 100, nLassoFolds = 5, thresh = 25, alpha = 1)
+                                nFeatRep = 10, nLassoFolds = 5, thresh = 2, alpha = 1)
 print(selFeatures)
   
 X_sel <- X[,which(colnames(X) %in% selFeatures)]
@@ -203,10 +212,19 @@ if (isError) {
 ```{r Visualization} 
 feature_annot$useColor <- myColors$antigen[feature_annot$antigen]
 plsBiplot(oplsda, yName, colors_y = myColors$class, alpha_loading = 0.5,
-          feature_annot = feature_annot)
+          feature_annot = feature_annot, orth = FALSE)
 
-plsBarplot(oplsda, yName, X_sel, color1 = myColors$class[["class1"]], 
-           color2 = myColors$class[["class2"]], 
+# to test color
+library(RColorBrewer)
+plsBiplot(oplsda, yName, alpha_loading = 0.5,
+          feature_annot = feature_annot, orth = FALSE)
+
+# just to test regression plot
+plsBiplot(oplsda, 1:length(yName), alpha_loading = 0.5,
+          feature_annot = feature_annot, orth = FALSE, type = "regression")
+ 
+
+plsBarplot(oplsda, yName, X_sel, colors_y = myColors$class,
            feature_annot = feature_annot)
 
 ```

@@ -1,33 +1,35 @@
-#' Visualization for PLS-R/PLS-DA results
+#' Visualization for PLS-R/PLS-DA results, namely, score and loadings plot
 #'
 #' @param oplsda PLS object
 #' @param y label/values
 #' @param type "classification" or "regression"
+#' @param feature_annot data frame with annotations for the features (colors,...)
 #' @param saveFlag whether to save the figures
 #' @param fileStr string where figures should be saved
 #' @param alpha_loading value for plotting the loadings vectors
+#' @param colors_y color for the classes
+#' @param fontsize fontzise used for the plots
 #' @param orth flag whether orthogonalized version of PLS is used
-#' @param feature_annot data frame with annotations for the features (colors,...)
 #' @return
 #' @export
 
-plsBiplot <- function(oplsda, y, type = "classification",
+plsBiplot <- function(oplsda,
+                      y,
+                      type = "classification",
                       feature_annot = data.frame(),
-                      saveFlag = FALSE, fileStr = "",
+                      saveFlag = FALSE,
+                      fileStr = "",
                       alpha_loading = 1,
                       colors_y = NA,
-                      shape1 = 21, shape2 = 21, fontsize = 4,
+                      fontsize = 4,
                       orth = TRUE) {
 
     if (type == "classification") {
         nClasses <- length(levels(y))
         if (is.na(colors_y[[1]])) {
-            colors_y <- brewer.pal(nClasses, "Spectral")
+            library(RColorBrewer)
+            colors_y <- brewer.pal(8, "Dark2")
             names(colors_y) <- levels(y)
-        }
-    } else {
-        if (is.na(colors_y[[1]])) {
-            colors_y <- brewer.pal(100, "Dark2")
         }
     }
 
@@ -36,7 +38,7 @@ plsBiplot <- function(oplsda, y, type = "classification",
         scoresTmp <- getScoreMN(oplsda, orthoL = TRUE)
         dfScores <- data.frame(LV1 = scoresLV1,
                                LV2 = scoresTmp[, 1],
-                               class = y)
+                               y = y)
     } else {
         scoresLV1_2 <- getScoreMN(oplsda)
         dfScores <- data.frame(LV1 = scoresLV1_2[ ,1],
@@ -45,36 +47,23 @@ plsBiplot <- function(oplsda, y, type = "classification",
     }
     colnames(dfScores) <- c("LV1", "LV2", "y")
 
-    if (length(unique(y)) == 2) {
-        pltScores <- ggplot(dfScores, aes(LV1, LV2, color = y, shape = class)) +
-            geom_point(aes(fill = y), color = "black", size = 3,
-                       stroke = 0.6) + theme(aspect.ratio = 1) +
-            scale_fill_manual(breaks = levels(y), values = myColors_class) +
-            labs(x = paste("scores on LV1 (", toString(oplsda@modelDF$R2X[1] * 100), "%)", sep = ""),
-                 y = paste("scores on LV2 (", toString(oplsda@modelDF$R2X[2] * 100), "%)", sep = "")) +
-            theme(panel.background = element_blank(),
-                  axis.line = element_line(colour = "black"),
-                  panel.grid.major = element_blank(),
-                  legend.key = element_blank(),
-                  legend.position = "none") +
-            geom_vline(xintercept = 0, size = 0.3) +
-            geom_hline(yintercept = 0, size = 0.3) +
-            scale_shape_manual(breaks = levels(y), values = c(shape1, shape2))
-    } else {
-        pltScores <- ggplot(dfScores, aes(LV1, LV2, color = y)) +
-            geom_point(size = 3,
-                       stroke = 0.6) + theme(aspect.ratio = 1) +
-            scale_color_manual(values = colors_y) +
-            labs(x = paste("scores on LV1 (", toString(oplsda@modelDF$R2X[1] * 100), "%)", sep = ""),
-                 y = paste("scores on LV2 (", toString(oplsda@modelDF$R2X[2] * 100), "%)", sep = "")) +
-            theme(panel.background = element_blank(),
-                  axis.line = element_line(colour = "black"),
-                  panel.grid.major = element_blank(),
-                  #legend.key = element_blank(),
-                  #legend.position = "none"
-                  ) +
-            geom_vline(xintercept = 0, size = 0.3) +
-            geom_hline(yintercept = 0, size = 0.3)
+    pltScores <- ggplot(dfScores, aes(LV1, LV2, color = y)) +
+        geom_point(aes(color = y), size = 3,
+                   stroke = 0.6) +
+        labs(x = paste("scores on LV1 (", toString(oplsda@modelDF$R2X[1] * 100), "%)", sep = ""),
+             y = paste("scores on LV2 (", toString(oplsda@modelDF$R2X[2] * 100), "%)", sep = "")) +
+        theme_set(theme_bw()) +
+        theme(panel.background = element_blank(),
+              axis.line = element_line(colour = "black"),
+              panel.grid.major = element_blank(),
+              legend.key = element_blank(),
+              #legend.position = "none",
+              aspect.ratio = 1
+              ) +
+        geom_vline(xintercept = 0, size = 0.3) +
+        geom_hline(yintercept = 0, size = 0.3)
+    if (type == "classification") {
+        pltScores <- pltScores + scale_color_manual(breaks = levels(y), values = colors_y)
     }
 
     if (saveFlag) {
@@ -85,10 +74,17 @@ plsBiplot <- function(oplsda, y, type = "classification",
     print(pltScores)
 
     # Loading Plot
-    loadingsLV1 <- getLoadingMN(oplsda)
-    loadingsTmp <- getLoadingMN(oplsda, orthoL = TRUE)
-    dfLoadings <- data.frame(LV1 = loadingsLV1,
-                             LV2 = loadingsTmp[, 1])
+    if (orth) {
+        loadingsLV1 <- getLoadingMN(oplsda)
+        loadingsTmp <- getLoadingMN(oplsda, orthoL = TRUE)
+        dfLoadings <- data.frame(LV1 = loadingsLV1,
+                                 LV2 = loadingsTmp[, 1])
+    } else {
+        loadings <- getLoadingMN(oplsda)
+        dfLoadings <- data.frame(LV1 = loadings[, 1],
+                                 LV2 = loadings[, 2])
+        rownames(dfLoadings) <- rownames(loadings)
+    }
     colnames(dfLoadings) <- c("LV1", "LV2")
 
     if (dim(feature_annot)[1] == 0) {
@@ -105,7 +101,6 @@ plsBiplot <- function(oplsda, y, type = "classification",
     pltLoadings <- ggplot(dfLoadings, aes(LV1, LV2, label = rownames(dfLoadings))) +
         geom_point(size = 0.5, color = feature_annot$useColor[match(rownames(dfLoadings),
                                                                     rownames(feature_annot))]) +
-        theme(aspect.ratio = 1) +
         labs(x = "loadings on LV1", y = "loadings on LV2") +
         geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
                      alpha = alpha_loading,
@@ -117,7 +112,8 @@ plsBiplot <- function(oplsda, y, type = "classification",
         theme(panel.background = element_blank(),
               axis.line = element_line(colour = "black"),
               panel.grid.major = element_blank(),
-              legend.title = element_blank()) +
+              legend.title = element_blank(),
+              aspect.ratio = 1) +
         geom_vline(xintercept = 0, size = 0.3) +
         geom_hline(yintercept = 0, size = 0.3)
 

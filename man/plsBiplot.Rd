@@ -2,7 +2,7 @@
 % Please edit documentation in R/plsBiplot.R
 \name{plsBiplot}
 \alias{plsBiplot}
-\title{Visualization for PLS-R/PLS-DA results}
+\title{Visualization for PLS-R/PLS-DA results, namely, score and loadings plot}
 \usage{
 plsBiplot(
   oplsda,
@@ -12,11 +12,7 @@ plsBiplot(
   saveFlag = FALSE,
   fileStr = "",
   alpha_loading = 1,
-  color1 = "red",
-  color2 = "blue",
-  myColors_class = NA,
-  shape1 = 21,
-  shape2 = 21,
+  colors_y = NA,
   fontsize = 4,
   orth = TRUE
 )
@@ -36,11 +32,15 @@ plsBiplot(
 
 \item{alpha_loading}{value for plotting the loadings vectors}
 
+\item{colors_y}{color for the classes}
+
+\item{fontsize}{fontzise used for the plots}
+
 \item{orth}{flag whether orthogonalized version of PLS is used}
 }
 \value{
 
 }
 \description{
-Visualization for PLS-R/PLS-DA results
+Visualization for PLS-R/PLS-DA results, namely, score and loadings plot
 }
