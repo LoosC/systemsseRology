@@ -60,10 +60,10 @@ nAntigens <- 4
 nSamples <- dim(X)[1]
   
 feature_annot <- data.frame(label = feature_names,
-                         antigen = gsub(".*_","", feature_names),
-                         measurements = gsub("_.*","", feature_names),
-                         unit = rep(c("Phagocytosis Score", "MFI", "MFI"), c(8, 8, 12)),
-                         feature_class = rep(c("func", "FcR", "titer"), c(8, 8, 12)))
+                            antigen = gsub(".*_","", feature_names),
+                            measurements = gsub("_.*","", feature_names),
+                            unit = rep(c("Phagocytosis Score", "MFI", "MFI"), c(8, 8, 12)),
+                            feature_class = rep(c("func", "FcR", "titer"), c(8, 8, 12)))
 feature_annot$antigen <- factor(feature_annot$antigen, levels = antigen)
 rownames(feature_annot) <- colnames(X)
 ```
@@ -214,11 +214,7 @@ plsBarplot(oplsda, yName, X_sel, color1 = myColors$class[["class1"]],
 
 ## Model validation
 
-For the generation of this markdown, the warnings are turned off. Generally, this is not recommended!
-
-```{r Model validation, echo=FALSE, message=FALSE, warnings=FALSE, results='hide',} 
-knitr::opts_chunk$set(warning = FALSE)
-
+```{r Model validation} 
 modVal <- modelValidation(X, yName, nFolds = 5, nReps = 2, nPerms = 10, 
                           nFeatRep = 10, thresh = 3)
 

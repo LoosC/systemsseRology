@@ -7,17 +7,17 @@
 #' @param nPerms number of permutations per repetition
 #' @param type "classification" or "regression"
 #' @param method for classification/regression, options are "pls", "randomForest", "logisticRegression",
-#' @param featureMethod for feature selection, see featureSelection.R
-#' @param nFeatRep see featureSelection.R
-#' @param nLassoFolds see featureSelection.R
-#' @param thresh see featureSelection.R
-#' @param alpha see featureSelection.R
-#' @param chooseS see featureSelection.R
+#' @param featureMethod method for feature selection, @seealso \link{featureSelection.R}
+#' @param nFeatRep @seealso \link{featureSelection.R}
+#' @param nLassoFolds @seealso \link{featureSelection.R}
+#' @param thresh @seealso \link{featureSelection.R}
+#' @param alpha @seealsoe \link{featureSelection.R}
+#' @param chooseS @seealso \link{featureSelection.R}
 #' @param saveFlag whether to save the output
 #' @param fileStr string where RData should be saved
 #' @param yPredOut flag whether predicted output should be returned
-#' @return metrics of performance (accuracy or correlation/rmses) for models based on
-#' real data or prandom features/ ermuted labels
+#' @return Metrics of performance (accuracy or correlation/rmses) for models based on
+#' real data or random features/ ermuted labels
 #' @export
 
 modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "classification",

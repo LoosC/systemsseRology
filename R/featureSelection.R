@@ -1,4 +1,27 @@
+#' Performs feature selection using different methods.
+#'
 #' @export
+#' @param X data matrix, the column names are the featues
+#' @param y label/values
+#' @param method for feature selection:
+#' \itemize{
+#'  \item "none": all features are used
+#'  \item "lasso": performs \code{nFeatRep} repetitions of penalized regression (linear for type = "regression", logistic for type = "classification")
+#'  are performed and the features which are chosen at least \code{thresh} times are selected. Requires the package `glmnet`
+#'  \item "lasso_min_mse": performs \code{nFeatRep} repetitions of penalized regression (linear for type = "regression", logistic for type = "classification")
+#'  and choses the feature set with the overall lowest mean squared error (MSE).
+#'  \item"randomForest_RFE": random forest recursive feature elimination (RFE). In each iteration the feature with lowest improtance is eliminated,
+#'  finally the feature set is chosen which has the overall lowest out of bag error. Requires the package `randomForest`
+#'  }
+#' @param nFeatRep only used for method = "lasso" or "lasso_min_mse"
+#' @param nLassoFolds Performs \code{nLassoFolds}-fold crossvalidation to determine penalization parameter. only used for method = "lasso"
+#' @param thresh only used for method = "lasso"
+#' @param chooseS determines whether the regularization parameter is chosen for each repetition of LASSO which
+#' provides the minimal MSE ("min"), or the most regularized model within one standard error of the minimal MSE is chosen.
+#' Only used for method = "lasso" or "lasso_min_mse"
+#' @param alpha Elastic-net mixing parameter (see documentatino of glmnet). alpha = 1 corresponds to standard LASSO.
+#' Only used for method = "lasso" or "lasso_min_mse"
+#' @return Names of the selected features
 
 featureSelection <- function(X, y, method = "lasso", type = "classification",
                              nFeatRep = 100, chooseS = "min", nLassoFolds = 5, thresh = 1,
@@ -7,11 +30,12 @@ featureSelection <- function(X, y, method = "lasso", type = "classification",
     if (method == "none") {
         selFeatures <- colnames(X)
     } else if (method == "randomForest_RFE") {
-        X_red <- X
+        X_red <- X # matrix with reduced featuers
         featSel <- data.frame(matrix(1, ncol = dim(X)[2], nrow = dim(X)[2] + 1))
-        rownames(featSel) <- c(colnames(X), "oob")
+        rownames(featSel) <- c(colnames(X), "oob") # add column for the out of bag error ("oob")
         colnames(featSel) <- 1:dim(X)[2]
         for (ind in 1:(dim(X)[2])) {
+            # Perfom random forest training (with default parameters) and calculate the out of bag error for this iteration
             if (type == "classification") {
                 rf <- randomForest(as.matrix(X_red), as.factor(y))
                 featSel[dim(X)[2] + 1, ind] <- mean(predict(rf) != y)
@@ -19,6 +43,7 @@ featureSelection <- function(X, y, method = "lasso", type = "classification",
                 rf <- randomForest(as.matrix(X_red), as.vector(y))
                 featSel[dim(X)[2] + 1, ind] <- mean(sqrt(mean((y - predict(rf))^2)))
             }
+            # Remove the feature which has the lowest importance
             if (ind < dim(X)[2]) {
                 remFeature <- rownames(rf$importance)[which(rf$importance == min(rf$importance))[1]]
                 X_red <- X_red[, -which(colnames(X_red) == remFeature)]
