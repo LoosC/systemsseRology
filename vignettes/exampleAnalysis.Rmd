@@ -31,6 +31,14 @@ library(ggrepel)
 myColors = list(
     feature_class = c(titer = "#797d7f", FcR = "#424949", func = "#cacfd2"),
     antigen = c(ag1 = "#FB9301", ag2 = "#0B1892", ag3 = "#9A1C73", ag4 = "#1A8E00"),
+    class = c(class1 = "#1f618d", class2 = "#5dade2", class3 = "red")
+    )
+```
+
+```{r colors and shapes etc} 
+myColors = list(
+    feature_class = c(titer = "#797d7f", FcR = "#424949", func = "#cacfd2"),
+    antigen = c(ag1 = "#FB9301", ag2 = "#0B1892", ag3 = "#9A1C73", ag4 = "#1A8E00"),
     class = c(class1 = "#1f618d", class2 = "#5dade2")
     )
 ```
@@ -54,16 +62,17 @@ colnames(X_unscaled) <- feature_names
 X <- scale(X_unscaled, center = TRUE, scale = TRUE) 
 
 #y <- rep(c(0,1), c(10, 20))
+#yName <- factor(rep(c("class1", "class2", "class3"), c(10, 15, 5), levels = c("class1", "class2", "class3")))
 yName <- factor(rep(c("class1", "class2"), c(10, 20), levels = c("class1", "class2")))
 
 nAntigens <- 4
 nSamples <- dim(X)[1]
   
 feature_annot <- data.frame(label = feature_names,
-                         antigen = gsub(".*_","", feature_names),
-                         measurements = gsub("_.*","", feature_names),
-                         unit = rep(c("Phagocytosis Score", "MFI", "MFI"), c(8, 8, 12)),
-                         feature_class = rep(c("func", "FcR", "titer"), c(8, 8, 12)))
+                            antigen = gsub(".*_","", feature_names),
+                            measurements = gsub("_.*","", feature_names),
+                            unit = rep(c("Phagocytosis Score", "MFI", "MFI"), c(8, 8, 12)),
+                            feature_class = rep(c("func", "FcR", "titer"), c(8, 8, 12)))
 feature_annot$antigen <- factor(feature_annot$antigen, levels = antigen)
 rownames(feature_annot) <- colnames(X)
 ```
@@ -88,6 +97,17 @@ p <-  pheatmap(X, cellwidth = 5, cellheight = 5, fontsize = 6,
 print(p)
 #garb <- dev.off()
 #print(p)
+```
+
+## Correlation matrix
+
+```{r correlation matrix, fig.height=2, fig.width=2, message=TRUE}
+tmpCor <- cor(X_unscaled, method = "spearman")
+p <- pheatmap(tmpCor, cluster_cols = FALSE, cluster_rows = FALSE,
+        cellwidth = 5, cellheight = 5, fontsize = 6, border_color = NA,
+        color = colorRampPalette(brewer.pal(n = 10, name = "RdBu"))(100), 
+        breaks = seq(-1, 1, length = 100),)
+print(p)
 ```
 
 ## Two flavors of univariate dotplots
@@ -176,14 +196,14 @@ For the generation of this markdown, the warnings are turned off. Generally, thi
 
 ```{r  LASSO OPLS-DA for visualization, fig.width=10, fig.height=6, warnings=FALSE, message=FALSE} 
 selFeatures <- featureSelection(X, yName, method = "lasso",
-                                nFeatRep = 100, nLassoFolds = 5, thresh = 25, alpha = 1)
+                                nFeatRep = 10, nLassoFolds = 5, thresh = 2, alpha = 1)
 print(selFeatures)
   
 X_sel <- X[,which(colnames(X) %in% selFeatures)]
-pre_symbol <- try(oplsda <- opls(X_sel, yName, orthoI = NA, permI = 0, crossValI = 5))
+pre_symbol <- try(oplsda <- opls(X_sel, yName,  permI = 0, crossValI = 5))
 isError <- is(pre_symbol, 'try-error')
 if (isError) {
-  oplsda <- opls(X_sel, yName, predI = 1, orthoI = 1, permI = 0, crossValI = 5)
+  oplsda <- opls(X_sel, yName, predI = 2,  permI = 0, crossValI = 5)
 }
 ```
 
@@ -191,23 +211,27 @@ if (isError) {
 
 ```{r Visualization} 
 feature_annot$useColor <- myColors$antigen[feature_annot$antigen]
-plsBiplot(oplsda, yName, color1 = myColors$class[["class1"]], 
-          color2 = myColors$class[["class2"]], alpha_loading = 0.5,
-          feature_annot = feature_annot)
+plsBiplot(oplsda, yName, colors_y = myColors$class, alpha_loading = 0.5,
+          feature_annot = feature_annot, orth = FALSE)
 
-plsBarplot(oplsda, yName, X_sel, color1 = myColors$class[["class1"]], 
-           color2 = myColors$class[["class2"]], 
-           feature_annot = feature_annot)
+# to test color
+library(RColorBrewer)
+plsBiplot(oplsda, yName, alpha_loading = 0.5,
+          feature_annot = feature_annot, orth = FALSE)
+
+# just to test regression plot
+plsBiplot(oplsda, 1:length(yName), alpha_loading = 0.5,
+          feature_annot = feature_annot, orth = FALSE, type = "regression")
+ 
+
+plsBarplot(oplsda, yName, X_sel, colors_bars = myColors$class,
+           feature_annot = feature_annot, orth = FALSE)
 
 ```
 
 ## Model validation
 
-For the generation of this markdown, the warnings are turned off. Generally, this is not recommended!
-
-```{r Model validation, echo=FALSE, message=FALSE, warnings=FALSE, results='hide',} 
-knitr::opts_chunk$set(warning = FALSE)
-
+```{r Model validation} 
 modVal <- modelValidation(X, yName, nFolds = 5, nReps = 2, nPerms = 10, 
                           nFeatRep = 10, thresh = 3)
 
