@@ -224,8 +224,8 @@ plsBiplot(oplsda, 1:length(yName), alpha_loading = 0.5,
           feature_annot = feature_annot, orth = FALSE, type = "regression")
  
 
-plsBarplot(oplsda, yName, X_sel, colors_y = myColors$class,
-           feature_annot = feature_annot)
+plsBarplot(oplsda, yName, X_sel, colors_bars = myColors$class,
+           feature_annot = feature_annot, orth = FALSE)
 
 ```
 

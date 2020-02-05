@@ -12,7 +12,7 @@ plsBarplot(
   feature_annot = data.frame(),
   saveFlag = FALSE,
   fileStr = "",
-  colors_y = "NA",
+  colors_bars = NA,
   width = 5,
   height = 4,
   vipFlag = FALSE,
@@ -35,7 +35,7 @@ plsBarplot(
 
 \item{fileStr}{string where figures should be saved}
 
-\item{colors_y}{color for the classes}
+\item{colors_bars}{color for the classes}
 
 \item{width}{of saved figure}
 

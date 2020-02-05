@@ -7,7 +7,7 @@
 #' @param feature_annot data frame with annotations for the features (colors,...)
 #' @param saveFlag whether to save the figures
 #' @param fileStr string where figures should be saved
-#' @param colors_y color for the classes
+#' @param colors_bars color for the classes
 #' @param width of saved figure
 #' @param height of saved figure
 #' @param vipFlag whether only VIP scores > 1 should be plotted
@@ -23,7 +23,7 @@ plsBarplot <- function(oplsda,
                        feature_annot = data.frame(),
                        saveFlag = FALSE,
                        fileStr = "",
-                       colors_y = "NA",
+                       colors_bars = NA,
                        width = 5,
                        height = 4,
                        vipFlag = FALSE,
@@ -33,10 +33,10 @@ plsBarplot <- function(oplsda,
 
     if (type == "classification") {
         nClasses <- length(levels(y))
-        if (is.na(colors_y[[1]])) {
+        if (is.na(colors_bars[[1]])) {
             library(RColorBrewer)
-            colors_y <- brewer.pal(8, "Dark2")
-            names(colors_y) <- levels(y)
+            colors_bars <- brewer.pal(8, "Dark2")
+            names(colors_bars) <- levels(y)
         }
     }
 
@@ -101,12 +101,12 @@ plsBarplot <- function(oplsda,
                   feature_annot$useColor[match(dfBar$features[order(dfBar$vipScores)],
                                                rownames(feature_annot))])))
     if (markEnrich & nClasses == 2 & type == "classification") {
-        pltBar <- pltBar + scale_fill_manual(values = c("<0" = colors_y[[1]],
-                                                        ">0" = colors_y[[2]]),
+        pltBar <- pltBar + scale_fill_manual(values = c("<0" = colors_bars[[1]],
+                                                        ">0" = colors_bars[[2]]),
                                              breaks = c("<0", ">0"))
     } else {
-        pltBar <- pltBar + scale_fill_manual(values = colors_y,
-                                             breaks = levels(color_y))
+        pltBar <- pltBar + scale_fill_manual(values = colors_bars,
+                                             breaks = levels(colors_bars))
     }
 
     if (saveFlag) {
@@ -114,7 +114,7 @@ plsBarplot <- function(oplsda,
         print(pltBar)
         dev.off()
     }
-    print(pltBar)
+    #print(pltBar)
 
     # plot VIP scores and color coding it according to enrichent in classes
     pltVip <- ggplot(data = dfBar, aes(x = features, y = vipScores, fill = mark)) +
@@ -128,9 +128,12 @@ plsBarplot <- function(oplsda,
                   feature_annot$useColor[match(dfBar$features[order(dfBar$vipScores)],
                                                rownames(feature_annot))])))
     if (markEnrich & nClasses == 2 & type == "classification") {
-        pltBar <- pltBar + scale_fill_manual(values = c("<0" = colors_y[[1]],
-                                                        ">0" = colors_y[[2]]),
+        pltVip <- pltVip + scale_fill_manual(values = c("<0" = colors_bars[[1]],
+                                                        ">0" = colors_bars[[2]]),
                                              breaks = c("<0", ">0"))
+    } else {
+        pltVip <- pltVip + scale_fill_manual(values = colors_bars,
+                                             breaks = levels(colors_bars))
     }
 
     if (saveFlag) {
@@ -138,7 +141,7 @@ plsBarplot <- function(oplsda,
         print(pltVip)
         dev.off()
     }
-    print(pltVip)
+    #print(pltVip)
 
     output <- list(pltBar = pltBar, pltVip = pltVip, dfBar = dfBar)
     return(output)
