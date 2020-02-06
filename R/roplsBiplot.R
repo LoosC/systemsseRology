@@ -1,6 +1,6 @@
 #' Visualization for PLS-R/PLS-DA results, namely, score and loadings plot
 #'
-#' @param oplsda PLS object
+#' @param ropls_obj ropls (O)PLS-DA object
 #' @param y label/values
 #' @param type "classification" or "regression"
 #' @param feature_annot data frame with annotations for the features (colors,...)
@@ -13,7 +13,7 @@
 #' @return
 #' @export
 
-plsBiplot <- function(oplsda,
+roplsBiplot <- function(ropls_obj,
                       y,
                       type = "classification",
                       feature_annot = data.frame(),
@@ -33,14 +33,14 @@ plsBiplot <- function(oplsda,
         }
     }
 
-    if (orth) {
-        scoresLV1 <- getScoreMN(oplsda)
-        scoresTmp <- getScoreMN(oplsda, orthoL = TRUE)
+    if (!is.na(getScoreMN(ropls_obj, orthoL = TRUE)[1])) { # orthogonal PLS-DA/R
+        scoresLV1 <- getScoreMN(ropls_obj)
+        scoresTmp <- getScoreMN(ropls_obj, orthoL = TRUE)
         dfScores <- data.frame(LV1 = scoresLV1,
                                LV2 = scoresTmp[, 1],
                                y = y)
     } else {
-        scoresLV1_2 <- getScoreMN(oplsda)
+        scoresLV1_2 <- getScoreMN(ropls_obj)
         dfScores <- data.frame(LV1 = scoresLV1_2[ ,1],
                                LV2 = scoresLV1_2[, 2],
                                y = y)
@@ -50,8 +50,8 @@ plsBiplot <- function(oplsda,
     pltScores <- ggplot(dfScores, aes(LV1, LV2, color = y)) +
         geom_point(aes(color = y), size = 3,
                    stroke = 0.6) +
-        labs(x = paste("scores on LV1 (", toString(oplsda@modelDF$R2X[1] * 100), "%)", sep = ""),
-             y = paste("scores on LV2 (", toString(oplsda@modelDF$R2X[2] * 100), "%)", sep = "")) +
+        labs(x = paste("scores on LV1 (", toString(ropls_obj@modelDF$R2X[1] * 100), "%)", sep = ""),
+             y = paste("scores on LV2 (", toString(ropls_obj@modelDF$R2X[2] * 100), "%)", sep = "")) +
         theme_set(theme_bw()) +
         theme(panel.background = element_blank(),
               axis.line = element_line(colour = "black"),
@@ -74,13 +74,13 @@ plsBiplot <- function(oplsda,
     print(pltScores)
 
     # Loading Plot
-    if (orth) {
-        loadingsLV1 <- getLoadingMN(oplsda)
-        loadingsTmp <- getLoadingMN(oplsda, orthoL = TRUE)
+    if (!is.na(getScoreMN(ropls_obj, orthoL = TRUE)[1])) { # orthogonal PLS-DA/R
+        loadingsLV1 <- getLoadingMN(ropls_obj)
+        loadingsTmp <- getLoadingMN(ropls_obj, orthoL = TRUE)
         dfLoadings <- data.frame(LV1 = loadingsLV1,
                                  LV2 = loadingsTmp[, 1])
     } else {
-        loadings <- getLoadingMN(oplsda)
+        loadings <- getLoadingMN(ropls_obj)
         dfLoadings <- data.frame(LV1 = loadings[, 1],
                                  LV2 = loadings[, 2])
         rownames(dfLoadings) <- rownames(loadings)
@@ -91,6 +91,9 @@ plsBiplot <- function(oplsda,
         feature_annot <- data.frame(useColor = rep("black", dim(dfLoadings)[1]),
                                     label = rownames(dfLoadings))
         rownames(feature_annot) <- rownames(dfLoadings)
+    }
+    if (length(which(colnames(feature_annot) == "useColor")) == 0) {
+        feature_annot$useColor <- rep("black", dim(dfLoadings)[1])
     }
 
     arrow.df = data.frame(x1 = rep(0, length(dfLoadings[, 1])),
