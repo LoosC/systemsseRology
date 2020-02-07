@@ -1,0 +1,37 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+log10 nice tick labels
+
+```{r}
+scale_y_log10(breaks = c(10^4, 10^5, 10^6), #breaks = scales::trans_breaks("log10", function(x) 10^x),
+              labels = scales::trans_format("log10", scales::math_format(10^.x))) + 
+    annotation_logticks(sides = "l")
+
+```
+
+
+```{r}
+paste0(formatC(p, digits = 3, format = "f"),)
+
+theme(plot.title = element_text(size = 4)
+      )
+```
+```{r}
+axis.text.x = element_text(size = 14,
+                           angle = 60, hjust = 1)
+```
+```{r}
+pltGraph <- ggraph(layout) +
+  geom_edge_link(aes(color = r), edge_width = 3) +
+  guides(edge_alpha = "none", edge_width = "none") +
+  # colorRampPalette(brewer.pal(n = 10, name = "RdBu"))(100)
+  scale_edge_colour_gradient(low = "#56C1FF", high = "#005582") +
+  geom_node_point(shape = 21, color = "gray", fill = nodeColours, size = 8, stroke = 0.5) +
+  geom_node_text(aes(label = name), size = 3, point.padding = NA, box.padding = 0, force = 0.1, repel = T) + #, repel = T
+  theme(aspect.ratio = 1) +
+  theme_graph(background = "white", base_family = 'Helvetica') 
+```
+

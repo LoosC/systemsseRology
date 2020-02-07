@@ -28,11 +28,11 @@ library(ggrepel)
 ## Define colors and shapes
 
 ```{r colors and shapes etc} 
-myColors = list(
-    feature_class = c(titer = "#797d7f", FcR = "#424949", func = "#cacfd2"),
-    antigen = c(ag1 = "#FB9301", ag2 = "#0B1892", ag3 = "#9A1C73", ag4 = "#1A8E00"),
-    class = c(class1 = "#1f618d", class2 = "#5dade2", class3 = "red")
-    )
+# myColors = list(
+#     feature_class = c(titer = "#797d7f", FcR = "#424949", func = "#cacfd2"),
+#     antigen = c(ag1 = "#FB9301", ag2 = "#0B1892", ag3 = "#9A1C73", ag4 = "#1A8E00"),
+#     class = c(class1 = "#1f618d", class2 = "#5dade2", class3 = "red")
+#     )
 ```
 
 ```{r colors and shapes etc} 
@@ -187,7 +187,10 @@ print(p)
 ## PCA
 
 ```{r PCA} 
-
+pca_obj <- opls(X_sel)
+feature_annot$useColor <- myColors$antigen[feature_annot$antigen]
+roplsBiplot(pca_obj, yName, colors_y = myColors$class, alpha_loading = 0.5,
+            feature_annot = feature_annot)
 ```
 
 ## LASSO OPLS-DA
@@ -203,7 +206,7 @@ X_sel <- X[,which(colnames(X) %in% selFeatures)]
 pre_symbol <- try(oplsda <- opls(X_sel, yName,  permI = 0, crossValI = 5))
 isError <- is(pre_symbol, 'try-error')
 if (isError) {
-  oplsda <- opls(X_sel, yName, predI = 2,  permI = 0, crossValI = 5)
+  oplsda <- opls(X_sel, yName, predI = 1,  permI = 0, crossValI = 5)
 }
 ```
 
@@ -212,27 +215,28 @@ if (isError) {
 ```{r Visualization} 
 feature_annot$useColor <- myColors$antigen[feature_annot$antigen]
 plsBiplot(oplsda, yName, colors_y = myColors$class, alpha_loading = 0.5,
-          feature_annot = feature_annot, orth = FALSE)
+          feature_annot = feature_annot)
 
 # to test color
 library(RColorBrewer)
 plsBiplot(oplsda, yName, alpha_loading = 0.5,
-          feature_annot = feature_annot, orth = FALSE)
+          feature_annot = feature_annot)
 
 # just to test regression plot
 plsBiplot(oplsda, 1:length(yName), alpha_loading = 0.5,
-          feature_annot = feature_annot, orth = FALSE, type = "regression")
+          feature_annot = feature_annot, type = "regression")
  
 
 plsBarplot(oplsda, yName, X_sel, colors_bars = myColors$class,
-           feature_annot = feature_annot, orth = FALSE)
+           feature_annot = feature_annot)
 
 ```
 
 ## Model validation
 
 ```{r Model validation} 
-modVal <- modelValidation(X, yName, nFolds = 5, nReps = 2, nPerms = 10, 
+library(ggpubr)
+modVal <- modelValidation(X, yName, nFolds = 5, nReps = 10, nPerms = 10, 
                           nFeatRep = 10, thresh = 3)
 
 pvals <- visualizeModelValidation(modVal, type = "classification", modelColor = "gray")
@@ -279,7 +283,7 @@ pltGraph <- ggraph(layout) +
   geom_node_point(shape = 21, color = "gray", fill = nodeColours, size = 8, stroke = 0.5) +
   geom_node_text(aes(label = name), size = 3, repel = T) +
   theme(aspect.ratio = 1) +
-  theme_graph(background = "white") 
+  theme_graph(background = "white", base_family = 'Helvetica') 
 plt <- plot(pltGraph)
 ```
 

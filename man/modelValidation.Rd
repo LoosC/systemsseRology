@@ -58,7 +58,7 @@ modelValidation(
 }
 \value{
 Metrics of performance (accuracy or correlation/rmses) for models based on
-real data or random features/ ermuted labels
+real data or random features/permuted labels
 }
 \description{
 Model validation using permutation testing
