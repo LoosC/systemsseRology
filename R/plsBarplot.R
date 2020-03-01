@@ -67,8 +67,9 @@ plsBarplot <- function(oplsda,
     # (oplsda) above because they discriminante between classes for </> 0
     dfBar <- data.frame(vipScores = getVipVn(plsda),
                         loadingsLV1 = loadingsLV1,
-                        features = colnames(X))
-    colnames(dfBar) <- c("vipScores", "loadingsLV1", "features")
+                        features = colnames(X),
+                        feature_labels = feature_annot$label[match(colnames(X),rownames(feature_annot))])
+    colnames(dfBar) <- c("vipScores", "loadingsLV1", "features", "feature_labels")
 
 
     if (markEnrich & nClasses == 2 & type == "classification") {
@@ -92,10 +93,11 @@ plsBarplot <- function(oplsda,
     # according to enrichent in classes
     pltBar <- ggplot(data = dfBar, aes(x = features, y = loadingsLV1, fill = mark)) +
         geom_bar(stat = "identity", color = "black") +
-        theme_minimal() +
+        theme_classic() +
         coord_flip() +
         xlab("") +
         ylab("LV1 loadings") +
+        scale_x_discrete(labels = dfBar$feature_labels) +
         theme(legend.position = "none",
               axis.text.y = element_text(colour = as.character(
                   feature_annot$useColor[match(dfBar$features[order(dfBar$vipScores)],
@@ -119,14 +121,16 @@ plsBarplot <- function(oplsda,
     # plot VIP scores and color coding it according to enrichent in classes
     pltVip <- ggplot(data = dfBar, aes(x = features, y = vipScores, fill = mark)) +
         geom_bar(stat = "identity", color = "black") +
-        theme_minimal() +
+        theme_classic() +
         coord_flip() +
         xlab("") +
         ylab("VIP scores") +
+        scale_x_discrete(labels = dfBar$feature_labels) +
         theme(legend.position = "none",
               axis.text.y = element_text(colour = as.character(
                   feature_annot$useColor[match(dfBar$features[order(dfBar$vipScores)],
                                                rownames(feature_annot))])))
+
     if (markEnrich & nClasses == 2 & type == "classification") {
         pltVip <- pltVip + scale_fill_manual(values = c("<0" = colors_bars[[1]],
                                                         ">0" = colors_bars[[2]]),

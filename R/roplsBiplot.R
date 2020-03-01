@@ -10,7 +10,7 @@
 #' @param colors_y color for the classes
 #' @param fontsize fontzise used for the plots
 #' @param orth flag whether orthogonalized version of PLS is used
-#' @return
+#' @return Plotting objects for score and loadings plot
 #' @export
 
 roplsBiplot <- function(ropls_obj,
@@ -47,23 +47,22 @@ roplsBiplot <- function(ropls_obj,
     }
     colnames(dfScores) <- c("LV1", "LV2", "y")
 
-    pltScores <- ggplot(dfScores, aes(LV1, LV2, color = y)) +
-        geom_point(aes(color = y), size = 3,
-                   stroke = 0.6) +
+    pltScores <- ggplot(dfScores, aes(LV1, LV2)) +
+        geom_vline(xintercept = 0, size = 0.3) +
+        geom_hline(yintercept = 0, size = 0.3) +
+        geom_point(aes(fill = y), color = "black", size = 3,
+                   stroke = 0.5, shape = 21) +
         labs(x = paste("scores on LV1 (", toString(ropls_obj@modelDF$R2X[1] * 100), "%)", sep = ""),
              y = paste("scores on LV2 (", toString(ropls_obj@modelDF$R2X[2] * 100), "%)", sep = "")) +
-        theme_set(theme_bw()) +
+        theme_classic() +
         theme(panel.background = element_blank(),
               axis.line = element_line(colour = "black"),
               panel.grid.major = element_blank(),
               legend.key = element_blank(),
               #legend.position = "none",
-              aspect.ratio = 1
-              ) +
-        geom_vline(xintercept = 0, size = 0.3) +
-        geom_hline(yintercept = 0, size = 0.3)
+              aspect.ratio = 1)
     if (type == "classification") {
-        pltScores <- pltScores + scale_color_manual(breaks = levels(y), values = colors_y)
+        pltScores <- pltScores + scale_fill_manual(breaks = levels(y), values = colors_y)
     }
 
     if (saveFlag) {
@@ -102,6 +101,8 @@ roplsBiplot <- function(ropls_obj,
                           y2 = dfLoadings[, 2])
 
     pltLoadings <- ggplot(dfLoadings, aes(LV1, LV2, label = rownames(dfLoadings))) +
+        geom_vline(xintercept = 0, size = 0.3) +
+        geom_hline(yintercept = 0, size = 0.3) +
         geom_point(size = 0.5, color = feature_annot$useColor[match(rownames(dfLoadings),
                                                                     rownames(feature_annot))]) +
         labs(x = "loadings on LV1", y = "loadings on LV2") +
@@ -112,13 +113,13 @@ roplsBiplot <- function(ropls_obj,
         geom_text_repel(size = fontsize,
                         aes(label = feature_annot$label[match(rownames(dfLoadings), rownames(feature_annot))]),
                         color = feature_annot$useColor[match(rownames(dfLoadings), rownames(feature_annot))]) +
+        theme_minimal() +
         theme(panel.background = element_blank(),
               axis.line = element_line(colour = "black"),
               panel.grid.major = element_blank(),
-              legend.title = element_blank(),
-              aspect.ratio = 1) +
-        geom_vline(xintercept = 0, size = 0.3) +
-        geom_hline(yintercept = 0, size = 0.3)
+              panel.grid.minor = element_blank(),
+              #legend.title = element_blank(),
+              aspect.ratio = 1)
 
     if (saveFlag) {
         pdf(paste(fileStr, "loadingsPlot.pdf", sep = "_"), width = 4, height = 4)
@@ -126,5 +127,7 @@ roplsBiplot <- function(ropls_obj,
         dev.off()
     }
     print(pltLoadings)
+
+    output = list(pltScores = pltScores, pltLoadings = pltLoadings)
 
 }

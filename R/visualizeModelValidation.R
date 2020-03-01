@@ -7,17 +7,19 @@
 #' @param fileStrPart string where figures should be saved,
 #' will be extended with "_acc" for classification or "_corr" and "_rmses" for regression problems
 #' @param modelColor color for model violin plot
-#' @param rotate_x_labels angle with with x labels should be rotated
-#' @return p-values for model
+#' @param rotate_xtick_labels angle with with x labels should be rotated
+#' @return p-values for model and plotting handles
 
 visualizeModelValidation <- function(res,
                                      type,
                                      saveFlag = FALSE,
                                      fileStrPart = "modelValidation.pdf",
                                      modelColor = "gray",
-                                     rotate_x_labels = 0) {
-    if (!(rotate_x_labels == 0)) {
-        hjust_tmp = 0
+                                     rotate_xtick_labels = 0,
+                                     fig_width = 5,
+                                     fig_height = 3) {
+    if (rotate_xtick_labels == 0) {
+        hjust_tmp = 0.5
     } else {
         hjust_tmp = 1
     }
@@ -40,7 +42,7 @@ visualizeModelValidation <- function(res,
                               c("model", "random features"))
 
         # Generate violion plot for accuracies
-        pltVio <- ggplot(dfBox, aes(x = models, y = value, fill = model)) +
+        pltVio <- ggplot(dfBox, aes(x = model, y = value, fill = model)) +
             geom_violin() +
             stat_summary(fun.y = "mean", colour = "black", size = 2, geom = "point") +
             stat_summary(fun.data = "mean_sd", geom = "pointrange", color = "black") +
@@ -55,11 +57,11 @@ visualizeModelValidation <- function(res,
                   axis.line = element_line(colour = "black"),
                   legend.title = element_blank(),
                   legend.position = "none",
-                  axis.text.x = element_text(angle = rotate_x_label, hjust = hjust_tmp)) +
+                  axis.text.x = element_text(angle = rotate_xtick_labels, hjust = hjust_tmp)) +
             stat_compare_means(comparisons = myComparisons, size = 0)
 
         if (saveFlag) {
-            pdf(paste(fileStrPart, "_acc.pdf", sep = ""), width = 5, height = 3)
+            pdf(paste(fileStrPart, "_acc.pdf", sep = ""), width = fig_width, height = fig_height)
         }
         print(pltVio)
         dev.off()
@@ -71,6 +73,8 @@ visualizeModelValidation <- function(res,
             pvals$acc_randFeatures[iRep] <- length(which(res$acc_randFeatures[iRep, ] > res$acc[iRep]))/dim(res$acc_randFeatures)[2]
             pvals$acc_permutedLabels[iRep] <- length(which(res$acc_permutedLabels[iRep, ] > res$acc[iRep]))/dim(res$acc_permutedLabels)[2]
         }
+        return(list(pvals = pvals, pltVio = pltVio))
+
     } else {
         value <- c(as.vector(res$corr),
                    as.vector(res$corr_randFeatures),
@@ -102,10 +106,10 @@ visualizeModelValidation <- function(res,
                   axis.line = element_line(colour = "black"),
                   legend.title = element_blank(),
                   legend.position = "none",
-                  axis.text.x = element_text(angle = rotate_x_label, hjust = hjust_tmp)) +
+                  axis.text.x = element_text(angle = rotate_xtick_labels, hjust = hjust_tmp)) +
             stat_compare_means(comparisons = myComparisons, size = 0)
         if (saveFlag) {
-            pdf(paste(fileStrPart, "_corr.pdf", sep = ""), width = 5, height = 3)
+            pdf(paste(fileStrPart, "_corr.pdf", sep = ""), width = fig_width, height = fig_height)
         }
         print(pltVio1)
         dev.off()
@@ -131,10 +135,10 @@ visualizeModelValidation <- function(res,
                   axis.line = element_line(colour = "black"),
                   legend.title = element_blank(),
                   legend.position = "none",
-                  axis.text.x = element_text(angle = rotate_x_label, hjust = hjust_tmp)) +
+                  axis.text.x = element_text(angle = rotate_xtick_labels, hjust = hjust_tmp)) +
             stat_compare_means(comparisons = myComparisons, size = 0)
         if (saveFlag) {
-            pdf(paste(fileStrPart, "_rmses.pdf", sep = ""), width = 5, height = 3)
+            pdf(paste(fileStrPart, "_rmses.pdf", sep = ""), width = fig_width, height = fig_height)
         }
         print(pltVio2)
         dev.off()
@@ -151,8 +155,8 @@ visualizeModelValidation <- function(res,
             pvals$rmse_randFeatures[iRep] <- length(which(res$rmses_randFeatures[iRep, ] < res$rmses[iRep]))/dim(res$corr_randFeatures)[2]
             pvals$rmse_permutedLabels[iRep] <- length(which(res$rmses_permutedLabels[iRep, ] < res$rmses[iRep]))/dim(res$corr_randFeatures)[2]
         }
+        return(list(pvals = pvals, pltVio_corr = pltVio1, pltVio_rmses = pltVio2))
     }
-    return(pvals)
 }
 
 
