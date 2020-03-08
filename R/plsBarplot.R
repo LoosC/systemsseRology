@@ -78,8 +78,7 @@ plsBarplot <- function(oplsda,
         dfBar$mark[dfBar$loadingsLV1 > 0] = ">0"
         dfBar$mark <- factor(dfBar$mark, levels = c("<0", ">0"))
     }  else {
-        dfBar$mark <- feature_annot$antigen[match(dfBar$features[order(dfBar$vipScores)],
-                                                   rownames(feature_annot))]
+        dfBar$mark <- rep(NA, dim(dfBar)[1])
     }
 
     dfBar <- dfBar[order(dfBar$vipScores), ]

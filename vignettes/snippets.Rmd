@@ -26,9 +26,9 @@ stat_compare_means(aes(label = paste0("p = ", ..p.format..),
 ```{r}
 paste0(formatC(p, digits = 3, format = "f"),)
 
-theme(plot.title = element_text(size = 4)
-      )
+theme(plot.title = element_text(size = 4))
 ```
+
 ```{r}
 axis.text.x = element_text(size = 14,
                            angle = 60, hjust = 1)
@@ -43,5 +43,44 @@ pltGraph <- ggraph(layout) +
   geom_node_text(aes(label = name), size = 3, point.padding = NA, box.padding = 0, force = 0.1, repel = T) +
   theme(aspect.ratio = 1) +
   theme_graph(background = "white", base_family = 'Helvetica') 
+```
+
+
+```{r}
+ggplot(dfBox, aes(x = antigen, y = value, fill = class)) + 
+    stat_boxplot(position = position_dodge(width = 0.75), geom = 'errorbar', width = 0.2) + 
+    geom_boxplot(outlier.shape = NA) + 
+    geom_point(position = position_jitterdodge(), shape = 21, size = 1, aes(fill = class), color = "black") + 
+    scale_fill_manual(values = myColors$class) + 
+    theme_classic() + 
+    theme(legend.position = "none",
+          #axis.title = element_text(size = 12),
+          #axis.text.x = element_text(colour = c(myColors$antigen[ag]), size = 12),
+          #plot.title = element_text(hjust = 0.5, size = 12)
+          ) 
+```
+
+```{r}
+pValLabels[1, which(pValMed < 0.0005)] <- "***"
+pValLabels[1, which(pValMed > 0.0005 & pValMed < 0.005)] <- "**"
+pValLabels[1, which(pValMed > 0.005 & pValMed < 0.05)] <- "*"
+
+pValLabels[2, which(pValMAD < 0.0005)] <- "***"
+pValLabels[2, which(pValMAD > 0.0005 & pValMAD < 0.005)] <- "**"
+pValLabels[2, which(pValMAD > 0.005 & pValMAD < 0.05)] <- "*"
+
+changeHeat <- data.frame(matrix(nrow = 2, ncol = dim(X)[2]))
+rownames(changeHeat) <- c("change in median","change in MAD")
+colnames(changeHeat) <- colnames(X_unscaledReordered)
+changeHeat[1,] <- changeMed 
+changeHeat[2,] <- changeMAD
+
+myBreaks <- c(seq(min(changeHeat), 0, length.out=ceiling(100/2) + 1), 
+              seq(max(changeHeat)/100, max(changeHeat), length.out=floor(50)))
+
+pdf("Figures/changeMedMAD_Ig.pdf", width = 10, height = 3) 
+p <- pheatmap(changeHeat[, grepl("Ig",colnames(changeHeat))], 
+         cluster_rows = FALSE, cluster_cols = FALSE, cellwidth = 15, cellheight = 15, 
+         display_numbers = pValLabels[, which(grepl("Ig",colnames(changeHeat)))], breaks = myBreaks)  
 ```
 

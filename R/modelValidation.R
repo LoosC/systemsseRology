@@ -46,7 +46,6 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "
     }
 
     for (iRep in 1:nReps) {
-        print(paste("Repetition:", iRep, sep = " "))
         if (nFolds > 1) {
             folds <- createFolds(y, k = nFolds, list = TRUE)
         }
@@ -62,11 +61,13 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "
                 XTest <- X
                 yTest <- y
             }
+            print(paste("Repetition:", iRep,  "Fold:", iFold, "/", nFolds, sep = " "))
             selFeatures <- featureSelection(XTrain, yTrain,
                                             method = featureMethod, type = type,
                                             chooseS = chooseS, nFeatRep = nFeatRep,
                                             nLassoFolds = nLassoFolds,
                                             thresh = thresh, alpha = alpha)
+            print(selFeatures)
             XTrainSel <- XTrain[, which(colnames(X) %in% selFeatures)]
 
             if (length(y) == nFolds) {
