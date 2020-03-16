@@ -13,7 +13,7 @@
 visualizeModelValidation <- function(res,
                                      type,
                                      saveFlag = FALSE,
-                                     fileStrPart = "modelValidation.pdf",
+                                     fileStrPart = "modelValidation",
                                      modelColor = "gray",
                                      rotate_xtick_labels = 0,
                                      fig_width = 5,
