@@ -30,7 +30,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "
     acc <- matrix(NA, nrow = nReps, ncol = 1)
     corr <- matrix(NA, nrow = nReps, ncol = 1)
     rmses <- matrix(NA, nrow = nReps, ncol = 1)
-
+    nClasses <- length(unique(y))
     if (nPerms > 0) {
         yPred_randFeatures <- matrix(NA, nrow = length(y), ncol = nPerms)
         yPred_permutedLabels <- matrix(NA, nrow = length(y), ncol = nPerms)
@@ -49,7 +49,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "
         if (nFolds > 1) {
             folds <- createFolds(y, k = nFolds, list = TRUE)
         }
-        for (iFold in 1:nFolds) {
+        for (iFold in 1:length(folds)) {
             if (nFolds > 1) {
                 XTrain <- X[-folds[[iFold]], ]
                 yTrain <- y[-folds[[iFold]]]
@@ -70,10 +70,10 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "
             print(selFeatures)
             XTrainSel <- XTrain[, which(colnames(X) %in% selFeatures)]
 
-            if (length(y) == nFolds) {
-                XTestSel <- XTest[which(colnames(X) %in% selFeatures)]
+            if (length(folds[[iFold]]) == 1) {
+                XTestSel <- as.matrix(XTest[which(colnames(X) %in% selFeatures)])
             } else {
-                XTestSel <- XTest[, which(colnames(X) %in% selFeatures)]
+                XTestSel <- as.matrix(XTest[, which(colnames(X) %in% selFeatures)])
             }
 
             if (type == "classification") {
@@ -83,7 +83,12 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "
             }
 
             if (method == "randomForest") {
-                trainedModel <- randomForest(as.matrix(XTrainSel), yTrain)
+                if (type == "classification") {
+                    trainedModel <- randomForest(as.matrix(XTrainSel), yTrain, sampsize = rep(min(summary(yTrain)), nClasses))
+                } else {
+                    trainedModel <- randomForest(as.matrix(XTrainSel), yTrain)
+                }
+
             } else if (method == "pls") {
                 if (length(levels(y)) > 2) {
                     pre_symbol <- try(trainedModel <- opls(as.matrix(XTrainSel), yTrain,
@@ -111,7 +116,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "
             }
             if  (method == "logisticRegression") {
                 if (nFolds > 1) {
-                    if (length(y) == nFolds) {
+                    if (length(folds[[iFold]]) == 1) {
                         yPred[folds[[iFold]]] <- predict(trainedModel, newx = as.vector(t(XTestSel)), type = "class")
                     } else {
                         yPred[folds[[iFold]]] <- predict(trainedModel, newx = as.matrix(XTestSel), type = "class")
@@ -121,7 +126,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "
                 }
             } else {
                 if (nFolds > 1) {
-                    if (length(y) == nFolds) {
+                    if (length(folds[[iFold]]) == 1) {
                       yPred[folds[[iFold]]] <- predict(trainedModel, newdata = as.vector(t(XTestSel)))
                     } else {
                       yPred[folds[[iFold]]] <- predict(trainedModel, newdata = as.matrix(XTestSel))
@@ -143,10 +148,18 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "
                       indPerm <- randperm(dim(X)[2])[1:dim(XTrainSel)[2]]
                     }
                     XTrainSel_randFeatures <- XTrain[, indPerm]
-                    XTestSel_randFeatures <- XTest[, indPerm]
+                    if (length(folds[[iFold]]) == 1) {
+                      XTestSel_randFeatures <- XTest[indPerm]
+                    } else {
+                      XTestSel_randFeatures <- XTest[, indPerm]
+                    }
 
                     if (method == "randomForest") {
-                       trainedModel <- randomForest(as.matrix(XTrainSel_randFeatures), yTrain)
+                        if (type == "classification") {
+                            trainedModel <- randomForest(as.matrix(XTrainSel_randFeatures), yTrain, sampsize = rep(min(summary(yTrain)), nClasses))
+                        } else {
+                            trainedModel <- randomForest(as.matrix(XTrainSel_randFeatures), yTrain)
+                        }
                     } else if (method == "pls") {
                         if (length(levels(y)) > 2) {
                             pre_symbol <- try(trainedModel <- opls(XTrainSel_randFeatures, yTrain,
@@ -177,7 +190,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "
                                                lambda = cv.lasso$lambda.min)
                     }
 
-                    if (length(y) == nFolds) {
+                    if (length(folds[[iFold]]) == 1) {
                       yPred_randFeatures[folds[[iFold]], iPerm] <- predict(trainedModel, newdata = as.matrix(t(XTestSel_randFeatures)))
                     } else {
                       yPred_randFeatures[folds[[iFold]], iPerm] <- predict(trainedModel, newdata = as.matrix(XTestSel_randFeatures))
@@ -192,7 +205,11 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "
                                                       nFeatRep = nFeatRep, nLassoFolds = nLassoFolds,
                                                       thresh = thresh, alpha = alpha)
                   XTrainSel_permutedLabels <- XTrain[, which(colnames(X) %in% selFeaturesPerm)]
-                  XTestSel_permutedLabels <- XTest[, which(colnames(X) %in% selFeaturesPerm)]
+                  if (length(folds[[iFold]]) == 1) {
+                    XTestSel_permutedLabels <- XTest[which(colnames(X) %in% selFeaturesPerm)]
+                  } else {
+                    XTestSel_permutedLabels <- XTest[, which(colnames(X) %in% selFeaturesPerm)]
+                  }
 
                   if (type == "classification") {
                     yTrain_permutedLabels <- as.factor(yTrain_permutedLabels)
@@ -201,7 +218,12 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "
                   }
 
                   if (method == "randomForest") {
-                    trainedModel <- randomForest(as.matrix(XTrainSel_permutedLabels), yTrain_permutedLabels)
+                    if (type == "classification") {
+                        trainedModel <- randomForest(as.matrix(XTrainSel_permutedLabels), yTrain_permutedLabels,
+                                                     sampsize = rep(min(summary(yTrain_permutedLabels)), nClasses))
+                    } else {
+                        trainedModel <- randomForest(as.matrix(XTrainSel_permutedLabels), yTrain_permutedLabels)
+                    }
                   } else if (method == "pls") {
                       if (length(levels(y)) > 2) {
                           pre_symbol <- try(trainedModel <- opls(as.matrix(XTrainSel_permutedLabels), yTrain_permutedLabels,
@@ -229,7 +251,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "
                       trainedModel <- glmnet(XTrainSel_permutedLabels, yTrain_permutedLabels, alpha = 1, family = "binomial",
                                                  lambda = cv.lasso$lambda.min)
                   }
-                  if (length(y) == nFolds) {
+                  if (length(folds[[iFold]]) == 1) {
                     yPred_permutedLabels[folds[[iFold]], iPerm] <- predict(trainedModel, newdata = as.vector(XTestSel_permutedLabels))
                   } else {
                     yPred_permutedLabels[folds[[iFold]], iPerm] <- predict(trainedModel, newdata = as.matrix(XTestSel_permutedLabels))
