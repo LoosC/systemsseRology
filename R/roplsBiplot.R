@@ -59,7 +59,6 @@ roplsBiplot <- function(ropls_obj,
     if (type == "classification") {
         pltScores <- pltScores +
             scale_fill_manual(values = colors_y)
-
     }
 
     if (saveFlag) {
@@ -89,7 +88,7 @@ roplsBiplot <- function(ropls_obj,
         rownames(feature_annot) <- rownames(dfLoadings)
     }
     if (length(which(colnames(feature_annot) == "useColor")) == 0) {
-        feature_annot$useColor <- rep("black", dim(dfLoadings)[1])
+        feature_annot$useColor <- rep("black", dim(feature_annot)[1])
     }
 
     arrow.df = data.frame(x1 = rep(0, length(dfLoadings[, 1])),

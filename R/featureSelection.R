@@ -29,13 +29,25 @@ featureSelection <- function(X, y, method = "lasso", type = "classification",
     nClasses <- length(unique(y))
     if (method == "none") {
         selFeatures <- colnames(X)
+    } else if (method == "caret_rf_rfe") {
+      control <- rfeControl(functions = rfFuncs, method = "cv", rerank = TRUE, number = 5)
+      # run the RFE algorithm
+      results <- rfe(X, y, rfeControl = control)
+      selFeatures <- results$optVariables
+    } else if (method == "randomForest_importance_top") {
+      rf <- randomForest(as.matrix(X), as.factor(y))
+      selFeatures <- rownames(rf$importance)[rev(order(rf$importance))[1:thresh]]
+    } else if (method == "randomForest_importance") {
+      rf <- randomForest(as.matrix(X), as.factor(y))
+      selFeatures <- rownames(rf$importance)[which(rf$importance > thresh*sum(rf$importance))]
     } else if (method == "randomForest_RFE") {
         X_red <- X # matrix with reduced featuers
         featSel <- data.frame(matrix(1, ncol = dim(X)[2], nrow = dim(X)[2] + 1))
         rownames(featSel) <- c(colnames(X), "oob") # add column for the out of bag error ("oob")
         colnames(featSel) <- 1:dim(X)[2]
         for (ind in 1:(dim(X)[2])) {
-            # Perfom random forest training (with default parameters) and calculate the out of bag error for this iteration
+            # Perform random forest training (with default parameters) and calculate the
+            # out of bag error for this iteration
             if (type == "classification") {
                 rf <- randomForest(as.matrix(X_red), as.factor(y))
                 featSel[dim(X)[2] + 1, ind] <- mean(predict(rf) != y)
@@ -155,17 +167,26 @@ featureSelection <- function(X, y, method = "lasso", type = "classification",
         if (method == "lasso") {
             selFeatures <- tmpFeat$features[indSel]
             selFeatures <- selFeatures[2:length(selFeatures)]  # remove intercept
+            if (is.na(selFeatures)) {
+              error("no feature chosen")
+            }
         } else if (method == "lasso_min_mse") {
             indSel2 <- which(tmpFeat[, which(mses == min(mses)) + 1] == 1)
             if (length(indSel2) < 3) {
                 selFeatures <- tmpFeat$features[indSel]
                 selFeatures <- selFeatures[2:length(selFeatures)]  # remove intercept
+                if (is.na(selFeatures)) {
+                  error("no feature chosen")
+                }
             } else {
                 selFeatures <- tmpFeat$features[indSel2]
                 selFeatures <- selFeatures[2:length(selFeatures)]  # remove intercep
             }
         }
 
+    } else {
+        error("method not defined")
     }
+
     return(selFeatures)
 }

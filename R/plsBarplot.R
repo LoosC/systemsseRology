@@ -6,7 +6,7 @@
 #' @param type "classification" or "regression"
 #' @param feature_annot data frame with annotations for the features (colors,...)
 #' @param saveFlag whether to save the figures
-#' @param fileStr string where figures should be saved
+#' @param fileStrPart string where figures should be saved
 #' @param colors_bars color for the classes
 #' @param width of saved figure
 #' @param height of saved figure
@@ -22,14 +22,13 @@ plsBarplot <- function(oplsda,
                        type = "classification",
                        feature_annot = data.frame(),
                        saveFlag = FALSE,
-                       fileStr = "",
+                       fileStrPart = "",
                        colors_bars = NA,
                        width = 5,
                        height = 4,
                        vipFlag = FALSE,
                        orth = TRUE,
                        markEnrich = TRUE) {
-
 
     if (type == "classification") {
         nClasses <- length(levels(y))
@@ -71,12 +70,12 @@ plsBarplot <- function(oplsda,
                         feature_labels = feature_annot$label[match(colnames(X),rownames(feature_annot))])
     colnames(dfBar) <- c("vipScores", "loadingsLV1", "features", "feature_labels")
 
+    warning("Please, check whether coloring and assignment is right!")
 
     if (markEnrich & nClasses == 2 & type == "classification") {
-        # check here whether the order is right!
-        dfBar$mark[dfBar$loadingsLV1 < 0] = "<0"
-        dfBar$mark[dfBar$loadingsLV1 > 0] = ">0"
-        dfBar$mark <- factor(dfBar$mark, levels = c("<0", ">0"))
+        dfBar$mark[dfBar$loadingsLV1 < 0] = levels(y)[1]
+        dfBar$mark[dfBar$loadingsLV1 > 0] = levels(y)[2]
+        dfBar$mark <- factor(dfBar$mark, levels = levels(y))
     }  else {
         dfBar$mark <- rep(NA, dim(dfBar)[1])
     }
@@ -97,25 +96,17 @@ plsBarplot <- function(oplsda,
         xlab("") +
         ylab("LV1 loadings") +
         scale_x_discrete(labels = dfBar$feature_labels) +
+        scale_fill_manual(values = colors_bars) +
         theme(legend.position = "none",
               axis.text.y = element_text(colour = as.character(
                   feature_annot$useColor[match(dfBar$features[order(dfBar$vipScores)],
                                                rownames(feature_annot))])))
-    if (markEnrich & nClasses == 2 & type == "classification") {
-        pltBar <- pltBar + scale_fill_manual(values = c("<0" = colors_bars[[1]],
-                                                        ">0" = colors_bars[[2]]),
-                                             breaks = c("<0", ">0"))
-    } else {
-        pltBar <- pltBar + scale_fill_manual(values = colors_bars,
-                                             breaks = levels(colors_bars))
-    }
 
     if (saveFlag) {
-        pdf(paste(fileStr, "barPlot.pdf", sep = "_"), width = width, height = height)
+        pdf(paste(fileStrPart, "barPlot.pdf", sep = "_"), width = width, height = height)
         print(pltBar)
         dev.off()
     }
-    #print(pltBar)
 
     # plot VIP scores and color coding it according to enrichent in classes
     pltVip <- ggplot(data = dfBar, aes(x = features, y = vipScores, fill = mark)) +
@@ -125,26 +116,17 @@ plsBarplot <- function(oplsda,
         xlab("") +
         ylab("VIP scores") +
         scale_x_discrete(labels = dfBar$feature_labels) +
+        scale_fill_manual(values = colors_bars) +
         theme(legend.position = "none",
               axis.text.y = element_text(colour = as.character(
                   feature_annot$useColor[match(dfBar$features[order(dfBar$vipScores)],
                                                rownames(feature_annot))])))
 
-    if (markEnrich & nClasses == 2 & type == "classification") {
-        pltVip <- pltVip + scale_fill_manual(values = c("<0" = colors_bars[[1]],
-                                                        ">0" = colors_bars[[2]]),
-                                             breaks = c("<0", ">0"))
-    } else {
-        pltVip <- pltVip + scale_fill_manual(values = colors_bars,
-                                             breaks = levels(colors_bars))
-    }
-
     if (saveFlag) {
-        pdf(paste(fileStr, "vipPlot.pdf", sep = "_"), width = width, height = height)
+        pdf(paste(fileStrPart, "vipPlot.pdf", sep = "_"), width = width, height = height)
         print(pltVip)
         dev.off()
     }
-    #print(pltVip)
 
     output <- list(pltBar = pltBar, pltVip = pltVip, dfBar = dfBar)
     return(output)

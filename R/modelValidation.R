@@ -315,7 +315,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "
                     }
                 }
             }
-            save(output, file = paste(fileStr, ".RData", sep = ""))
+            saveRDS(output, file = paste(fileStr, ".rds", sep = ""))
         }
     }
     if (type == "classification") {

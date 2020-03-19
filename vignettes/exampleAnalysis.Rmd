@@ -23,17 +23,10 @@ library(pracma)
 library(glmnet)
 library(ropls)
 library(ggrepel)
+library(RColorBrewer)
 ```
 
 ## Define colors and shapes
-
-```{r colors and shapes etc} 
-# myColors = list(
-#     feature_class = c(titer = "#797d7f", FcR = "#424949", func = "#cacfd2"),
-#     antigen = c(ag1 = "#FB9301", ag2 = "#0B1892", ag3 = "#9A1C73", ag4 = "#1A8E00"),
-#     class = c(class1 = "#1f618d", class2 = "#5dade2", class3 = "red")
-#     )
-```
 
 ```{r colors and shapes etc} 
 myColors = list(
@@ -47,11 +40,11 @@ myColors = list(
 
 ```{r load data} 
 # generate random data as an example
-X_unscaled <- matrix(rnorm(30*4*7), 30, 4*7)  
-X_unscaled[1:10, 3] <- X_unscaled[1:10, 3] - 0.5
-X_unscaled[1:10, 5] <- X_unscaled[1:10, 3] + 0.5
-X_unscaled[, 4] <- X_unscaled[, 5] + rnorm(30)/10
-rownames(X_unscaled) <- seq(1:30)
+X_unscaled <- matrix(rnorm(100*4*7), 100, 4*7)  
+X_unscaled[1:30, 3] <- X_unscaled[1:30, 3] - 0.5
+X_unscaled[1:30, 5] <- X_unscaled[1:30, 3] + 0.5
+X_unscaled[, 4] <- X_unscaled[, 5] + rnorm(100)/10
+rownames(X_unscaled) <- paste0("s", seq(nrow(X_unscaled)))
 
 measurement <- c("IgG1", "IgG2", "IgG3", "Fcg2AR", "Fcg3AR", "ADCP", "ADNP")
 antigen <- c("ag1", "ag2", "ag3", "ag4")
@@ -60,10 +53,8 @@ feature_names <- feature_names[order(feature_names)]
 colnames(X_unscaled) <- feature_names
 
 X <- scale(X_unscaled, center = TRUE, scale = TRUE) 
-
-#y <- rep(c(0,1), c(10, 20))
-#yName <- factor(rep(c("class1", "class2", "class3"), c(10, 15, 5), levels = c("class1", "class2", "class3")))
-yName <- factor(rep(c("class1", "class2"), c(10, 20), levels = c("class1", "class2")))
+rownames(X) <- paste0("s", seq(nrow(X)))
+yName <- factor(rep(c("class1", "class2"), c(30, 70), levels = c("class1", "class2")))
 
 nAntigens <- 4
 nSamples <- dim(X)[1]
@@ -73,7 +64,7 @@ feature_annot <- data.frame(label = feature_names,
                             measurements = gsub("_.*","", feature_names),
                             unit = rep(c("Phagocytosis Score", "MFI", "MFI"), c(8, 8, 12)),
                             feature_class = rep(c("func", "FcR", "titer"), c(8, 8, 12)))
-feature_annot$antigen <- factor(feature_annot$antigen, levels = antigen)
+feature_annot$antigen <- factor(feature_annot$antigen, levels = unique(antigen))
 rownames(feature_annot) <- colnames(X)
 ```
 
@@ -187,7 +178,7 @@ print(p)
 ## PCA
 
 ```{r PCA} 
-pca_obj <- opls(X_sel)
+pca_obj <- opls(X)
 feature_annot$useColor <- myColors$antigen[feature_annot$antigen]
 roplsBiplot(pca_obj, yName, colors_y = myColors$class, alpha_loading = 0.5,
             feature_annot = feature_annot)
@@ -203,30 +194,20 @@ selFeatures <- featureSelection(X, yName, method = "lasso",
 print(selFeatures)
   
 X_sel <- X[,which(colnames(X) %in% selFeatures)]
-pre_symbol <- try(oplsda <- opls(X_sel, yName,  permI = 0, crossValI = 5))
-isError <- is(pre_symbol, 'try-error')
-if (isError) {
-  oplsda <- opls(X_sel, yName, predI = 1,  permI = 0, crossValI = 5)
-}
+
+# for visualization a PLS-DA model with two dimensions
+oplsda <- opls(X_sel, yName, predI = 2, permI = 0)
+
 ```
 
 ## Visualization PLS-DA
 
 ```{r Visualization} 
 feature_annot$useColor <- myColors$antigen[feature_annot$antigen]
-plsBiplot(oplsda, yName, colors_y = myColors$class, alpha_loading = 0.5,
-          feature_annot = feature_annot)
 
-# to test color
-library(RColorBrewer)
-plsBiplot(oplsda, yName, alpha_loading = 0.5,
+roplsBiplot(oplsda, yName, alpha_loading = 0.5, colors_y = myColors$class,
           feature_annot = feature_annot)
-
-# just to test regression plot
-plsBiplot(oplsda, 1:length(yName), alpha_loading = 0.5,
-          feature_annot = feature_annot, type = "regression")
  
-
 plsBarplot(oplsda, yName, X_sel, colors_bars = myColors$class,
            feature_annot = feature_annot)
 
@@ -234,8 +215,7 @@ plsBarplot(oplsda, yName, X_sel, colors_bars = myColors$class,
 
 ## Model validation
 
-```{r Model validation} 
-library(ggpubr)
+```{r Model validation, message=FALSE} 
 modVal <- modelValidation(X, yName, nFolds = 5, nReps = 10, nPerms = 10, 
                           nFeatRep = 10, thresh = 3)
 
