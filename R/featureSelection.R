@@ -14,23 +14,23 @@
 #'  finally the feature set is chosen which has the overall lowest out of bag error. Requires the package `randomForest`
 #'  }
 #' @param nFeatRep only used for method = "lasso" or "lasso_min_mse"
-#' @param nLassoFolds Performs \code{nLassoFolds}-fold crossvalidation to determine penalization parameter. only used for method = "lasso"
+#' @param nFeatFolds Performs \code{nFeatFolds}-fold crossvalidation to determine penalization parameter (for lasso) or recursive feature selection. only used for method = "lasso", "lasso_min_mse", and "caret_rf_rfe"
 #' @param thresh only used for method = "lasso"
 #' @param chooseS determines whether the regularization parameter is chosen for each repetition of LASSO which
 #' provides the minimal MSE ("min"), or the most regularized model within one standard error of the minimal MSE is chosen.
 #' Only used for method = "lasso" or "lasso_min_mse"
-#' @param alpha Elastic-net mixing parameter (see documentatino of glmnet). alpha = 1 corresponds to standard LASSO.
+#' @param alpha Elastic-net mixing parameter (see documentation of glmnet). alpha = 1 corresponds to standard LASSO.
 #' Only used for method = "lasso" or "lasso_min_mse"
 #' @return Names of the selected features
 
 featureSelection <- function(X, y, method = "lasso", type = "classification",
-                             nFeatRep = 100, chooseS = "min", nLassoFolds = 5, thresh = 1,
+                             nFeatRep = 100, chooseS = "min", nFeatFolds = 5, thresh = 1,
                              alpha = 1) {
     nClasses <- length(unique(y))
     if (method == "none") {
         selFeatures <- colnames(X)
     } else if (method == "caret_rf_rfe") {
-      control <- rfeControl(functions = rfFuncs, method = "cv", rerank = TRUE, number = 5)
+      control <- rfeControl(functions = rfFuncs, method = "cv", rerank = TRUE, number = nFeatFolds)
       # run the RFE algorithm
       results <- rfe(X, y, rfeControl = control)
       selFeatures <- results$optVariables
@@ -79,7 +79,7 @@ featureSelection <- function(X, y, method = "lasso", type = "classification",
         }
         for (iRep in 1:nFeatRep) {
             resLasso <- cv.glmnet(X, y, type.measure = "mse", alpha = alpha,
-                                  family = family, nfolds = nLassoFolds)
+                                  family = family, nfolds = nFeatFolds)
             mses[iRep] <- resLasso$cvm[which(resLasso$lambda == resLasso$lambda.min)]
 
             if (type == "classification" & nClasses > 2) {

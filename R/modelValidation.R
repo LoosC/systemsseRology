@@ -9,7 +9,7 @@
 #' @param method for classification/regression, options are "pls", "randomForest", "logisticRegression",
 #' @param featureMethod method for feature selection, @seealso \link{featureSelection.R}
 #' @param nFeatRep @seealso \link{featureSelection.R}
-#' @param nLassoFolds @seealso \link{featureSelection.R}
+#' @param nFeatFolds @seealso \link{featureSelection.R}
 #' @param thresh @seealso \link{featureSelection.R}
 #' @param alpha @seealsoe \link{featureSelection.R}
 #' @param chooseS @seealso \link{featureSelection.R}
@@ -22,7 +22,7 @@
 
 modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "classification",
                             method = "pls", featureMethod = "lasso",
-                            nFeatRep = 100, nLassoFolds = 5, thresh = 1, alpha = 1, chooseS = "min",
+                            nFeatRep = 100, nFeatFolds = 5, thresh = 1, alpha = 1, chooseS = "min",
                             saveFlag = FALSE, fileStr = "accuraciesFullModel_withPerm",
                             yPredOut = FALSE) {
 
@@ -65,7 +65,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "
             selFeatures <- featureSelection(XTrain, yTrain,
                                             method = featureMethod, type = type,
                                             chooseS = chooseS, nFeatRep = nFeatRep,
-                                            nLassoFolds = nLassoFolds,
+                                            nFeatFolds = nFeatFolds,
                                             thresh = thresh, alpha = alpha)
             print(selFeatures)
             XTrainSel <- XTrain[, which(colnames(X) %in% selFeatures)]
@@ -202,7 +202,7 @@ modelValidation <- function(X, y, nFolds = 5, nReps = 10, nPerms = 100, type = "
                   yTrain_permutedLabels <- y_permutedLabels[-folds[[iFold]]]
                   selFeaturesPerm <- featureSelection(XTrain, yTrain_permutedLabels,
                                                       method = featureMethod, type = type, chooseS = chooseS,
-                                                      nFeatRep = nFeatRep, nLassoFolds = nLassoFolds,
+                                                      nFeatRep = nFeatRep, nFeatFolds = nFeatFolds,
                                                       thresh = thresh, alpha = alpha)
                   XTrainSel_permutedLabels <- XTrain[, which(colnames(X) %in% selFeaturesPerm)]
                   if (length(folds[[iFold]]) == 1) {

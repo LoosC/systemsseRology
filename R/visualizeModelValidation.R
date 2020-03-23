@@ -45,12 +45,12 @@ visualizeModelValidation <- function(res,
             pvals$acc_permutedLabels[iRep] <- length(which(res$acc_permutedLabels[iRep, ] > res$acc[iRep]))/dim(res$acc_permutedLabels)[2]
         }
         if (median(pvals$acc_randFeatures) == 0) {
-            medPval_rand <- paste("p<", toString(1/length(as.vector(res$acc_randFeatures))), sep = "")
+            medPval_rand <- paste("p<", toString(1/dim(res$acc_randFeatures)[2]), sep = "")
         } else {
             medPval_rand <- paste("p=", toString(median(pvals$acc_randFeatures)), sep = "")
         }
         if (median(pvals$acc_permutedLabels) == 0) {
-            medPval_lab <- paste("p<", toString(1/length(as.vector(res$acc_permutedLabels))), sep = "")
+            medPval_lab <- paste("p<", toString(1/dim(res$acc_permutedLabels)[2]), sep = "")
         } else {
             medPval_lab <- paste("p=", toString(median(pvals$permutedLabels)), sep = "")
         }
@@ -99,6 +99,38 @@ visualizeModelValidation <- function(res,
         myComparisons <- list(c("model", "permuted labels"),
                               c("model", "random features"))
 
+        # Calculate exact p-values
+        pvals <- data.frame(corr_randFeatures = vector(length = length(res$corr)),
+                            corr_permutedLabels = vector(length = length(res$corr)),
+                            rmse_randFeatures = vector(length = length(res$corr)),
+                            rmse_permutedLabels = vector(length = length(res$corr)))
+        for (iRep in 1:length(res$corr)) {
+            pvals$corr_randFeatures[iRep] <- length(which(res$corr_randFeatures[iRep, ] > res$corr[iRep]))/dim(res$corr_randFeatures)[2]
+            pvals$corr_permutedLabels[iRep] <- length(which(res$corr_permutedLabels[iRep, ] > res$corr[iRep]))/dim(res$corr_randFeatures)[2]
+            pvals$rmse_randFeatures[iRep] <- length(which(res$rmses_randFeatures[iRep, ] < res$rmses[iRep]))/dim(res$corr_randFeatures)[2]
+            pvals$rmse_permutedLabels[iRep] <- length(which(res$rmses_permutedLabels[iRep, ] < res$rmses[iRep]))/dim(res$corr_randFeatures)[2]
+        }
+
+        if (median(pvals$corr_randFeatures) == 0) {
+            medPval_rand1 <- paste("p<", toString(1/dim(res$corr_randFeatures)[2]), sep = "")
+        } else {
+            medPval_rand1 <- paste("p=", toString(median(pvals$corr_randFeaturess)), sep = "")
+        }
+        if (median(pvals$corr_permutedLabels) == 0) {
+            medPval_lab1 <- paste("p<", toString(1/dim(res$corr_permutedLabels)[2]), sep = "")
+        } else {
+            medPval_lab1 <- paste("p=", toString(median(pvals$corr_permutedLabels)), sep = "")
+        }
+        if (median(pvals$rmse_randFeatures) == 0) {
+            medPval_rand2 <- paste("p<", toString(1/dim(res$rmse_randFeatures)[2]), sep = "")
+        } else {
+            medPval_rand2 <- paste("p=", toString(median(pvals$rmse_randFeaturess)), sep = "")
+        }
+        if (median(pvals$rmse_permutedLabels) == 0) {
+            medPval_lab2 <- paste("p<", toString(1/dim(res$rmse_permutedLabels)[2]), sep = "")
+        } else {
+            medPval_lab2 <- paste("p=", toString(median(pvals$rmse_permutedLabels)), sep = "")
+        }
         # Generate violion plot for correlations
         pltVio1 <- ggplot(dfBox, aes(x = model, y = value, fill = model)) +
             geom_violin() +
@@ -113,9 +145,9 @@ visualizeModelValidation <- function(res,
             theme(legend.position = "none",
                   axis.text.x = element_text(angle = rotate_xtick_labels, hjust = hjust_tmp)) +
             geom_bracket(xmin = 1, xmax = 2, inherit.aes = FALSE,
-                         y.position = max(dfBox$value), label = medPval_rand, label.size = 3) +
+                         y.position = max(dfBox$value), label = medPval_rand1, label.size = 3) +
             geom_bracket(xmin = 1, xmax = 3, inherit.aes = FALSE,
-                         y.position = (max(dfBox$value) + 0.05), label = medPval_lab, label.size = 3)
+                         y.position = (max(dfBox$value) + 0.05), label = medPval_lab1, label.size = 3)
 
         if (saveFlag) {
             pdf(paste(fileStrPart, "_corr.pdf", sep = ""), width = fig_width, height = fig_height)
@@ -142,9 +174,9 @@ visualizeModelValidation <- function(res,
             theme(legend.position = "none",
                   axis.text.x = element_text(angle = rotate_xtick_labels, hjust = hjust_tmp)) +
             geom_bracket(xmin = 1, xmax = 2, inherit.aes = FALSE,
-                         y.position = max(dfBox$value), label = medPval_rand) +
+                         y.position = max(dfBox$value), label = medPval_rand2) +
             geom_bracket(xmin = 1, xmax = 3, inherit.aes = FALSE,
-                         y.position = (max(dfBox$value) + 0.05), label = medPval_lab)
+                         y.position = (max(dfBox$value) + 0.05), label = medPval_lab2)
         if (saveFlag) {
             pdf(paste(fileStrPart, "_rmses.pdf", sep = ""), width = fig_width, height = fig_height)
         }
@@ -152,17 +184,7 @@ visualizeModelValidation <- function(res,
         dev.off()
         print(pltVio2)
 
-        # Calculate exact p-values
-        pvals <- data.frame(corr_randFeatures = vector(length = length(res$corr)),
-                            corr_permutedLabels = vector(length = length(res$corr)),
-                            rmse_randFeatures = vector(length = length(res$corr)),
-                            rmse_permutedLabels = vector(length = length(res$corr)))
-        for (iRep in 1:length(res$corr)) {
-            pvals$corr_randFeatures[iRep] <- length(which(res$corr_randFeatures[iRep, ] > res$corr[iRep]))/dim(res$corr_randFeatures)[2]
-            pvals$corr_permutedLabels[iRep] <- length(which(res$corr_permutedLabels[iRep, ] > res$corr[iRep]))/dim(res$corr_randFeatures)[2]
-            pvals$rmse_randFeatures[iRep] <- length(which(res$rmses_randFeatures[iRep, ] < res$rmses[iRep]))/dim(res$corr_randFeatures)[2]
-            pvals$rmse_permutedLabels[iRep] <- length(which(res$rmses_permutedLabels[iRep, ] < res$rmses[iRep]))/dim(res$corr_randFeatures)[2]
-        }
+
         return(list(pvals = pvals, pltVio_corr = pltVio1, pltVio_rmses = pltVio2))
     }
 }
