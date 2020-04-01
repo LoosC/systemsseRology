@@ -96,12 +96,12 @@ print(p)
 tmpCor <- cor(X_unscaled, method = "spearman")
 p <- pheatmap(tmpCor, cluster_cols = FALSE, cluster_rows = FALSE,
         cellwidth = 5, cellheight = 5, fontsize = 6, border_color = NA,
-        color = colorRampPalette(brewer.pal(n = 10, name = "RdBu"))(100), 
+        color = rev(colorRampPalette(brewer.pal(n = 10, name = "RdYlBu"))(100)), 
         breaks = seq(-1, 1, length = 100),)
 print(p)
 ```
 
-## Two flavors of univariate dotplots
+## Univariate boxplots
 
 ```{r univariate dotplots 1, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
 library(ggplot2)
@@ -116,60 +116,21 @@ plt <- list()
 for (ind in 1:(dim(X)[2]/nAntigens)) {
   plt[[ind]] <- ggplot(dfUniv[dfUniv$variable == unique(dfUniv$variable)[ind],], 
                        aes(x = antigen, y = value, fill = antigen)) +
-          geom_dotplot(binaxis = "y",  stackdir = "center", stackratio = 0.7, dotsize = 1.5) +
-          stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,
-                  eom = "crossbar", width = 0.5, size = 0.3) +
+            stat_boxplot(position = position_dodge(width = 0.75), geom = 'errorbar', width = 0.2) + 
+            geom_boxplot(outlier.shape = NA) + 
+            geom_point(position = position_jitterdodge(), shape = 21, 
+                       size = 1.5, aes(fill = antigen), color = "black") +
           scale_fill_manual(values = myColors$antigen) + 
           labs(x = "",  y = feature_annot$unit[which(feature_annot$measurement == 
                                                        unique(dfUniv$variable)[ind])[1]]) +
           ggtitle(unique(dfUniv$variable)[ind]) + 
-          theme(panel.background = element_blank(),
-                  panel.grid.major = element_blank(),
-                  panel.grid.minor = element_blank(),
-                  strip.background = element_blank(),
-                  strip.placement = "outside",
-                  axis.line = element_line(colour = "black"), 
-                  legend.title = element_blank(),
-                  legend.position = "none",
-                  axis.title = element_text(size = 10),
-                  plot.title = element_text(size = 10, face = "bold", hjust = 0.5)) 
+          theme_classic() +
+          theme(axis.title = element_text(size = 10),
+                plot.title = element_text(size = 10, face = "bold", hjust = 0.5)) 
 }
-p <- ggarrange(plotlist = plt, ncol = ceiling((dim(X)[2]/nAntigens)/4), nrow = 4)
+p <- ggarrange(plotlist = plt, ncol = ceiling((dim(X)[2]/nAntigens)/4), nrow = 4, common.legend = TRUE, legend = "bottom")
 
 #pdf("univariate_dotPlot1.pdf", width = ceiling((dim(X)[2]/nAntigens)), height = 8) 
-print(p)
-#garb <- dev.off()
-#print(p)
-```
-
-```{r univariate dotplots 2, message=FALSE, fig.width=10, fig.height=6}
-library(ggplot2)
-library(reshape2)
-
-dfUniv <- melt(cbind(as.data.frame(X_unscaled), yName))
-dfUniv$antigen <- sub(".*_","", dfUniv$variable)
-dfUniv$variable <- sub("_.*","", dfUniv$variable)
-
-p <- ggplot(dfUniv, aes(x = antigen, y = value, fill = antigen)) +
-      geom_dotplot(binaxis = 'y', stackdir = 'center', stackratio = 0.7, dotsize = 1.5) + 
-      stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,
-                 geom = "crossbar", width = 0.5, size = 0.3) +
-      scale_fill_manual(values = myColors$antigen) + 
-      facet_wrap(.~variable, nrow = 5, strip.position = "left", scales = "free") +
-      theme_bw() +
-      #scale_y_continuous(limits = c(0,3)) +
-      labs(x = "", y = "") +
-      theme(panel.background = element_blank(),
-            axis.line = element_line(colour = "black"), 
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            strip.background = element_blank(),
-            panel.border = element_rect(colour = "black"),
-            strip.placement = "outside",
-            legend.title = element_blank()
-            ) 
-
-#pdf("univariate_dotPlot2.pdf", width = ceiling((dim(X)[2]/nAntigens)), height = 8) 
 print(p)
 #garb <- dev.off()
 #print(p)
@@ -190,7 +151,7 @@ For the generation of this markdown, the warnings are turned off. Generally, thi
 
 ```{r  LASSO OPLS-DA for visualization, fig.width=10, fig.height=6, warnings=FALSE, message=FALSE} 
 selFeatures <- featureSelection(X, yName, method = "lasso",
-                                nFeatRep = 10, nLassoFolds = 5, thresh = 2, alpha = 1)
+                                nFeatRep = 10, nFeatFolds = 5, thresh = 2, alpha = 1)
 print(selFeatures)
   
 X_sel <- X[,which(colnames(X) %in% selFeatures)]
@@ -216,10 +177,10 @@ plsBarplot(oplsda, yName, X_sel, colors_bars = myColors$class,
 ## Model validation
 
 ```{r Model validation, message=FALSE} 
-modVal <- modelValidation(X, yName, nFolds = 5, nReps = 10, nPerms = 10, 
+modVal <- modelValidation(X, yName, nFolds = 5, nReps = 1, nPerms = 10, 
                           nFeatRep = 10, thresh = 3)
 
-pvals <- visualizeModelValidation(modVal, type = "classification", modelColor = "gray")
+out_modVal <- visualizeModelValidation(modVal, type = "classification", modelColor = "gray")
 print(pvals)
 ```
 
