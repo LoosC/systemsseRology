@@ -144,7 +144,6 @@ modelValidation <- function(X,
                 cv.lasso <- cv.glmnet(XTrainSel, yTrain, alpha = 1, family = family)
                 trainedModel <- glmnet(XTrainSel, yTrain, alpha = 1, family = family,
                                        lambda = cv.lasso$lambda.min)
-                }
             }
 
             # Prediction
@@ -315,7 +314,7 @@ modelValidation <- function(X,
                 }
             }
         }
-
+    }
         # compute prediction metrics and generate output
         if (type == "classification") { # metric used is accuracy
             yPred <- levels(y)[as.numeric(yPred)]
