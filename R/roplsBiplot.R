@@ -7,6 +7,7 @@
 #' @param saveFlag whether to save the figures
 #' @param fileStr string where figures should be saved
 #' @param alpha_loading value for plotting the loadings vectors
+#' @param alpha_score value for plotting the loadings vectors
 #' @param colors_y color for the classes
 #' @param fontsize fontzise used for the plots
 #' @param orth flag whether orthogonalized version of PLS is used
@@ -20,6 +21,7 @@ roplsBiplot <- function(ropls_obj,
                       saveFlag = FALSE,
                       fileStr = "",
                       alpha_loading = 1,
+                      alpha_score = 1,
                       colors_y = NA,
                       fontsize = 4,
                       orth = FALSE) {
@@ -50,7 +52,7 @@ roplsBiplot <- function(ropls_obj,
     pltScores <- ggplot(dfScores, aes(LV1, LV2, fill = y)) +
         geom_vline(xintercept = 0, size = 0.3) +
         geom_hline(yintercept = 0, size = 0.3) +
-        geom_point(color = "black", size = 3,
+        geom_point(color = "black", size = 2.5, alpha = alpha_score,
                    stroke = 0.5, shape = 21, show.legend = TRUE) +
         labs(x = paste("scores on LV1 (", toString(ropls_obj@modelDF$R2X[1] * 100), "%)", sep = ""),
              y = paste("scores on LV2 (", toString(ropls_obj@modelDF$R2X[2] * 100), "%)", sep = "")) +

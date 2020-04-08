@@ -73,8 +73,13 @@ plsBarplot <- function(oplsda,
     warning("Please, check whether coloring and assignment is right!")
 
     if (markEnrich & nClasses == 2 & type == "classification") {
-        dfBar$mark[dfBar$loadingsLV1 < 0] = levels(y)[1]
-        dfBar$mark[dfBar$loadingsLV1 > 0] = levels(y)[2]
+        for (indFeat in 1:dim(dfBar)[1]) {
+            if (mean(X[y == levels(y)[2], dfBar$features[indFeat]]) > mean(X[y == levels(y)[1], dfBar$features[indFeat]])) {
+                dfBar$mark[indFeat] <- levels(y)[2]
+            } else {
+                dfBar$mark[indFeat] <- levels(y)[1]
+            }
+        }
         dfBar$mark <- factor(dfBar$mark, levels = levels(y))
     }  else {
         dfBar$mark <- rep(NA, dim(dfBar)[1])
