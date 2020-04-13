@@ -74,7 +74,7 @@ plsBarplot <- function(oplsda,
 
     if (markEnrich & nClasses == 2 & type == "classification") {
         for (indFeat in 1:dim(dfBar)[1]) {
-            if (mean(X[y == levels(y)[2], dfBar$features[indFeat]]) > mean(X[y == levels(y)[1], dfBar$features[indFeat]])) {
+            if (median(X[y == levels(y)[2], dfBar$features[indFeat]]) > median(X[y == levels(y)[1], dfBar$features[indFeat]])) {
                 dfBar$mark[indFeat] <- levels(y)[2]
             } else {
                 dfBar$mark[indFeat] <- levels(y)[1]

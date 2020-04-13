@@ -52,7 +52,7 @@ visualizeModelValidation <- function(res,
         if (median(pvals$acc_permutedLabels) == 0) {
             medPval_lab <- paste("p<", toString(1/dim(res$acc_permutedLabels)[2]), sep = "")
         } else {
-            medPval_lab <- paste("p=", toString(median(pvals$permutedLabels)), sep = "")
+            medPval_lab <- paste("p=", toString(median(pvals$acc_permutedLabels)), sep = "")
         }
 
 
@@ -60,7 +60,6 @@ visualizeModelValidation <- function(res,
         pltVio <- ggplot(dfBox, aes(x = model, y = value, fill = model)) +
             geom_violin() +
             stat_summary(fun.data = "mean_sd", geom = "pointrange", size = 0.3,  color = "black") +
-            #stat_summary(fun = "mean", colour = "black", size = 2, geom = "point") +
             scale_fill_manual(values = c(modelColor, "gray", "gray")) +
             #labs(x = "") +
             theme_classic() +
