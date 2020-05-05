@@ -170,14 +170,14 @@ roplsBiplot(oplsda, yName, alpha_loading = 0.5, colors_y = myColors$class,
           feature_annot = feature_annot)
  
 plsBarplot(oplsda, yName, X_sel, colors_bars = myColors$class,
-           feature_annot = feature_annot)
+           feature_annot = feature_annot, orth = FALSE)
 
 ```
 
 ## Model validation
 
 ```{r Model validation, message=FALSE} 
-modVal <- modelValidation(X, yName, nFolds = 5, nReps = 1, nPerms = 10, 
+modVal <- modelValidation(X, yName, nFolds = 5, nReps = 1, nPerms = 3, 
                           nFeatRep = 10, thresh = 3)
 
 out_modVal <- visualizeModelValidation(modVal, type = "classification", modelColor = "gray")
