@@ -58,9 +58,7 @@ modelValidation <- function(X,
     }
 
     for (iRep in 1:nReps) {
-        if (nFolds > 1) {
-            folds <- createFolds(y, k = nFolds, list = TRUE)
-        }
+        folds <- createFolds(y, k = nFolds, list = TRUE)
         for (iFold in 1:length(folds)) {
             # Define training and test set
             if (nFolds > 1) {
@@ -108,7 +106,7 @@ modelValidation <- function(X,
             # Train model
             if (method == "randomForest") {
                 # Random forest model using package 'randomForest'
-                # For classification, unbaalanced classes are adressed by setting sampsize
+                # For classification, unbalanced classes are adressed by setting sampsize
                 if (type == "classification") {
                     trainedModel <- randomForest(as.matrix(XTrainSel), yTrain,
                                                  sampsize = rep(min(summary(yTrain)), nClasses))
@@ -149,24 +147,17 @@ modelValidation <- function(X,
             # Prediction
             if (method == "penalizedRegression" & type == "classification") {
                 # in this case we need to provide the option that its a classification
-                if (nFolds > 1) {
-                    if (length(folds[[iFold]]) == 1) {
-                        yPred[folds[[iFold]]] <- predict(trainedModel, newx = as.vector(t(XTestSel)), type = "class")
-                    } else {
-                        yPred[folds[[iFold]]] <- predict(trainedModel, newx = as.matrix(XTestSel), type = "class")
-                    }
-                } else {
-                    yPred <- predict(trainedModel, newx = XTest, type = "class")
-                }
+                 yPred[folds[[iFold]]] <- predict(trainedModel, newx = as.matrix(XTestSel), type = "class")
+
             } else {
                 if (nFolds > 1) {
                     if (length(folds[[iFold]]) == 1) {
-                      yPred[folds[[iFold]]] <- predict(trainedModel, newdata = as.vector(t(XTestSel)))
+                      yPred[folds[[iFold]]] <- predict(trainedModel, newdata = as.matrix(t(XTestSel)))
                     } else {
                       yPred[folds[[iFold]]] <- predict(trainedModel, newdata = as.matrix(XTestSel))
                     }
                 } else {
-                    yPred <- predict(trainedModel, newdata = XTest)
+                    yPred <- predict(trainedModel, newdata = as.matrix(XTestSel))
                 }
             }
 
