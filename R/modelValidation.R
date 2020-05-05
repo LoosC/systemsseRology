@@ -115,7 +115,7 @@ modelValidation <- function(X,
                 }
 
             } else if (method == "pls") {
-                # Ropls defines the numver of latent variables internally
+                # Ropls defines the number of latent variables internally
                 # if it fails to find even one latent variable, we cature the error and force it
                 # to build a model with one latent variable
                 pre_symbol <- try(trainedModel <- opls(as.matrix(XTrainSel), yTrain,
