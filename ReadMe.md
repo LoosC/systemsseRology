@@ -16,3 +16,11 @@ install.packages("devtools")
 install_github("LoosC/systemsseRology")
 library(systemsseRology)
 ```
+and the package 'ropls'
+
+``` r
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("ropls")
+```
