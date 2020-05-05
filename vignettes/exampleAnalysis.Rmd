@@ -178,10 +178,9 @@ plsBarplot(oplsda, yName, X_sel, colors_bars = myColors$class,
 
 ```{r Model validation, message=FALSE} 
 modVal <- modelValidation(X, yName, nFolds = 5, nReps = 1, nPerms = 3, 
-                          nFeatRep = 10, thresh = 3)
+                          nFeatRep = 3, thresh = 1)
 
 out_modVal <- visualizeModelValidation(modVal, type = "classification", modelColor = "gray")
-print(pvals)
 ```
 
 ## Co-correlation network
