@@ -43,6 +43,9 @@ plsBarplot <- function(oplsda,
         feature_annot <- data.frame(useColor = rep("black", dim(X)[2]),
                                     label = colnames(X))
         rownames(feature_annot) <- colnames(X)
+     }
+    if (!("useColor" %in% colnames(feature_annot))) {
+        feature_annot$useColor <- rep("black", dim(feature_annot)[1])
     }
 
     if (orth) {
@@ -100,10 +103,10 @@ plsBarplot <- function(oplsda,
         theme_classic() +
         coord_flip() +
         xlab("") +
-        ylab("LV1 loadings") +
+        ylab("LV1 loadings") + labs(fill = "enriched in") +
         scale_x_discrete(labels = dfBar$feature_labels) +
         scale_fill_manual(values = colors_bars) +
-        theme(legend.position = "none",
+        theme(legend.position = "none", axis.text.x = element_text(color = "black"),
               axis.text.y = element_text(colour = as.character(
                   feature_annot$useColor[match(dfBar$features[order(dfBar$vipScores)],
                                                rownames(feature_annot))])))

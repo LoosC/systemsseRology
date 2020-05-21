@@ -57,10 +57,14 @@ roplsBiplot <- function(ropls_obj,
         labs(x = paste("scores on LV1 (", toString(ropls_obj@modelDF$R2X[1] * 100), "%)", sep = ""),
              y = paste("scores on LV2 (", toString(ropls_obj@modelDF$R2X[2] * 100), "%)", sep = "")) +
         theme_classic() +
-        theme(legend.position = "right", aspect.ratio = 1)
+        theme(legend.position = "right", aspect.ratio = 1,
+              axis.text = element_text(color = "black"))
+
     if (type == "classification") {
         pltScores <- pltScores +
-            scale_fill_manual(values = colors_y)
+            stat_ellipse(aes(color = y), level = .95) +
+            scale_fill_manual(values = colors_y) +
+            scale_color_manual(values = colors_y)
     }
 
     if (saveFlag) {
@@ -112,7 +116,8 @@ roplsBiplot <- function(ropls_obj,
                         aes(label = feature_annot$label[match(rownames(dfLoadings), rownames(feature_annot))]),
                         color = feature_annot$useColor[match(rownames(dfLoadings), rownames(feature_annot))]) +
         theme_classic() +
-        theme(aspect.ratio = 1)
+        theme(aspect.ratio = 1,
+              axis.text = element_text(color = "black"))
 
     if (saveFlag) {
         pdf(paste(fileStr, "loadingsPlot.pdf", sep = "_"), width = 4, height = 4)

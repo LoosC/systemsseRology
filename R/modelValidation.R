@@ -13,6 +13,8 @@
 #' @param thresh @seealso \link{featureSelection.R}
 #' @param alpha @seealsoe \link{featureSelection.R}
 #' @param chooseS @seealso \link{featureSelection.R}
+#' @param modelMethod @seealso \link{featureSelection.R}
+#' @param indComb @seealso \link{featureSelection.R}
 #' @param saveFlag whether to save the output
 #' @param fileStr string where RData should be saved
 #' @param yPredOut flag whether predicted output should be returned
@@ -35,7 +37,9 @@ modelValidation <- function(X,
                             chooseS = "min",
                             saveFlag = FALSE,
                             fileStr = "accuraciesFullModel_withPerm",
-                            yPredOut = FALSE) {
+                            yPredOut = FALSE,
+                            indComb = 1,
+                            modelMethod = "pls") {
 
     # Initialization of variables
     yPred <- matrix(NA, nrow = length(y), ncol = 1)
@@ -62,12 +66,18 @@ modelValidation <- function(X,
         for (iFold in 1:length(folds)) {
             # Define training and test set
             if (nFolds > 1) {
-                XTrain <- X[-folds[[iFold]], ]
+                XTrain <- as.matrix(X[-folds[[iFold]], ])
                 yTrain <- y[-folds[[iFold]]]
-                XTest <- as.matrix(X[folds[[iFold]], ])
+                if (length(folds[[iFold]]) == 1) {
+                    XTest <- as.matrix(t(X[folds[[iFold]], ]))
+                } else {
+                    XTest <- as.matrix(X[folds[[iFold]], ])
+                }
                 yTest <- y[folds[[iFold]]]
+                colnames(XTrain) <- colnames(X)
+                colnames(XTest) <- colnames(X)
             } else {
-                # No cross-valildation, whole data is used to train and evaluate model
+                # No cross-validation, whole data is used to train and evaluate model
                 XTrain <- X
                 yTrain <- y
                 XTest <- X
@@ -85,7 +95,9 @@ modelValidation <- function(X,
                                             nFeatRep = nFeatRep,
                                             nFeatFolds = nFeatFolds,
                                             thresh = thresh,
-                                            alpha = alpha)
+                                            alpha = alpha,
+                                            indComb = indComb,
+                                            modelMethod = modelMethod)
             print(selFeatures)
 
             # Select data corresponding to selected features for training and testing
@@ -108,8 +120,9 @@ modelValidation <- function(X,
                 # Random forest model using package 'randomForest'
                 # For classification, unbalanced classes are adressed by setting sampsize
                 if (type == "classification") {
-                    trainedModel <- randomForest(as.matrix(XTrainSel), yTrain,
-                                                 sampsize = rep(min(summary(yTrain)), nClasses))
+                    trainedModel <- randomForest(as.matrix(XTrainSel), yTrain#,
+                                                 #sampsize = rep(min(summary(yTrain)), nClasses)
+                                                 )
                 } else {
                     trainedModel <- randomForest(as.matrix(XTrainSel), yTrain)
                 }
@@ -189,7 +202,7 @@ modelValidation <- function(X,
                     } else if (method == "pls") {
                         pre_symbol <- try(trainedModel <- opls(XTrainSel_randFeatures, yTrain,
                                                                permI = 0, crossValI = 5, info.txtC = "none",
-                                                               fig.pdfC = "none"))
+                                                               fig.pdfC = "none"), silent = TRUE)
                         isError <- is(pre_symbol, "try-error")
                         if (isError) {
                             trainedModel <- opls(XTrainSel_randFeatures, yTrain, predI = 1,
@@ -235,9 +248,15 @@ modelValidation <- function(X,
                   y_permutedLabels <- y[sample(1:length(y), size = length(y), replace = FALSE)]
                   yTrain_permutedLabels <- y_permutedLabels[-folds[[iFold]]]
                   selFeaturesPerm <- featureSelection(XTrain, yTrain_permutedLabels,
-                                                      method = featureMethod, type = type, chooseS = chooseS,
-                                                      nFeatRep = nFeatRep, nFeatFolds = nFeatFolds,
-                                                      thresh = thresh, alpha = alpha)
+                                                      method = featureMethod,
+                                                      type = type,
+                                                      chooseS = chooseS,
+                                                      nFeatRep = nFeatRep,
+                                                      nFeatFolds = nFeatFolds,
+                                                      thresh = thresh,
+                                                      alpha = alpha,
+                                                      indComb = indComb,
+                                                      modelMethod = modelMethod)
                   XTrainSel_permutedLabels <- XTrain[, which(colnames(X) %in% selFeaturesPerm)]
                   if (length(folds[[iFold]]) == 1) {
                     XTestSel_permutedLabels <- XTest[which(colnames(X) %in% selFeaturesPerm)]
@@ -286,7 +305,7 @@ modelValidation <- function(X,
                   if (method == "penalizedRegression" & type == "classification") {
                       if (length(folds[[iFold]]) == 1) {
                           yPred_permutedLabels[folds[[iFold]], iPerm] <- predict(trainedModel,
-                                                                                 newdata = as.vector(XTestSel_permutedLabels),
+                                                                                 newdata = as.matrix(t(XTestSel_permutedLabels)),
                                                                                  type = "class")
                       } else {
                           yPred_permutedLabels[folds[[iFold]], iPerm] <- predict(trainedModel,
@@ -296,7 +315,7 @@ modelValidation <- function(X,
                   } else {
                       if (length(folds[[iFold]]) == 1) {
                           yPred_permutedLabels[folds[[iFold]], iPerm] <- predict(trainedModel,
-                                                                                 newdata = as.vector(XTestSel_permutedLabels))
+                                                                                 newdata = as.matrix(t(XTestSel_permutedLabels)))
                       } else {
                           yPred_permutedLabels[folds[[iFold]], iPerm] <- predict(trainedModel,
                                                                                  newdata = as.matrix(XTestSel_permutedLabels))
