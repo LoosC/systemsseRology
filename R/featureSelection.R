@@ -371,7 +371,7 @@ featureSelection <- function(X, y, method = "lasso", type = "classification",
         if (method == "lasso") {
             selFeatures <- tmpFeat$features[indSel]
             selFeatures <- selFeatures[2:length(selFeatures)]  # remove intercept
-            if (is.na(selFeatures)) {
+            if (is.na(selFeatures)[1]) {
               stop("no feature chosen")
             }
         } else if (method == "lasso_min_mse") {
@@ -379,7 +379,7 @@ featureSelection <- function(X, y, method = "lasso", type = "classification",
             if (length(indSel2) < 3) {
                 selFeatures <- tmpFeat$features[indSel]
                 selFeatures <- selFeatures[2:length(selFeatures)]  # remove intercept
-                if (is.na(selFeatures)) {
+                if (is.na(selFeatures)[1]) {
                   stop("no feature chosen")
                 }
             } else {

@@ -11,6 +11,8 @@
 #' @param colors_y color for the classes
 #' @param fontsize fontzise used for the plots
 #' @param orth flag whether orthogonalized version of PLS is used
+#' @param conf_level ellipse confidence level
+#' @param centroidsFlag whether centroids of groups should be shown
 #' @return Plotting objects for score and loadings plot
 #' @export
 
@@ -24,7 +26,9 @@ roplsBiplot <- function(ropls_obj,
                       alpha_score = 1,
                       colors_y = NA,
                       fontsize = 4,
-                      orth = FALSE) {
+                      orth = FALSE,
+                      conf_level = 0.95,
+                      centroidsFlag = FALSE) {
 
     if (type == "classification") {
         nClasses <- length(levels(y))
@@ -62,9 +66,15 @@ roplsBiplot <- function(ropls_obj,
 
     if (type == "classification") {
         pltScores <- pltScores +
-            stat_ellipse(aes(color = y), level = .95) +
+            stat_ellipse(aes(color = y), level = conf_level) +
             scale_fill_manual(values = colors_y) +
             scale_color_manual(values = colors_y)
+    }
+
+    if (centroidsFlag) {
+      centroids <- aggregate(cbind(LV1,LV2)~y,dfScores,mean)
+      pltScores <- pltScores +
+        geom_point(data = centroids,  size = 4, shape = 22)
     }
 
     if (saveFlag) {
