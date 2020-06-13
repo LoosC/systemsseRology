@@ -192,7 +192,6 @@ library(igraph)
 library(ggraph)
 library(ggrepel)
 
-
 tidyCors <- X %>% 
   correlate(method = "spearman") %>% 
   stretch()
