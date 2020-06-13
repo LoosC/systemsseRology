@@ -1,4 +1,4 @@
-validate <- function(x, y, options) {
+validate <- function(X, y, options) {
 
 
 
