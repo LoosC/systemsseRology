@@ -20,8 +20,12 @@ library(systemsseRology)
 
 ```{r data}
 library(readxl) # remove when we installed package
-data <- read_excel("../data/RSTR_data_NatureMedicine_subset.xlsx")
+library(glmnet) # remove
+data <- as.data.frame(read_excel("../data/RSTR_data_NatureMedicine_subset.xlsx"))
 
-X <- data[, 5:ncol(data)]
+X <- as.matrix(as.data.frame(lapply(data[, 5:ncol(data)], as.numeric)))
+X_zscore <- scale(X, center = TRUE, scale = TRUE)
 y <- factor(data$y, levels = unique(data$y))
 ```
+
+
