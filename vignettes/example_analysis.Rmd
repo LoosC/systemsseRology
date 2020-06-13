@@ -28,6 +28,12 @@ y <- factor(data$y, levels = unique(data$y))
 ```
 
 ```{r select features}
+set.seed(42)
 sel_features <- select_features(X_zscore, y)
+```
+
+```{r}
+model <- model_train(X, y)
+y_pred <- model_predict(model, X)
 ```
 

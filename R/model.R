@@ -1,4 +1,36 @@
-#' Feature selection
+#' Title
+#'
+#' @param X
+#' @param y
+#' @param options
+#'
+#' @return
+#' @export
+#'
+#' @examples
+model_train <- function(X, y, options) {
+
+  model <- ropls::opls(X, y, permI = 0, crossValI = 5,
+                       info.txtC = "none", fig.pdfC = "none")
+  return(model)
+}
+
+#' Title
+#'
+#' @param model
+#' @param options
+#'
+#' @return
+#' @export
+#'
+#' @examples
+model_predict <- function(model, X, options) {
+
+  y_pred <- ropls::predict(model, newdata = X)
+  return(y_pred)
+}
+
+#' Title
 #'
 #' @param X
 #' @param y
