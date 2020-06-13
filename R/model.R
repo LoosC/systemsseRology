@@ -2,13 +2,12 @@
 #'
 #' @param X
 #' @param y
-#' @param options
 #'
 #' @return
 #' @export
 #'
 #' @examples
-model_train <- function(X, y, options) {
+model_train <- function(X, y) {
 
   model <- ropls::opls(X, y, permI = 0, crossValI = 5,
                        info.txtC = "none", fig.pdfC = "none")
@@ -18,13 +17,12 @@ model_train <- function(X, y, options) {
 #' Title
 #'
 #' @param model
-#' @param options
 #'
 #' @return
 #' @export
 #'
 #' @examples
-model_predict <- function(model, X, options) {
+model_predict <- function(model, X) {
 
   y_pred <- ropls::predict(model, newdata = X)
   return(y_pred)
@@ -34,13 +32,12 @@ model_predict <- function(model, X, options) {
 #'
 #' @param X
 #' @param y
-#' @param options
 #'
 #' @return
 #' @export
 #'
 #' @examples
-select_features <- function(X, y, options = FALSE) {
+select_features <- function(X, y) {
 
   result_lasso <- glmnet::cv.glmnet(X, y, type.measure = "mse", alpha = 1,
                                     family = "binomial", nfolds = 5)
