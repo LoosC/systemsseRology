@@ -14,3 +14,7 @@ LazyData: true
 Imports: 
     ggplot2,
     ropls
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
