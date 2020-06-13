@@ -1,3 +1,3 @@
-train_model <- function(x) {
+train_model <- function(x, y, options) {
   return("Doeh")
 }

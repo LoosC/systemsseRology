@@ -1,3 +1,3 @@
-select_features <- function(x) {
+select_features <- function(x, y, options) {
   return("Doeh")
 }

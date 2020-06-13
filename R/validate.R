@@ -1,3 +1,6 @@
-validate <- function(x) {
+validate <- function(x, y, options) {
+
+
+
   return("Doeh")
 }

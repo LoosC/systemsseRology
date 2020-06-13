@@ -1,3 +1,3 @@
-visualize <- function(x) {
+visualize <- function(stuff, options) {
   return("Doeh")
 }
