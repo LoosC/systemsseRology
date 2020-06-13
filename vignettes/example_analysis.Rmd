@@ -19,8 +19,6 @@ library(systemsseRology)
 ```
 
 ```{r data}
-library(readxl) # remove when we installed package
-library(glmnet) # remove
 data <- as.data.frame(read_excel("../data/RSTR_data_NatureMedicine_subset.xlsx"))
 
 X <- as.matrix(as.data.frame(lapply(data[, 5:ncol(data)], as.numeric)))
@@ -28,4 +26,7 @@ X_zscore <- scale(X, center = TRUE, scale = TRUE)
 y <- factor(data$y, levels = unique(data$y))
 ```
 
+```{r select features}
+sel_features <- select_features(X_zscore, y)
+```
 

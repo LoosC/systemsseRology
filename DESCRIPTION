@@ -14,7 +14,8 @@ LazyData: true
 Imports: 
     ggplot2,
     ropls,
-    readxl
+    readxl,
+    glmnet
 Suggests: 
     knitr,
     rmarkdown
