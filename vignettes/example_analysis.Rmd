@@ -17,3 +17,11 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(systemsseRology)
 ```
+
+```{r data}
+library(readxl) # remove when we installed package
+data <- read_excel("../data/RSTR_data_NatureMedicine_subset.xlsx")
+
+X <- data[, 5:ncol(data)]
+y <- factor(data$y, levels = unique(data$y))
+```
