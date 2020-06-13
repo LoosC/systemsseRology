@@ -19,6 +19,7 @@ library(systemsseRology)
 ```
 
 ```{r data}
+library(readxl)
 data <- as.data.frame(read_excel("../data/RSTR_data_NatureMedicine_subset.xlsx"))
 
 X <- as.matrix(as.data.frame(lapply(data[, 5:ncol(data)], as.numeric)))
