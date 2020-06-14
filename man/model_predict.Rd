@@ -4,10 +4,10 @@
 \alias{model_predict}
 \title{Title}
 \usage{
-model_predict(model, X, options)
+model_predict(model, X)
 }
 \arguments{
-\item{options}{}
+\item{model}{}
 }
 \value{
 

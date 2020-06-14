@@ -4,10 +4,10 @@
 \alias{model_train}
 \title{Title}
 \usage{
-model_train(X, y, options)
+model_train(X, y)
 }
 \arguments{
-\item{options}{}
+\item{y}{}
 }
 \value{
 

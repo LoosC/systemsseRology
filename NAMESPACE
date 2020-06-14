@@ -3,3 +3,4 @@
 export(model_predict)
 export(model_train)
 export(select_features)
+export(validate)

@@ -15,7 +15,8 @@ Imports:
     ggplot2,
     ropls,
     readxl,
-    glmnet
+    glmnet,
+    caret
 Suggests: 
     knitr,
     rmarkdown

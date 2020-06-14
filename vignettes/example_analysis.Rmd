@@ -37,3 +37,7 @@ model <- model_train(X, y)
 y_pred <- model_predict(model, X)
 ```
 
+```{r cross-validate}
+opts = list(n_folds = 4)
+y_cv <- validate(X, y, select_features, model_train, model_predict, opts)
+```
