@@ -73,7 +73,10 @@ random_sel <- function(X,y) {
 }
 
 
-method = list(select = random_sel, train = model_train, predict = model_predict, score = my_score)
+method = list(select = random_sel,
+              train = model_train,
+              predict = model_predict,
+              score = my_score)
 
 opts = list(n_folds = 5, pt_trials = 3, rf_trials = 3)
 

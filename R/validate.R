@@ -12,7 +12,7 @@
 #'
 validate <- function(X, y, method, options) {
   # TODO all kinds of debugging, check for data types
-  # data type fuckups, bad indexing, weird cases, emtpy sets etc.
+  # bad indexing, weird cases, emtpy sets
   # naming... comments/cleanup
   # check if factors/vectors etc
 
@@ -29,33 +29,32 @@ validate <- function(X, y, method, options) {
   # stores the number of features selected for each fold
   # during cross-validation. we need this later for the
   # random features test
-  n_features <- list()
+  feats_per_fold <- list()
   # ----------------- END INITIAL PROCESSING ----------------- #
 
 
 
   # ----------------- BEGIN CROSS-VALIDATION ----------------- #
   # split data into folds
-  fold_indices <- caret::createFolds(y, options$n_folds)
-  fold_names <- names(fold_indices)
+  folds <- caret::createFolds(y, options$n_folds)
+  fold_names <- names(folds)
 
   # vector of cross-validation predictions
-  y_pred <- vector(mode = "numeric", length = length(y))
+  y_pred <- y
 
   for (fname in fold_names) {
-    excl <- fold_indices[[fname]]
-    X_train <- X[-excl, ]
-    y_train <- y[-excl]
-    X_pred <- X[excl, ]
+    indices <- folds[[fname]]
+    X_train <- X[-indices, ]
+    y_train <- y[-indices]
+    X_pred <- X[indices, ]
 
     features <- select(X_train, y_train)
-
-    # store number of features in fold for later
-    n_features[[fname]] <- length(features)
+    # store number of features selected in fold for later
+    feats_per_fold[[fname]] <- length(features)
 
     model <- train(X_train[, features], y_train)
 
-    y_pred[excl] <- predict(model, X_pred[, features])
+    y_pred[indices] <- predict(model, X_pred[, features])
   }
 
   return_values$cv_y <- y_pred
@@ -72,19 +71,19 @@ validate <- function(X, y, method, options) {
     for (trial in 1:n_trials) {
 
       for (fname in fold_names) {
-        excl <- fold_indices[[fname]]
-        X_train <- X[-excl, ]
-        y_train <- y[-excl]
-        X_pred <- X[excl, ]
+        indices <- folds[[fname]]
+        X_train <- X[-indices, ]
+        y_train <- y[-indices]
+        X_pred <- X[indices, ]
 
         # careful with sample() pathology here...
         # select random features
         total_features <- length(X_train[1, ])
-        features <- sample(1:total_features, n_features[[fname]])
+        features <- sample(1:total_features, feats_per_fold[[fname]])
 
         model <- train(X_train[, features], y_train)
 
-        y_pred[excl] <- predict(model, X_pred[, features])
+        y_pred[indices] <- predict(model, X_pred[, features])
       }
 
       rf_scores[trial] <- score(y_pred, y)
@@ -98,28 +97,29 @@ validate <- function(X, y, method, options) {
 
   # ----------------- BEGIN PERMUTATION TESTING ----------------- #
   n_trials <- options$pt_trials
+
   if (n_trials > 0) {
     pt_scores <- vector(mode = "numeric", length = n_trials)
+    y_perm <- y
 
     for (trial in 1:n_trials) {
       # create permuted y, but only permute inside each fold
-      y_perm <- factor(levels = levels(y))
       for (fname in fold_names) {
-        excl <- fold_indices[[fname]]
-        perm <- sample(1:length(excl))
-        y_perm[excl] <- y[excl[perm]]
+        indices <- folds[[fname]]
+        perm <- sample(1:length(indices))
+        y_perm[indices] <- y[indices[perm]]
       }
 
       for (fname in fold_names) {
-        excl <- fold_indices[[fname]]
-        X_train <- X[-excl, ]
-        y_train <- y_perm[-excl]
-        X_pred <- X[excl, ]
+        indices <- folds[[fname]]
+        X_train <- X[-indices, ]
+        y_train <- y_perm[-indices]
+        X_pred <- X[indices, ]
 
         features <- select(X_train, y_train)
         model <- train(X_train[, features], y_train)
 
-        y_pred[excl] <- predict(model, X_pred[, features])
+        y_pred[indices] <- predict(model, X_pred[, features])
       }
 
       pt_scores[trial] <- score(y_pred, y_perm)
