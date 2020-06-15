@@ -65,9 +65,17 @@ my_score <- function(y1, y2) {
    return(length(correct) / length(y1))
 }
 
-method = list(select = select_features, train = model_train, predict = model_predict, score = my_score)
+random_sel <- function(X,y) {
+  total_features <- length(X[1, ])
+  n_feats <- sample(1:total_features, 1)
+  features <- sample(1:total_features, n_feats)
+  return(features)
+}
 
-opts = list(n_folds = 5, n_permutations = 3, n_random_trials = 3)
 
-y_cv <- validate(X, y, method, opts)
+method = list(select = random_sel, train = model_train, predict = model_predict, score = my_score)
+
+opts = list(n_folds = 5, pt_trials = 3, rf_trials = 3)
+
+return_vals <- validate(X, y, method, opts)
 ```

@@ -11,6 +11,9 @@
 #' @examples
 #'
 validate <- function(X, y, method, options) {
+  # TODO all kinds of debugging, check for data types
+  # data type fuckups, bad indexing, weird cases, emtpy sets etc.
+  # naming... comments/cleanup
 
   # ----------------- INITIAL PROCESSING ----------------- #
   # give these guys some shorter names
@@ -26,7 +29,6 @@ validate <- function(X, y, method, options) {
   # during cross-validation. we need this later for the
   # random features test
   n_features <- list()
-
   # ----------------- END INITIAL PROCESSING ----------------- #
 
 
@@ -39,7 +41,7 @@ validate <- function(X, y, method, options) {
   # vector of cross-validation predictions
   y_pred <- vector(mode = "numeric", length = length(y))
 
-  for(fname in fold_names) {
+  for (fname in fold_names) {
     excl <- fold_indices[[fname]]
     X_train <- X[-excl, ]
     y_train <- y[-excl]
@@ -57,19 +59,18 @@ validate <- function(X, y, method, options) {
 
   return_values$cv_y <- y_pred
   return_values$cv_score <- score(y_pred, y)
-
   # ----------------- END CROSS-VALIDATION ----------------- #
 
 
 
   # ----------------- BEGIN RANDOM FEATURES ----------------- #
-  n_trials <- options$n_random_trials
-  if(n_trials > 0) {
+  n_trials <- options$rf_trials
+  if (n_trials > 0) {
     rf_scores <- vector(mode = "numeric", length = n_trials)
 
-    for(trial in 1:n_trials) {
+    for (trial in 1:n_trials) {
 
-      for(fname in fold_names) {
+      for (fname in fold_names) {
         excl <- fold_indices[[fname]]
         X_train <- X[-excl, ]
         y_train <- y[-excl]
@@ -95,21 +96,36 @@ validate <- function(X, y, method, options) {
 
 
   # ----------------- BEGIN PERMUTATION TESTING ----------------- #
+  n_trials <- options$pt_trials
+  if (n_trials > 0) {
+    pt_scores <- vector(mode = "numeric", length = n_trials)
 
-  # # do permutation stuff
-  # # random features
-  # if random features
-  # take same nr of features as returned by select()
-  # generate Nrandomfearutes samples of N random features
-  # train model on those features and store in a new y_pred
-  # compute the score here or store for later?
-  #
-  # if permutation
-  # generate N random permutations of y
-  # # permute labels
+    for (trial in 1:n_trials) {
+      # create permuted y, but only permute inside each fold
+      y_perm <- factor(levels = levels(y))
+      for (fname in fold_names) {
+        excl <- fold_indices[[fname]]
+        perm <- sample(1:length(excl))
+        y_perm[excl] <- y[excl[perm]]
+      }
 
+      for (fname in fold_names) {
+        excl <- fold_indices[[fname]]
+        X_train <- X[-excl, ]
+        y_train <- y_perm[-excl]
+        X_pred <- X[excl, ]
 
+        features <- select(X_train, y_train)
+        model <- train(X_train[, features], y_train)
 
+        y_pred[excl] <- predict(model, X_pred[, features])
+      }
+
+      pt_scores[trial] <- score(y_pred, y_perm)
+    }
+
+    return_values$pt_scores <- pt_scores
+  }
   # ----------------- END PERMUTATION TESTING ----------------- #
 
   return(return_values)
