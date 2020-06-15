@@ -4,10 +4,10 @@
 \alias{select_features}
 \title{Title}
 \usage{
-select_features(X, y, options = FALSE)
+select_features(X, y)
 }
 \arguments{
-\item{options}{}
+\item{y}{}
 }
 \value{
 
