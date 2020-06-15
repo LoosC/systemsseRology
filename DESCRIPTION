@@ -17,8 +17,9 @@ Imports:
     readxl,
     glmnet,
     ggrepel,
-    RColorBrewer
-Suggests: 
+    RColorBrewer,
+    caret
+Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr

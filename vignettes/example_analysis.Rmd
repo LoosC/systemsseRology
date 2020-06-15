@@ -57,3 +57,17 @@ plt_scores <- visualize_ropls_scores(ropls_obj = model, y = y, options)
 plt_loadings <- visualize_ropls_loadings(ropls_obj = model, options)
 ```
 
+```{r cross-validate}
+my_score <- function(y1, y2) {
+   num1 <- as.numeric(y1)
+   num2 <- as.numeric(y2)
+   correct <- which(num1 == num2)
+   return(length(correct) / length(y1))
+}
+
+method = list(select = select_features, train = model_train, predict = model_predict, score = my_score)
+
+opts = list(n_folds = 5, n_permutations = 3, n_random_trials = 3)
+
+y_cv <- validate(X, y, method, opts)
+```
