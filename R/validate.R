@@ -14,6 +14,7 @@ validate <- function(X, y, method, options) {
   # TODO all kinds of debugging, check for data types
   # data type fuckups, bad indexing, weird cases, emtpy sets etc.
   # naming... comments/cleanup
+  # check if factors/vectors etc
 
   # ----------------- INITIAL PROCESSING ----------------- #
   # give these guys some shorter names
