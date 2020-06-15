@@ -15,7 +15,9 @@ Imports:
     ggplot2,
     ropls,
     readxl,
-    glmnet
+    glmnet,
+    ggrepel,
+    RColorBrewer
 Suggests: 
     knitr,
     rmarkdown

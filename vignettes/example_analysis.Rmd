@@ -37,3 +37,23 @@ model <- model_train(X, y)
 y_pred <- model_predict(model, X)
 ```
 
+```{r}
+df_features <- data.frame(name = colnames(X))
+df_features$label <- gsub("_", " ", df_features$name)
+df_features$antigen <- gsub("_.*", "", df_features$name)
+options <- list()
+options$df_features <- df_features
+```
+
+```{r}
+library(RColorBrewer)
+options$colors = list(class = c(RSTR = "red", LTB = "blue"))
+options$colors$antigen <- colorRampPalette(brewer.pal(name = "Dark2", n = 8))(length(unique(df_features$antigen)))
+names(options$colors$antigen) <- unique(df_features$antigen)
+                                  
+options$loadings <- list(alpha = 1, color_features = "antigen")
+
+plt_scores <- visualize_ropls_scores(ropls_obj = model, y = y, options)
+plt_loadings <- visualize_ropls_loadings(ropls_obj = model, options)
+```
+
