@@ -14,10 +14,10 @@ validate <- function(X, y, method, options) {
 
   # ----------------- INITIAL PROCESSING ----------------- #
   # give these guys some shorter names
-  select = method$select
-  train = method$train
-  predict = method$predict
-  score = method$score
+  select <- method$select
+  train <- method$train
+  predict <- method$predict
+  score <- method$score
 
   # add return values to this list as we go along
   return_values <- list()
@@ -32,13 +32,12 @@ validate <- function(X, y, method, options) {
 
 
   # ----------------- BEGIN CROSS-VALIDATION ----------------- #
-
   # split data into folds
   fold_indices <- caret::createFolds(y, options$n_folds)
   fold_names <- names(fold_indices)
 
   # vector of cross-validation predictions
-  y_cv <- vector(mode = "numeric", length = length(y))
+  y_pred <- vector(mode = "numeric", length = length(y))
 
   for(fname in fold_names) {
     excl <- fold_indices[[fname]]
@@ -53,39 +52,46 @@ validate <- function(X, y, method, options) {
 
     model <- train(X_train[, features], y_train)
 
-    y_cv[excl] <- predict(model, X_pred[, features])
+    y_pred[excl] <- predict(model, X_pred[, features])
   }
 
-  return_values$y_cv = y_cv
-  return_values$score_cv = score(y_cv, y)
+  return_values$cv_y <- y_pred
+  return_values$cv_score <- score(y_pred, y)
 
   # ----------------- END CROSS-VALIDATION ----------------- #
 
 
 
   # ----------------- BEGIN RANDOM FEATURES ----------------- #
-  # n_trials = options$n_random_trials
-  # if(n_trials > 0) {
-  #   random_feature_score <- vector(mode = "numeric", length = n_trials)
-  #   while(n_trials > 0) {
-  #
-  #     for(fname in fold_names) {
-  #       excl <- fold_indices[[fname]]
-  #       X_train <- X[-excl, ]
-  #       y_train <- y[-excl]
-  #       X_pred <- X[excl, ]
-  #
-  #       features <- feature_selector(X_train, y_train)
-  #       n_features[[fname]] <- length(features)
-  #       model <- trainer(X_train[, features], y_train)
-  #
-  #       y_cv[excl] <- predicter(model, X_pred[, features])
-  #     }
-  #
-  #     n_trials <- n_trials - 1
-  #   }
-  # }
+  n_trials <- options$n_random_trials
+  if(n_trials > 0) {
+    rf_scores <- vector(mode = "numeric", length = n_trials)
+
+    for(trial in 1:n_trials) {
+
+      for(fname in fold_names) {
+        excl <- fold_indices[[fname]]
+        X_train <- X[-excl, ]
+        y_train <- y[-excl]
+        X_pred <- X[excl, ]
+
+        # careful with sample() pathology here...
+        # select random features
+        total_features <- length(X_train[1, ])
+        features <- sample(1:total_features, n_features[[fname]])
+
+        model <- train(X_train[, features], y_train)
+
+        y_pred[excl] <- predict(model, X_pred[, features])
+      }
+
+      rf_scores[trial] <- score(y_pred, y)
+    }
+
+    return_values$rf_scores <- rf_scores
+  }
   # ----------------- END RANDOM FEATURES ----------------- #
+
 
 
   # ----------------- BEGIN PERMUTATION TESTING ----------------- #

@@ -9,7 +9,7 @@
 #' @examples
 model_train <- function(X, y) {
 
-  model <- ropls::opls(X, y, permI = 0, crossValI = 5,
+  model <- ropls::opls(X, y, predI = 2, permI = 0, crossValI = 5,
                        info.txtC = "none", fig.pdfC = "none")
   return(model)
 }
