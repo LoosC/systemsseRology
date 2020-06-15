@@ -4,10 +4,10 @@
 \alias{validate}
 \title{Title}
 \usage{
-validate(X, y, feature_selector, trainer, predicter, options)
+validate(X, y, method, options)
 }
 \arguments{
-\item{options}{}
+\item{method}{}
 }
 \value{
 
