@@ -49,6 +49,12 @@ validate <- function(X, y, method, options) {
     X_pred <- X[indices, ]
 
     features <- select(X_train, y_train)
+
+    # actually, check more for valid indices...
+    if (length(features) == 0) {
+      stop("method$select() did not return any features")
+    }
+
     # store number of features selected in fold for later
     feats_per_fold[[fname]] <- length(features)
 
