@@ -33,23 +33,22 @@ select_lasso <- function(X, y, options = list()) {
     options$alpha <- 1
   }
 
-  # MAYBE INCLUDE POSSIBILIY TO RUN ON ONE SAMPLE?
-  # check we have at least two features for internal cross-validation
+  # cv.glmnet needs at least 3 folds, so we need at least three features
   n_samples <- length(X[, 1])
-  if(n_samples == 1) {
-    stop("select_lasso() requires more than one sample for internal cross-validation")
+  if (n_samples < 3) {
+    stop("select_lasso() requires more than three samples for internal cross-validation")
   }
 
   # default subfolds if its is not set
   # if there are 5 or more samples, default to 5
-  # otherwise default to 2
-  # while were at it, see if options$subfolds > n_samples, in which case
-  # we print a warning and set options$subfolds = n_samples
+  # otherwise default to 3
+  # while were at it, ensure that subfolds is in [3, n_samples]
+  # and print a warning if it wasn't
   if (!("subfolds" %in% names(options))) {
     if (n_samples >= 5) {
       options$subfolds <- 5
     } else {
-      options$subfolds <- 2
+      options$subfolds <- 3
     }
   } else {
     if (options$subfolds > n_samples) {
@@ -57,16 +56,41 @@ select_lasso <- function(X, y, options = list()) {
       print("         setting options$subfolds = number of samples")
       options$subfolds <- n_samples
     }
+    if (options$subfolds < 3) {
+      print("Warning: options$subfolds was less than 3")
+      print("         setting options$subfolds = 3")
+      options$subfolds <- 3
+    }
   }
 
-  result_lasso <- glmnet::cv.glmnet(X, y, type.measure = "mse", alpha = options$alpha,
-                                    family = fam, nfolds = 5)
-  coefs <- coef(result_lasso, s = "lambda.min")
+  # fit an appropriate lasso model with a number of trials corresponding to
+  # different values of lambda
+  lasso <- glmnet::cv.glmnet(X, y, type.measure = "mse", alpha = options$alpha,
+                                    family = fam, nfolds = options$subfolds)
 
-  # it tries it for a sequence of lambdas, choose the one with minimal error
-  # that still has features other than intrcept
+  # lasso$lambda[k] is the value of lambda in the k-th trial
+  # lasso$nzero[k] is the number of non-zero coefficients in the fitted model
+  # (= number of features not including the intercept) in the k-th trial
+  # things are arranged such that the first entry of nzero is 0
+  # and the final entry of nzero equals the number of total features
+  # lasso$cvm is the cross-validated MSE score of the k-th trial
 
-  # first entry of coefs is the intercept, exclude it from the search
-  sel_features <- rownames(coefs)[which(!(coefs[-1,1] == 0)) + 1]
-  return(sel_features)
+  # find the model with the smallest error that has at least one nonz-ero
+  # coefficient other than the intercept
+  indices <- which(lasso$nzero > 0)
+  lambdas <- lasso$lambda[indices]
+  mses <- lasso$cvm[indices]
+  # if there is more than one index attaining the minimum which.min picks
+  # the smallest one - this corresponds to choosing best mse scofe with the
+  # minimal number of features selected
+  best <- which.min(mses)
+  coefficients <- coef(lasso, s = lambdas[best])
+
+  # remove the intercept and the entries that are zero
+  coefficients <- coefficients[-1,]
+  coefficients <- coefficients[which(coefficients != 0)]
+
+  # return the names of the selected features. previous code turned
+  # coefficients into a vector, so use names() rather than rownames()
+  return(names(coefficients))
 }
