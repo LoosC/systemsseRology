@@ -4,7 +4,7 @@
 \alias{visualize_ropls_loadings}
 \title{Title}
 \usage{
-visualize_ropls_loadings(ropls_obj, y, options = list())
+visualize_ropls_loadings(ropls_obj, options = list())
 }
 \arguments{
 \item{options}{}
