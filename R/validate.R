@@ -30,6 +30,12 @@ validate <- function(X, y, method, options) {
   # during cross-validation. we need this later for the
   # random features test
   feats_per_fold <- list()
+
+  # if score is a single function instead of a list of
+  # functions, wrap it in a list
+  if (class(score) != "list") {
+    score <- list(score)
+  }
   # ----------------- END INITIAL PROCESSING ----------------- #
 
 
@@ -64,7 +70,10 @@ validate <- function(X, y, method, options) {
   }
 
   return_values$cv_y <- y_pred
-  return_values$cv_score <- score(y_pred, y)
+
+  # apply the list of functions in score to y_pred, y
+  f_star <- function(f) {f(y_pred, y)}
+  return_values$cv_score <- lapply(score, f_star)
   # ----------------- END CROSS-VALIDATION ----------------- #
 
 
@@ -72,7 +81,9 @@ validate <- function(X, y, method, options) {
   # ----------------- BEGIN RANDOM FEATURES ----------------- #
   n_trials <- options$rf_trials
   if (n_trials > 0) {
-    rf_scores <- vector(mode = "numeric", length = n_trials)
+    n_scores <- length(score)
+    rf_scores <- list(vector(mode = "numeric", length = n_trials))
+    rf_scores <- rep(rf_scores, n_scores)
 
     for (trial in 1:n_trials) {
 
@@ -92,7 +103,12 @@ validate <- function(X, y, method, options) {
         y_pred[indices] <- predict(model, X_pred[, features])
       }
 
-      rf_scores[trial] <- score(y_pred, y)
+      # compute list of scores
+      score_list <- lapply(score, f_star)
+
+      # assign them to vectors in the list
+      rf_scores <- lv_assign(rf_scores, score_list, trial)
+      #rf_scores[trial] <- score(y_pred, y)
     }
 
     return_values$rf_scores <- rf_scores
@@ -105,7 +121,10 @@ validate <- function(X, y, method, options) {
   n_trials <- options$pt_trials
 
   if (n_trials > 0) {
-    pt_scores <- vector(mode = "numeric", length = n_trials)
+    n_scores <- length(score)
+    pt_scores <- list(vector(mode = "numeric", length = n_trials))
+    pt_scores <- rep(pt_scores, n_scores)
+
     y_perm <- y
 
     for (trial in 1:n_trials) {
@@ -128,12 +147,44 @@ validate <- function(X, y, method, options) {
         y_pred[indices] <- predict(model, X_pred[, features])
       }
 
-      pt_scores[trial] <- score(y_pred, y_perm)
+      score_list <- lapply(score, f_star)
+
+      pt_scores <- lv_assign(rf_scores, score_list, trial)
     }
 
     return_values$pt_scores <- pt_scores
   }
   # ----------------- END PERMUTATION TESTING ----------------- #
 
+
+
+  # ----------------- BEGIN FINAL PROCESSING ----------------- #
+  # unpack the list if its length is 1 (score was just a function)
+  if (length(score) == 1) {
+    return_values$cv_score <- return_values$cv_score[[1]]
+
+    if ("rf_scores" %in% names(return_values)) {
+      return_values$rf_scores <- return_values$rf_scores[[1]]
+    }
+
+    if ("pt_scores" %in% names(return_values)) {
+      return_values$pt_scores <- return_values$pt_scores[[1]]
+    }
+  }
+  # ----------------- END FINAL PROCESSING ----------------- #
+
   return(return_values)
+}
+
+
+# for each index in vec_list, it sets
+# vec_list[[ind]][v_index] = val_list[[ind]]
+lv_assign <- function(vec_list, val_list, v_index) {
+  list_indices <- c(1:length(vec_list))
+  for (ind in list_indices) {
+    vec <- vec_list[[ind]]
+    vec[v_index] <- val_list[[ind]]
+    vec_list[[ind]] <- vec
+  }
+  return(vec_list)
 }

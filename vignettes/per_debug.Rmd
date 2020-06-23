@@ -32,9 +32,26 @@ set.seed(42)
 sel_features <- select_lasso(X_zscore, y)
 ```
 
-```{r}
-selector <- select_lasso
-feats <- select_repeat(X, y, selector, threshold = 0.8)
-print(feats)
+```{r cross-validate pls}
+random_sel <- function(X, y) {
+  total_features <- length(X[1, ])
+  n_feats <- sample(1:total_features, 1)
+  features <- sample(1:total_features, n_feats)
+  return(features)
+}
+
+
+score_2 <- function(y1, y2) {
+  return(42)
+}
+
+method = list(select = random_sel,
+              train = train_ropls,
+              predict = predict_ropls,
+              score = list(score_accuracy, score_2))
+
+opts = list(n_folds = 5, pt_trials = 3, rf_trials = 3)
+
+return_vals <- validate(X, y, method, opts)
 ```
 
