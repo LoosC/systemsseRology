@@ -27,35 +27,62 @@ X_zscore <- scale(X, center = TRUE, scale = TRUE)
 y <- factor(data$y, levels = unique(data$y))
 ```
 
-```{r select features}
-set.seed(42)
-sel_features <- select_features(X_zscore, y)
-```
-
-```{r}
-model <- model_train(X, y)
-y_pred <- model_predict(model, X)
-```
 
 ```{r}
 df_features <- data.frame(name = colnames(X))
 df_features$label <- gsub("_", " ", df_features$name)
 df_features$antigen <- gsub("_.*", "", df_features$name)
-options <- list()
-options$df_features <- df_features
+
 ```
 
 ```{r}
 library(RColorBrewer)
-options$colors = list(class = c(RSTR = "red", LTB = "blue"))
-options$colors$antigen <- colorRampPalette(brewer.pal(name = "Dark2", n = 8))(length(unique(df_features$antigen)))
-names(options$colors$antigen) <- unique(df_features$antigen)
-                                  
-options$loadings <- list(alpha = 1, color_features = "antigen")
+# generel options for plotting
+opts_plot <- list()
+opts_plot$df_features <- df_features
+opts_plot$colors = list(class = c(RSTR = "red", LTB = "blue"))
+opts_plot$colors$antigen <- colorRampPalette(brewer.pal(name = "Dark2", n = 8))(length(unique(df_features$antigen)))
+names(opts_plot$colors$antigen) <- unique(df_features$antigen)
+opts_plot$loading_alpha <- 1
+opts_plot$score_alpha <- 1
+opts_plot$color_features <- "antigen"
 
-plt_scores <- visualize_ropls_scores(ropls_obj = model, y = y, options)
-plt_loadings <- visualize_ropls_loadings(ropls_obj = model, options)
+# just a PCA
+model_pca <- pca_ropls(X)
+plt_scores_pca <- visualize_ropls_scores(model_pca, y, options = opts_plot)
+print(plt_scores_pca)
+
+# PLS-DA
+model <- train_ropls(X, y)
+y_pred <- predict_ropls(model, X)
+score_accuracy(y, y_pred)
+plt_scores <- visualize_ropls_scores(model, y, options = opts_plot)
+print(plt_scores)
+
+plt_loadings <- visualize_ropls_loadings(model, options = opts_plot)
+print(plt_loadings)
+
 ```
+
+```{r cross-validate pls}
+random_sel <- function(X, y) {
+  total_features <- length(X[1, ])
+  n_feats <- sample(1:total_features, 1)
+  features <- sample(1:total_features, n_feats)
+  return(features)
+}
+
+
+method = list(select = random_sel,
+              train = train_pls,
+              predict = predict_pls,
+              score = score_accuracy)
+
+opts = list(n_folds = 5, pt_trials = 3, rf_trials = 3)
+
+return_vals <- validate(X, y, method, opts)
+```
+
 
 ```{r cross-validate}
 my_score <- function(y1, y2) {
@@ -65,7 +92,7 @@ my_score <- function(y1, y2) {
    return(length(correct) / length(y1))
 }
 
-random_sel <- function(X,y) {
+random_sel <- function(X, y) {
   total_features <- length(X[1, ])
   n_feats <- sample(1:total_features, 1)
   features <- sample(1:total_features, n_feats)
