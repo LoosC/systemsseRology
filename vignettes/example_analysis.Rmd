@@ -14,9 +14,13 @@ knitr::opts_chunk$set(
 )
 ```
 
+Load the package
+
 ```{r setup}
 library(systemsseRology)
 ```
+
+Read the data from an Excel file. Z-score the data and assign the label in the variable y.
 
 ```{r data}
 library(readxl)
@@ -27,35 +31,50 @@ X_zscore <- scale(X, center = TRUE, scale = TRUE)
 y <- factor(data$y, levels = unique(data$y))
 ```
 
+The variable df_features contains information about the features, mainly used for visualization routines. 
+Here, we assign a label (removing underscores) and extract the antigen. 
 
-```{r}
+```{r annotation}
 df_features <- data.frame(name = colnames(X))
 df_features$label <- gsub("_", " ", df_features$name)
 df_features$antigen <- gsub("_.*", "", df_features$name)
-
+df_features$antigen <- factor(df_features$antigen)
+df_features$feature_class <- rep(NA, length = nrow(df_features))
+df_features$feature_class[which(grepl("IgG|IgA|IgM", df_features$name))] <- "titer"
+df_features$feature_class[which(grepl("FcR", df_features$name))] <- "FcR"
+df_features$feature_class <- factor(df_features$feature_class)
 ```
 
-```{r}
+```{r PLSDA vis}
 library(RColorBrewer)
-# generel options for plotting
+# general options for plotting
 opts_plot <- list()
 opts_plot$df_features <- df_features
-opts_plot$colors = list(class = c(RSTR = "red", LTB = "blue"))
-opts_plot$colors$antigen <- colorRampPalette(brewer.pal(name = "Dark2", n = 8))(length(unique(df_features$antigen)))
-names(opts_plot$colors$antigen) <- unique(df_features$antigen)
-opts_plot$loading_alpha <- 1
-opts_plot$score_alpha <- 1
-opts_plot$color_features <- "antigen"
 
-# just a PCA
+# Color assignment
+opts_plot$colors = list(class = c(RSTR = "red", LTB = "blue"))
+opts_plot$colors$antigen <- colorRampPalette(brewer.pal(name = "Dark2", n = 8))(nlevels(df_features$antigen))
+names(opts_plot$colors$antigen) <- unique(df_features$antigen)
+opts_plot$colors$feature_class <- colorRampPalette(brewer.pal(name = "Set1", n = 2))(nlevels(df_features$feature_class))
+names(opts_plot$colors$feature_class) <- unique(df_features$feature_class)
+
+opts_plot$loading_alpha <- 1 # transparency for the loadings
+opts_plot$score_alpha <- 1 # transparency for the lcores
+opts_plot$color_features <- "antigen" # which 
+opts_plot$color_features <- "feature_class"
+opts_plot$LV_ind <- c(1,2) # which LVs to plot
+
+
+# Perform a simple PCA using the interface function pca_ropls
 model_pca <- pca_ropls(X)
 plt_scores_pca <- visualize_ropls_scores(model_pca, y, options = opts_plot)
 print(plt_scores_pca)
 
-# PLS-DA
+# Perform a PLS-DA and plot the scores and loadings
 model <- train_ropls(X, y)
 y_pred <- predict_ropls(model, X)
 score_accuracy(y, y_pred)
+
 plt_scores <- visualize_ropls_scores(model, y, options = opts_plot)
 print(plt_scores)
 

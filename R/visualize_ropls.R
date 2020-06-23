@@ -133,7 +133,7 @@ visualize_ropls_loadings <- function(model, options = list()) {
                                 LV2 = ropls::getLoadingMN(model, orthoL = TRUE)[,options$LV_ind[2] - 1])
     } else {
       df_loadings <- data.frame(LV1 = ropls::getLoadingMN(model, orthoL = TRUE)[, options$LV_ind[1] - 1],
-                              LV2 = ropls::getLoadingMN(model, orthoL = TRUE)[, options$LV_ind[2] - 1])
+                                LV2 = ropls::getLoadingMN(model, orthoL = TRUE)[, options$LV_ind[2] - 1])
     }
   } else {
     df_loadings <- data.frame(LV1 = ropls::getLoadingMN(model)[,options$LV_ind[1]],
@@ -151,7 +151,10 @@ visualize_ropls_loadings <- function(model, options = list()) {
                                       label = rownames(df_loadings))
   }
 
-  if (!("color_features" %in% names(options))) {
+  if ("color_features" %in% names(options)) {
+    if (!(options$color_features %in% colnames(options$df_features))) {
+      stop(paste(options$color_features, "is not defined in df_features"))
+    }
     df_loadings[[options$color_features]] <-
       options$df_features[match(rownames(df_loadings), options$df_features$name),
                           options$color_features]
@@ -174,7 +177,7 @@ visualize_ropls_loadings <- function(model, options = list()) {
     ggplot2::theme(aspect.ratio = 1,
           axis.text =  ggplot2::element_text(color = "black"))
 
-  if (!("color_features" %in% names(options))) {
+  if ("color_features" %in% names(options)) {
     plt_loadings <- plt_loadings +
       ggplot2::geom_point(size = 0.5,
                           ggplot2::aes_string(color = options$color_features)) +
