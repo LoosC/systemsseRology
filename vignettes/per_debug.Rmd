@@ -33,11 +33,8 @@ sel_features <- select_lasso(X_zscore, y)
 ```
 
 ```{r}
-model <- model_train(X, y)
-y_pred <- model_predict(model, X)
-```
-
-```{r}
-selector <- 
+selector <- select_lasso
+feats <- select_repeat(X, y, selector, threshold = 0.8)
+print(feats)
 ```
 
