@@ -4,7 +4,7 @@
 \alias{select_lasso}
 \title{Title}
 \usage{
-select_lasso(X, y, options)
+select_lasso(X, y, options = list())
 }
 \arguments{
 \item{options}{}
