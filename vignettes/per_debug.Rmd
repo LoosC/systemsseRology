@@ -25,14 +25,13 @@ data <- as.data.frame(read_excel("../data/RSTR_data_NatureMedicine_subset.xlsx")
 X <- as.matrix(as.data.frame(lapply(data[, 5:ncol(data)], as.numeric)))
 X_zscore <- scale(X, center = TRUE, scale = TRUE)
 y <- factor(data$y, levels = unique(data$y))
+
+set.seed(42)
 ```
 
-```{r select features}
-set.seed(42)
-sel_features <- select_lasso(X_zscore, y)
-```
 
 ```{r cross-validate pls}
+
 random_sel <- function(X, y) {
   total_features <- length(X[1, ])
   n_feats <- sample(1:total_features, 1)
@@ -41,14 +40,10 @@ random_sel <- function(X, y) {
 }
 
 
-score_2 <- function(y1, y2) {
-  return(42)
-}
-
-method = list(select = random_sel,
+method = list(select = select_lasso,
               train = train_ropls,
               predict = predict_ropls,
-              score = list(score_accuracy, score_2))
+              score = score_accuracy)
 
 opts = list(n_folds = 5, pt_trials = 3, rf_trials = 3)
 
