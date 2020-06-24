@@ -53,7 +53,7 @@ Example PCA and PLS-DA (using the package ropls) and visualization.
 library(RColorBrewer)
 
 # Define colors
-my_colors = list(class = c(RSTR = "red", LTB = "blue"))
+my_colors = list(group = c(RSTR = "red", LTB = "blue"))
 my_colors$antigen <- colorRampPalette(brewer.pal(name = "Dark2", n = 8))(nlevels(df_features$antigen))
 names(my_colors$antigen) <- unique(df_features$antigen)
 my_colors$feature_class <- colorRampPalette(brewer.pal(name = "Set1", n = 3))(nlevels(df_features$feature_class))
@@ -64,7 +64,7 @@ opts_plot <- list(df_features = df_features,
                   loading_alpha = 1, # transparency for the loadings
                   score_alpha = 1, # transparency for the scores
                   LV_ind = c(1,2), # which LVs to plot
-                  color_featuers = "antigen", # according to which property (defined in df_features) the features should be color-coded
+                  color_features = "antigen", # according to which property (defined in df_features) the features should be color-coded
                   colors = my_colors) 
 
 # Perform a simple PCA using the interface function pca_ropls

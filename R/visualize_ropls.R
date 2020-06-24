@@ -25,13 +25,14 @@ visualize_ropls_scores <- function(model, y, options = list()) {
     options$level <- 0.95
   }
   # color for the scores and name of the grouping
-  if (!("color" %in% names(options))) {
-    options$colors <- list(class = c())
+  if (!("colors" %in% names(options))) {
+    tmp <- rep(NA, length = nlevels(y))
+    names(tmp) <- levels(y)
     for (ind in 1:nlevels(y)) {
-      options$colors$class[[levels(y)[ind]]] <- RColorBrewer::brewer.pal(n = max(3, nlevels(y)),
-                                                                         name = 'Dark2')[ind]
+      tmp[ind] <- RColorBrewer::brewer.pal(n = max(3, nlevels(y)), name = 'Dark2')[ind]
     }
-    y_name <- "class"
+    y_name <- "group"
+    options$colors <- list(group = tmp)
   } else {
     y_name <- names(options$colors)[grep(levels(y)[1], options$colors)]
   }
@@ -156,13 +157,11 @@ visualize_ropls_loadings <- function(model, options = list()) {
       stop(paste(options$color_features, "is not defined in df_features"))
     }
     if (!("colors" %in% names(options))) {
-      # define default colors
-      options$colors <- list()
-      options$colors[[options$color_features]] <- colorRampPalette(brewer.pal(name = "Dark2",
-                                                                              n = 8))(nlevels(options$df_features[,options$color_features]))
+       options$colors[[options$color_features]] <- colorRampPalette(RColorBrewer::brewer.pal(name = "Dark2",
+                                                   n = 8))(nlevels(options$df_features[,options$color_features]))
     } else if (!(options$color_feature %in% names(options$colors))) {
-      options$colors[[options$color_features]] <- colorRampPalette(brewer.pal(name = "Dark2",
-                                                                              n = 8))(nlevels(options$df_features[,options$color_features]))
+      options$colors[[options$color_features]] <- colorRampPalette(RColorBrewer::brewer.pal(name = "Dark2",
+                                                   n = 8))(nlevels(options$df_features[,options$color_features]))
     }
     df_loadings[[options$color_features]] <-
       options$df_features[match(rownames(df_loadings), options$df_features$name),
@@ -231,27 +230,28 @@ visualize_ropls_loadings_bar <- function(model, options = list()) {
   if ("y" %in% names(options)) {
     y <- options$y
     if (is.factor(y)) {
-      n_classes <- nlevels(y)
+      n_groups <- nlevels(y)
     } else {
-      n_classes <- NA
+      n_groups <- NA
     }
   } else {
-    n_classes <- NA
+    n_groups <- NA
   }
   if (!("mark_enrichment" %in% names(options))) {
     options$mark_enrichment <- FALSE
   }
-  if (options$mark_enrichment & (is.na(n_classes) | !("X" %in% names(options))))  {
+  if (options$mark_enrichment & (is.na(n_groups) | !("X" %in% names(options))))  {
     stop("Enrichment only works for classification and when X and y are provided")
   }
   # color for the scores and name of the grouping
-  if (!is.na(n_classes) & !("color" %in% names(options))) {
-    options$colors <- list(class = c())
+  if (!is.na(n_groups) & !("color" %in% names(options))) {
+    tmp <- rep(NA, length = nlevels(y))
+    names(tmp) <- levels(y)
     for (ind in 1:nlevels(y)) {
-      options$colors$class[[levels(y)[ind]]] <- RColorBrewer::brewer.pal(n = max(3, nlevels(y)),
-                                                                         name = 'Dark2')[ind]
+      tmp[ind] <- RColorBrewer::brewer.pal(n = max(3, nlevels(y)), name = 'Dark2')[ind]
     }
-    y_name <- "class"
+    y_name <- "group"
+    options$colors <- list(group = tmp)
   } else {
     y_name <- names(options$colors)[grep(levels(y)[1], options$colors)]
   }
@@ -284,14 +284,15 @@ visualize_ropls_loadings_bar <- function(model, options = list()) {
 
   # TODO: catch if its an orthogonal
 
-  if (options$mark_enrichment & !is.na(n_classes)) {
+  if (options$mark_enrichment & !is.na(n_groups)) {
     df_loadings$mark <- NA
     X <- options$X
 
     for (ind_feat in 1:nrow(df_loadings)) {
       tmp_mean <- rep(NA, length = nlevels(y))
       for (ind_class in 1:nlevels(y)) {
-        tmp_mean[ind_class] <- mean(X[which(y == levels(y)[ind_class]), which(colnames(X) == df_loadings$features[ind_feat])])
+        tmp_mean[ind_class] <- mean(X[which(y == levels(y)[ind_class]),
+                                      which(colnames(X) == df_loadings$features[ind_feat])])
       }
       df_loadings$mark[ind_feat] <- levels(y)[which.max(tmp_mean)]
     }
