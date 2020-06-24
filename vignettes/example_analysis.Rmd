@@ -12,6 +12,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
+rm(list = ls())
 ```
 
 Load the package
@@ -45,24 +47,25 @@ df_features$feature_class[which(grepl("FcR", df_features$name))] <- "FcR"
 df_features$feature_class <- factor(df_features$feature_class)
 ```
 
+Example PCA and PLS-DA (using the package ropls) and visualization.
+
 ```{r PLSDA vis}
 library(RColorBrewer)
+
+# Define colors
+my_colors = list(class = c(RSTR = "red", LTB = "blue"))
+my_colors$antigen <- colorRampPalette(brewer.pal(name = "Dark2", n = 8))(nlevels(df_features$antigen))
+names(my_colors$antigen) <- unique(df_features$antigen)
+my_colors$feature_class <- colorRampPalette(brewer.pal(name = "Set1", n = 3))(nlevels(df_features$feature_class))
+names(my_colors$feature_class) <- unique(df_features$feature_class)
+
 # general options for plotting
-opts_plot <- list()
-opts_plot$df_features <- df_features
-
-# Color assignment
-opts_plot$colors = list(class = c(RSTR = "red", LTB = "blue"))
-opts_plot$colors$antigen <- colorRampPalette(brewer.pal(name = "Dark2", n = 8))(nlevels(df_features$antigen))
-names(opts_plot$colors$antigen) <- unique(df_features$antigen)
-opts_plot$colors$feature_class <- colorRampPalette(brewer.pal(name = "Set1", n = 3))(nlevels(df_features$feature_class))
-names(opts_plot$colors$feature_class) <- unique(df_features$feature_class)
-
-opts_plot$loading_alpha <- 1 # transparency for the loadings
-opts_plot$score_alpha <- 1 # transparency for the lcores
-opts_plot$color_features <- "antigen" # which 
-#opts_plot$color_features <- "feature_class"
-opts_plot$LV_ind <- c(1,2) # which LVs to plot
+opts_plot <- list(df_features = df_features,
+                  loading_alpha = 1, # transparency for the loadings
+                  score_alpha = 1, # transparency for the scores
+                  LV_ind = c(1,2), # which LVs to plot
+                  color_featuers = "antigen", # according to which property (defined in df_features) the features should be color-coded
+                  colors = my_colors) 
 
 # Perform a simple PCA using the interface function pca_ropls
 model_pca <- pca_ropls(X)
@@ -71,8 +74,6 @@ print(plt_scores_pca)
 
 # Perform a PLS-DA and plot the scores and loadings
 model <- train_ropls(X, y)
-y_pred <- predict_ropls(model, X)
-score_accuracy(y, y_pred)
 
 plt_scores <- visualize_ropls_scores(model, y, options = opts_plot)
 print(plt_scores)
@@ -80,6 +81,7 @@ print(plt_scores)
 plt_loadings <- visualize_ropls_loadings(model, options = opts_plot)
 print(plt_loadings)
 
+# set additional options required to color code enrichment in the bar plot of the loadings
 opts_plot$X <- X
 opts_plot$y <- y
 opts_plot$LV_ind <- 2
@@ -88,42 +90,33 @@ plt_loadings_bar <- visualize_ropls_loadings_bar(model, options = opts_plot)
 print(plt_loadings_bar)
 ```
 
+Analyze model results. First we check the accuracy obtained on the whole data set. 
 
 ```{r cross-validate pls}
+y_pred <- predict_ropls(model, X)
+acc <- score_accuracy(y, y_pred)
+
+print(paste("Performance on full data set:", acc, "accuracy"))
+
 method = list(select = select_lasso,
               train = train_ropls,
               predict = predict_ropls,
               score = score_accuracy)
 
-opts = list(n_folds = 5, pt_trials = 3, rf_trials = 0)
+opts = list(n_folds = 5, rf_trials = 0,  pt_trials = )
 
+return_vals <- validate(X, y, method, opts)
+
+print(paste("Performance in 5-fold cv:", return_vals$cv_score, "accuracy"))
+```
+
+Permutation testing to assess model significance using two different approaches.
+1) Size-matched random features
+2) Shuffled labels
+
+```{r model validation}
+opts$rf_trials <- 10
+opts$pt_trials <- 10
 return_vals <- validate(X, y, method, opts)
 ```
 
-
-
-```{r cross-validate}
-my_score <- function(y1, y2) {
-   num1 <- as.numeric(y1)
-   num2 <- as.numeric(y2)
-   correct <- which(num1 == num2)
-   return(length(correct) / length(y1))
-}
-
-random_sel <- function(X, y) {
-  total_features <- length(X[1, ])
-  n_feats <- sample(1:total_features, 1)
-  features <- sample(1:total_features, n_feats)
-  return(features)
-}
-
-
-method = list(select = random_sel,
-              train = model_train,
-              predict = model_predict,
-              score = my_score)
-
-opts = list(n_folds = 5, pt_trials = 3, rf_trials = 3)
-
-return_vals <- validate(X, y, method, opts)
-```
