@@ -155,6 +155,15 @@ visualize_ropls_loadings <- function(model, options = list()) {
     if (!(options$color_features %in% colnames(options$df_features))) {
       stop(paste(options$color_features, "is not defined in df_features"))
     }
+    if (!("colors" %in% names(options))) {
+      # define default colors
+      options$colors <- list()
+      options$colors[[options$color_features]] <- colorRampPalette(brewer.pal(name = "Dark2",
+                                                                              n = 8))(nlevels(options$df_features[,options$color_features]))
+    } else if (!(options$color_feature %in% names(options$colors))) {
+      options$colors[[options$color_features]] <- colorRampPalette(brewer.pal(name = "Dark2",
+                                                                              n = 8))(nlevels(options$df_features[,options$color_features]))
+    }
     df_loadings[[options$color_features]] <-
       options$df_features[match(rownames(df_loadings), options$df_features$name),
                           options$color_features]
@@ -213,85 +222,104 @@ visualize_ropls_loadings <- function(model, options = list()) {
 #' @export
 #'
 #' @examples
-visualize_ropls_loadings_bar <- function(model, y, ind_LV, options = list()) {
+visualize_ropls_loadings_bar <- function(model, options = list()) {
 
-  if (type == "classification") {
-    nClasses <- length(levels(y))
-    if (is.na(colors_bars[[1]])) {
-      library(RColorBrewer)
-      colors_bars <- brewer.pal(8, "Dark2")
-      names(colors_bars) <- levels(y)
+  # ----------------- BEGIN OPTIONS ----------------- #
+  if (!("LV_ind" %in% names(options))) {
+    options$LV_ind <- c(1)
+  }
+  if ("y" %in% names(options)) {
+    y <- options$y
+    if (is.factor(y)) {
+      n_classes <- nlevels(y)
+    } else {
+      n_classes <- NA
     }
-  }
-
-  if (dim(feature_annot)[1] == 0) {
-    feature_annot <- data.frame(useColor = rep("black", dim(X)[2]),
-                                label = colnames(X))
-    rownames(feature_annot) <- colnames(X)
-  }
-  if (!("useColor" %in% colnames(feature_annot))) {
-    feature_annot$useColor <- rep("black", dim(feature_annot)[1])
-  }
-
-  if (ropls::getSummaryDF(model)$ort == 0) {
-    loading <- ropls::getLoadingMN(oplsda)
-
-
   } else {
-    loadingsLV1_tmp <- ropls::getLoadingMN(model)[,1]
-    loadingsLV1 <- loadingsLV1_tmp[, 1]
-    plsda <- oplsda
+    n_classes <- NA
   }
-
-  # perform a standard PLS-DA (not orthogonal) and use these VIP scores
-  # the loadings values are still used from the priginal PLS-DA
-  # (oplsda) above because they discriminante between classes for </> 0
-  df_bar <- data.frame(vip_scores = getVipVn(plsda),
-                       loadingsLV1 = loadingsLV1,
-                       features = colnames(X),
-                       feature_labels = feature_annot$label[match(colnames(X),rownames(feature_annot))])
-
-  colnames(dfBar) <- c("vipScores", "loadingsLV1", "features", "feature_labels")
-
-  warning("Please, check whether coloring and assignment is right!")
-
-  if (markEnrich & nClasses == 2 & type == "classification") {
-    for (indFeat in 1:dim(dfBar)[1]) {
-      if (median(X[which(y == levels(y)[2]), which(colnames(X) == dfBar$features[indFeat])]) >
-          median(X[which(y == levels(y)[1]), which(colnames(X) == dfBar$features[indFeat])])) {
-        dfBar$mark[indFeat] <- levels(y)[2]
-      } else {
-        dfBar$mark[indFeat] <- levels(y)[1]
-      }
+  if (!("mark_enrichment" %in% names(options))) {
+    options$mark_enrichment <- FALSE
+  }
+  if (options$mark_enrichment & (is.na(n_classes) | !("X" %in% names(options))))  {
+    stop("Enrichment only works for classification and when X and y are provided")
+  }
+  # color for the scores and name of the grouping
+  if (!is.na(n_classes) & !("color" %in% names(options))) {
+    options$colors <- list(class = c())
+    for (ind in 1:nlevels(y)) {
+      options$colors$class[[levels(y)[ind]]] <- RColorBrewer::brewer.pal(n = max(3, nlevels(y)),
+                                                                         name = 'Dark2')[ind]
     }
-    dfBar$mark <- factor(dfBar$mark, levels = levels(y))
-  }  else {
-    dfBar$mark <- rep(NA, dim(dfBar)[1])
+    y_name <- "class"
+  } else {
+    y_name <- names(options$colors)[grep(levels(y)[1], options$colors)]
+  }
+  if (ropls::getSummaryDF(model)$pre +
+      ropls::getSummaryDF(model)$ort < LV_ind) {
+    stop("required LV exceed existing LVs")
+  }
+  if (!("df_features" %in% names(options))) {
+    options$df_features <- data.frame(name = rownames(df_loadings),
+                                      label = rownames(df_loadings))
+  }
+  # ----------------- END OPTIONS ----------------- #
+
+  # check first whether its a orthogonal PLS or a regular PLS
+  if (ropls::getSummaryDF(model)$ort > 0) {
+    stop("needs to be implemented")
+    # if (options$LV_ind[1] == 1) {
+    #   df_loadings <- data.frame(LV1 = ropls::getLoadingMN(model),
+    #                             LV2 = ropls::getLoadingMN(model, orthoL = TRUE)[,options$LV_ind[2] - 1])
+    # } else {
+    #   df_loadings <- data.frame(LV1 = ropls::getLoadingMN(model, orthoL = TRUE)[, options$LV_ind[1] - 1],
+    #                             LV2 = ropls::getLoadingMN(model, orthoL = TRUE)[, options$LV_ind[2] - 1])
+    # }
+  } else {
+    df_loadings <- data.frame(LV = ropls::getLoadingMN(model)[,LV_ind[1]],
+                              vip_scores = ropls::getVipVn(model))
+    df_loadings$features <- rownames(df_loadings)
+    df_loadings$labels <- options$df_features$label[match(rownames(df_loadings), options$df_features$name)]
   }
 
-  dfBar <- dfBar[order(dfBar$vipScores), ]
-  dfBar$features <- factor(dfBar$features, levels = unique(dfBar$features))
+  # TODO: catch if its an orthogonal
 
-  # only VIP > 1
-  if (vipFlag) {
-    dfBar <- dfBar[dfBar$vipScores > 1, ]
+  if (options$mark_enrichment & !is.na(n_classes)) {
+    df_loadings$mark <- NA
+    X <- options$X
+
+    for (ind_feat in 1:nrow(df_loadings)) {
+      tmp_mean <- rep(NA, length = nlevels(y))
+      for (ind_class in 1:nlevels(y)) {
+        tmp_mean[ind_class] <- mean(X[which(y == levels(y)[ind_class]), which(colnames(X) == df_loadings$features[ind_feat])])
+      }
+      df_loadings$mark[ind_feat] <- levels(y)[which.max(tmp_mean)]
+    }
+    df_loadings$mark  <- factor(df_loadings$mark, levels = levels(y))
   }
+
+  df_loadings <- df_loadings[order(df_loadings$vip_scores), ]
+  df_loadings$features <- factor(df_loadings$features, levels = unique(df_loadings$features))
+
   # plot loadings sorted according to the VIP score and color coding it
   # according to enrichent in classes
-  pltBar <- ggplot(data = dfBar, aes(x = features, y = loadingsLV1, fill = mark)) +
-    geom_bar(stat = "identity", color = "black") +
-    theme_classic() +
-    coord_flip() +
-    xlab("") +
-    ylab("LV1 loadings") + labs(fill = "enriched in") +
-    scale_x_discrete(labels = dfBar$feature_labels) +
-    scale_fill_manual(values = colors_bars) +
-    theme(legend.position = "none", axis.text.x = element_text(color = "black"),
-          axis.text.y = element_text(colour = as.character(
-            feature_annot$useColor[match(dfBar$features[order(dfBar$vipScores)],
-                                         rownames(feature_annot))])))
-
-
+  if (options$mark_enrichment) {
+    plt_bar <- ggplot2::ggplot(data = df_loadings, ggplot2::aes(x = features, y = LV, fill = mark)) +
+      ggplot2::scale_fill_manual(values = options$colors[[y_name]])
+  } else {
+    plt_bar <- ggplot2::ggplot(data = df_loadings, ggplot2::aes(x = features, y = LV))
+  }
+  plt_bar <- plt_bar +
+    ggplot2::geom_bar(stat = "identity", color = "black") +
+    ggplot2::coord_flip() +
+    ggplot2::xlab("") +
+    ggplot2::ylab(paste("LV", options$LV_ind, " loadings", sep = "")) +
+    ggplot2::labs(fill = "enriched in") +
+    ggplot2::scale_x_discrete(labels = df_loadings$labels) +
+    ggplot2::theme_classic() +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(color = "black"))#ı,
+                   #axis.text.y = element_text(colour = as.character(feature_annot$useColor[match(dfBar$features[order(dfBar$vipScores)],
+                                        # rownames(feature_annot))])))
 
 }
 

@@ -55,13 +55,13 @@ opts_plot$df_features <- df_features
 opts_plot$colors = list(class = c(RSTR = "red", LTB = "blue"))
 opts_plot$colors$antigen <- colorRampPalette(brewer.pal(name = "Dark2", n = 8))(nlevels(df_features$antigen))
 names(opts_plot$colors$antigen) <- unique(df_features$antigen)
-opts_plot$colors$feature_class <- colorRampPalette(brewer.pal(name = "Set1", n = 2))(nlevels(df_features$feature_class))
+opts_plot$colors$feature_class <- colorRampPalette(brewer.pal(name = "Set1", n = 3))(nlevels(df_features$feature_class))
 names(opts_plot$colors$feature_class) <- unique(df_features$feature_class)
 
 opts_plot$loading_alpha <- 1 # transparency for the loadings
 opts_plot$score_alpha <- 1 # transparency for the lcores
 opts_plot$color_features <- "antigen" # which 
-opts_plot$color_features <- "feature_class"
+#opts_plot$color_features <- "feature_class"
 opts_plot$LV_ind <- c(1,2) # which LVs to plot
 
 
@@ -80,6 +80,12 @@ print(plt_scores)
 
 plt_loadings <- visualize_ropls_loadings(model, options = opts_plot)
 print(plt_loadings)
+
+opts_plot$X <- X
+opts_plot$y <- y
+opts_plot$mark_enrichment <- TRUE
+plt_loadings_bar <- visualize_ropls_loadings_bar(model, options = opts_plot)
+print(plt_loadings_bar)
 
 ```
 
