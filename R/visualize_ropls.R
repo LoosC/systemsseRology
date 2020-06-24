@@ -267,7 +267,7 @@ visualize_ropls_loadings_bar <- function(model, options = list()) {
 
   # check first whether its a orthogonal PLS or a regular PLS
   if (ropls::getSummaryDF(model)$ort > 0) {
-    stop("needs to be implemented")
+    stop("orthogonal PLS-DA not supported yet")
     # if (options$LV_ind[1] == 1) {
     #   df_loadings <- data.frame(LV1 = ropls::getLoadingMN(model),
     #                             LV2 = ropls::getLoadingMN(model, orthoL = TRUE)[,options$LV_ind[2] - 1])
@@ -276,7 +276,7 @@ visualize_ropls_loadings_bar <- function(model, options = list()) {
     #                             LV2 = ropls::getLoadingMN(model, orthoL = TRUE)[, options$LV_ind[2] - 1])
     # }
   } else {
-    df_loadings <- data.frame(LV = ropls::getLoadingMN(model)[,LV_ind[1]],
+    df_loadings <- data.frame(LV = ropls::getLoadingMN(model)[,options$LV_ind[1]],
                               vip_scores = ropls::getVipVn(model))
     df_loadings$features <- rownames(df_loadings)
     df_loadings$labels <- options$df_features$label[match(rownames(df_loadings), options$df_features$name)]
@@ -317,7 +317,7 @@ visualize_ropls_loadings_bar <- function(model, options = list()) {
     ggplot2::labs(fill = "enriched in") +
     ggplot2::scale_x_discrete(labels = df_loadings$labels) +
     ggplot2::theme_classic() +
-    ggplot2::theme(axis.text.x = ggplot2::element_text(color = "black"))#ı,
+    ggplot2::theme(axis.text.x = ggplot2::element_text(color = "black"))#,
                    #axis.text.y = element_text(colour = as.character(feature_annot$useColor[match(dfBar$features[order(dfBar$vipScores)],
                                         # rownames(feature_annot))])))
 

@@ -64,7 +64,6 @@ opts_plot$color_features <- "antigen" # which
 #opts_plot$color_features <- "feature_class"
 opts_plot$LV_ind <- c(1,2) # which LVs to plot
 
-
 # Perform a simple PCA using the interface function pca_ropls
 model_pca <- pca_ropls(X)
 plt_scores_pca <- visualize_ropls_scores(model_pca, y, options = opts_plot)
@@ -83,6 +82,7 @@ print(plt_loadings)
 
 opts_plot$X <- X
 opts_plot$y <- y
+opts_plot$LV_ind <- 2
 opts_plot$mark_enrichment <- TRUE
 plt_loadings_bar <- visualize_ropls_loadings_bar(model, options = opts_plot)
 print(plt_loadings_bar)
