@@ -9,7 +9,7 @@
 #' @examples
 train_ropls <- function(X, y) {
   # suppress annoying "error"s from ropls
-  sink(file = tempfile(), type = "output")
+  sink(file = tempfile())
   try_out <- try(model <- ropls::opls(X, y,
                          crossValI = 5, # TODO make this an option
                          permI = 0, # no permutation and other output to save computation time
@@ -42,7 +42,10 @@ train_ropls <- function(X, y) {
 #'
 #' @examples
 predict_ropls <- function(model, X) {
+  # suppress annoying "error"s from ropls
+  sink(file = tempfile())
   y_pred <- ropls::predict(model, newdata = X)
+  sink()
   return(y_pred)
 }
 
@@ -56,14 +59,16 @@ predict_ropls <- function(model, X) {
 #'
 #' @examples
 pca_ropls <- function(X) {
+  # suppress annoying "error"s from ropls
+  sink(file = tempfile())
     try_out <- try(
       model <- ropls::opls(X, predI = NA,
                            crossValI = 5, # TODO make this an option
                            permI = 0, # no permutation and other output to save computation time
                            info.txtC = "none",
                            fig.pdfC = "none"
-                           )
-
+                           ),
+      silent = TRUE
     )
     if (is(try_out, "try-error") | ropls::getSummaryDF(model)$pre < 2) {
       # to ensure that the model has at least two prinicipal components
@@ -74,5 +79,6 @@ pca_ropls <- function(X) {
                            fig.pdfC = "none"
                            )
     }
+  sink()
   return(model)
 }
