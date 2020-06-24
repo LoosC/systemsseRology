@@ -11,7 +11,7 @@ This requires the package devtools.
 
 ``` r
 install.packages("devtools")
-install_github("LoosC/systemsseRology")
+install_github("LoosC/systemsseRology", ref = "reboot")
 library(systemsseRology)
 ```
 and the package 'ropls'
