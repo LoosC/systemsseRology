@@ -103,7 +103,7 @@ method = list(select = select_lasso,
               predict = predict_ropls,
               score = score_accuracy)
 
-opts = list(n_folds = 5, rf_trials = 0,  pt_trials = )
+opts = list(n_folds = 5, rf_trials = 0, pt_trials = 0)
 
 return_vals <- validate(X, y, method, opts)
 
