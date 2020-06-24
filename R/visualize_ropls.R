@@ -256,7 +256,7 @@ visualize_ropls_loadings_bar <- function(model, options = list()) {
     y_name <- names(options$colors)[grep(levels(y)[1], options$colors)]
   }
   if (ropls::getSummaryDF(model)$pre +
-      ropls::getSummaryDF(model)$ort < LV_ind) {
+      ropls::getSummaryDF(model)$ort < options$LV_ind) {
     stop("required LV exceed existing LVs")
   }
   if (!("df_features" %in% names(options))) {

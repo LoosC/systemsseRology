@@ -4,7 +4,7 @@
 \alias{visualize_ropls_loadings_bar}
 \title{Title}
 \usage{
-visualize_ropls_loadings_bar(model, y, LV_ind = 1, options = list())
+visualize_ropls_loadings_bar(model, options = list())
 }
 \arguments{
 \item{ind_LV}{}

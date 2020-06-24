@@ -9,7 +9,7 @@
 #' @examples
 train_ropls <- function(X, y) {
   # suppress annoying "error"s from ropls
-  sink(file=tempfile(), type="output")
+  sink(file = tempfile(), type = "output")
   try_out <- try(model <- ropls::opls(X, y,
                          crossValI = 5, # TODO make this an option
                          permI = 0, # no permutation and other output to save computation time
