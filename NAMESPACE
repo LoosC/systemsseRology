@@ -3,6 +3,8 @@
 export(pca_ropls)
 export(predict_ropls)
 export(score_accuracy)
+export(score_mse)
+export(score_r2)
 export(select_lasso)
 export(select_repeat)
 export(train_ropls)

@@ -5,7 +5,7 @@
 #' @param options
 #'
 #' @return
-#' @export select_lasso
+#' @export
 #'
 #' @examples
 select_lasso <- function(X, y, options = list()) {

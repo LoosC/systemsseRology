@@ -7,7 +7,7 @@
 #' @param threshold
 #'
 #' @return
-#' @export select_repeat
+#' @export
 #'
 #' @examples
 select_repeat <- function(X, y, selector, trials = 100, threshold = 0.8) {
