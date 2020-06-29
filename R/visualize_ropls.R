@@ -24,18 +24,44 @@ visualize_ropls_scores <- function(model, y, options = list()) {
   if (!("level" %in% names(options))) {
     options$level <- 0.95
   }
-  # color for the scores and name of the grouping
-  if (!("colors" %in% names(options))) {
-    tmp <- rep(NA, length = nlevels(y))
-    names(tmp) <- levels(y)
-    for (ind in 1:nlevels(y)) {
-      tmp[ind] <- RColorBrewer::brewer.pal(n = max(3, nlevels(y)), name = 'Dark2')[ind]
+  if ("y" %in% names(options)) {
+    y <- options$y
+    if (is.factor(y)) {
+      n_groups <- nlevels(y)
+    } else {
+      n_groups <- NA
     }
-    y_name <- "group"
-    options$colors <- list(group = tmp)
   } else {
-    y_name <- names(options$colors)[grep(levels(y)[1], options$colors)]
+    n_groups <- NA
   }
+  # color for the scores and name of the grouping
+  if ("colors" %in% names(options)) {
+    # Classification
+    if (is.factor(y)) {
+      if (!(length(grep(levels(y)[1], options$colors)) == 0)) {
+        y_name <- names(options$colors)[grep(levels(y)[1], options$colors)]
+      } else {
+          tmp <- rep(NA, length = nlevels(y))
+          names(tmp) <- levels(y)
+          for (ind in 1:nlevels(y)) {
+            tmp[ind] <- RColorBrewer::brewer.pal(n = max(3, nlevels(y)), name = 'Dark2')[ind]
+          }
+          options$colors <- list(y = tmp)
+          y_name <- "y"
+      }
+    } else { # Regression
+      if (!("y_name" %in% names(options))) {
+        y_name <- "y"
+      } else {
+        y_name <- options$y_name
+      }
+      if (length(grep(y_name, names(options$colors))) == 0) {
+        # For regression, a color palette needs to be provided
+        options$colors$y <- list(low = "#C7E4F9", high = "#004D7F")
+      }
+    }
+  }
+
   # which latent variables to check, defaults to the first two
   # if they are provided, ensure that the model has the required number of LVs
   if (!("LV_ind" %in% names(options))) {
@@ -93,6 +119,9 @@ visualize_ropls_scores <- function(model, y, options = list()) {
       ggplot2::stat_ellipse(ggplot2::aes(color = y), level = options$level) +
       ggplot2::scale_fill_manual(values = options$colors[[y_name]]) +
       ggplot2::scale_color_manual(values = options$colors[[y_name]])
+  } else {
+    plt_scores <- plt_scores +
+      ggplot2::scale_fill_gradient(low = opts_plot$colors$y[["low"]], high = opts_plot$colors$y[["high"]])
   }
   # ---------------------- END PLOT ---------------------- #
 
@@ -237,23 +266,25 @@ visualize_ropls_loadings_bar <- function(model, options = list()) {
   } else {
     n_groups <- NA
   }
-  if (!("mark_enrichment" %in% names(options))) {
+  if (!("mark_enrichment" %in% names(options)) | is.na(n_groups)) {
     options$mark_enrichment <- FALSE
   }
   if (options$mark_enrichment & (is.na(n_groups) | !("X" %in% names(options))))  {
     stop("Enrichment only works for classification and when X and y are provided")
   }
   # color for the scores and name of the grouping
-  if (!is.na(n_groups) & !("color" %in% names(options))) {
-    tmp <- rep(NA, length = nlevels(y))
-    names(tmp) <- levels(y)
-    for (ind in 1:nlevels(y)) {
-      tmp[ind] <- RColorBrewer::brewer.pal(n = max(3, nlevels(y)), name = 'Dark2')[ind]
+  if (!is.na(n_groups)) {
+    if (!("color" %in% names(options))) {
+      tmp <- rep(NA, length = nlevels(y))
+      names(tmp) <- levels(y)
+      for (ind in 1:nlevels(y)) {
+        tmp[ind] <- RColorBrewer::brewer.pal(n = max(3, nlevels(y)), name = 'Dark2')[ind]
+      }
+      y_name <- "group"
+      options$colors <- list(group = tmp)
+    } else {
+      y_name <- names(options$colors)[grep(levels(y)[1], options$colors)]
     }
-    y_name <- "group"
-    options$colors <- list(group = tmp)
-  } else {
-    y_name <- names(options$colors)[grep(levels(y)[1], options$colors)]
   }
   if (ropls::getSummaryDF(model)$pre +
       ropls::getSummaryDF(model)$ort < options$LV_ind) {

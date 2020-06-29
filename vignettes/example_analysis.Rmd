@@ -22,6 +22,8 @@ Load the package
 library(systemsseRology)
 ```
 
+# Classification
+
 Read the data from an Excel file. Z-score the data and assign the label in the variable y.
 
 ```{r data}
@@ -84,7 +86,7 @@ print(plt_loadings)
 # set additional options required to color code enrichment in the bar plot of the loadings
 opts_plot$X <- X
 opts_plot$y <- y
-opts_plot$LV_ind <- 2
+opts_plot$LV_ind <- 1
 opts_plot$mark_enrichment <- TRUE
 plt_loadings_bar <- visualize_ropls_loadings_bar(model, options = opts_plot)
 print(plt_loadings_bar)
@@ -120,3 +122,74 @@ opts$pt_trials <- 10
 return_vals <- validate(X, y, method, opts)
 ```
 
+
+
+# Regression
+
+An example for a regression, i.e., y being continuous.
+
+```{r data}
+rm(list = ls())
+
+library(readxl)
+data <- as.data.frame(read_excel("../data/RSTR_data_NatureMedicine_subset.xlsx"))
+
+X <- as.matrix(as.data.frame(lapply(data[, 5:(ncol(data) - 1)], as.numeric)))
+X_zscore <- scale(X, center = TRUE, scale = TRUE)
+y <- data[,ncol(data)]
+```
+
+The variable df_features contains information about the features, mainly used for visualization routines. 
+Here, we assign a label (removing underscores) and extract the antigen. 
+
+```{r annotation}
+df_features <- data.frame(name = colnames(X))
+df_features$label <- gsub("_", " ", df_features$name)
+df_features$antigen <- gsub("_.*", "", df_features$name)
+df_features$antigen <- factor(df_features$antigen)
+df_features$feature_class <- rep(NA, length = nrow(df_features))
+df_features$feature_class[which(grepl("IgG|IgA|IgM", df_features$name))] <- "titer"
+df_features$feature_class[which(grepl("FcR", df_features$name))] <- "FcR"
+df_features$feature_class <- factor(df_features$feature_class)
+```
+
+Example PCA and PLS-DA (using the package ropls) and visualization.
+
+```{r PLSDA vis}
+library(RColorBrewer)
+
+# Define colors
+my_colors = list(y = c(low = "red", high = "blue"))
+my_colors$antigen <- colorRampPalette(brewer.pal(name = "Dark2", n = 8))(nlevels(df_features$antigen))
+names(my_colors$antigen) <- unique(df_features$antigen)
+my_colors$feature_class <- colorRampPalette(brewer.pal(name = "Set1", n = 3))(nlevels(df_features$feature_class))
+names(my_colors$feature_class) <- unique(df_features$feature_class)
+
+# general options for plotting
+opts_plot <- list(df_features = df_features,
+                  loading_alpha = 1, # transparency for the loadings
+                  score_alpha = 1, # transparency for the scores
+                  LV_ind = c(1,2), # which LVs to plot
+                  color_features = "antigen", 
+                  colors = my_colors,
+                  y_name = "y") 
+
+# Perform a simple PCA using the interface function pca_ropls
+model_pca <- pca_ropls(X)
+plt_scores_pca <- visualize_ropls_scores(model_pca, y, options = opts_plot)
+print(plt_scores_pca)
+
+# Perform a PLS-DA and plot the scores and loadings
+model <- train_ropls(X, y)
+
+plt_scores <- visualize_ropls_scores(model, y, options = opts_plot)
+print(plt_scores)
+
+plt_loadings <- visualize_ropls_loadings(model, options = opts_plot)
+print(plt_loadings)
+
+# set additional options required to color code enrichment in the bar plot of the loadings
+opts_plot$LV_ind <- 1
+plt_loadings_bar <- visualize_ropls_loadings_bar(model, options = opts_plot)
+print(plt_loadings_bar)
+```
