@@ -7,10 +7,12 @@
 score_r2(y, y_pred)
 }
 \arguments{
-\item{y_pred}{}
+\item{y}{true labels}
+
+\item{y_pred}{predicted labels}
 }
 \value{
-
+R2 value
 }
 \description{
 R^2 (coefficient of determination)

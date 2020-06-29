@@ -2,16 +2,20 @@
 % Please edit documentation in R/visualize_ropls.R
 \name{visualize_ropls_loadings}
 \alias{visualize_ropls_loadings}
-\title{Title}
+\title{Loadings plot}
 \usage{
 visualize_ropls_loadings(model, options = list())
 }
 \arguments{
+\item{model}{ropls object}
+
 \item{options}{}
+
+\item{y}{vector with labels}
 }
 \value{
 
 }
 \description{
-Title
+Loadings plot
 }

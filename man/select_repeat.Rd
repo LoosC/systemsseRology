@@ -2,16 +2,26 @@
 % Please edit documentation in R/select_repeat.R
 \name{select_repeat}
 \alias{select_repeat}
-\title{Title}
+\title{Repeat the feature selection and return features that are selected more
+often than a provided threshold}
 \usage{
-select_repeat(X, y, selector, trials = 100, threshold = 0.8)
+select_repeat(X, y, selector, n_trials = 100, threshold = 0.8)
 }
 \arguments{
-\item{threshold}{}
+\item{X}{n_samples x n_features matrix}
+
+\item{y}{vector of labels}
+
+\item{selector}{feature selection method}
+
+\item{n_trials}{number of repetitions}
+
+\item{threshold}{between 0 and 1, features that are selected more often are selected}
 }
 \value{
 
 }
 \description{
-Title
+Repeat the feature selection and return features that are selected more
+often than a provided threshold
 }

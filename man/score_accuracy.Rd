@@ -7,10 +7,12 @@
 score_accuracy(y, y_pred)
 }
 \arguments{
-\item{y2}{}
+\item{y}{true labels}
+
+\item{y_pred}{predicted labels}
 }
 \value{
-
+classification accuracy
 }
 \description{
 Accuracy

@@ -7,10 +7,12 @@
 predict_ropls(model, X)
 }
 \arguments{
-\item{X}{}
+\item{model}{ropls object}
+
+\item{X}{n_samples x n_features matrix}
 }
 \value{
-
+vector of predicted labels
 }
 \description{
 Prediction using a ropls object

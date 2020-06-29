@@ -2,16 +2,20 @@
 % Please edit documentation in R/visualize_ropls.R
 \name{visualize_ropls_scores}
 \alias{visualize_ropls_scores}
-\title{Title}
+\title{Score plot}
 \usage{
 visualize_ropls_scores(model, y, options = list())
 }
 \arguments{
+\item{model}{ropls object}
+
+\item{y}{vector of labels}
+
 \item{options}{}
 }
 \value{
 
 }
 \description{
-Title
+Score plot
 }

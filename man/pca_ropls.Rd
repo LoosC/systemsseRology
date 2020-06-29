@@ -7,10 +7,10 @@
 pca_ropls(X)
 }
 \arguments{
-\item{y}{}
+\item{X}{n_samples x n_features matrix}
 }
 \value{
-
+ropls object
 }
 \description{
 PCA using ropls

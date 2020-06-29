@@ -2,19 +2,20 @@
 % Please edit documentation in R/validate.R
 \name{validate}
 \alias{validate}
-\title{Title}
+\title{Model validation performing cross-validation and permutation tests.}
 \usage{
 validate(X, y, method, options)
 }
 \arguments{
+\item{X}{n_samples x n_features matrix}
+
+\item{y}{vector of labels}
+
 \item{method}{}
 }
 \value{
 
 }
 \description{
-Title
-}
-\examples{
-
+Model validation performing cross-validation and permutation tests.
 }

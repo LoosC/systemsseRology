@@ -7,10 +7,12 @@
 train_ropls(X, y)
 }
 \arguments{
-\item{y}{}
+\item{X}{n_samples x n_features matrix}
+
+\item{y}{vector of labels}
 }
 \value{
-
+ropls object
 }
 \description{
 Training the ropls model

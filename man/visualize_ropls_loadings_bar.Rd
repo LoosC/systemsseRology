@@ -2,16 +2,18 @@
 % Please edit documentation in R/visualize_ropls.R
 \name{visualize_ropls_loadings_bar}
 \alias{visualize_ropls_loadings_bar}
-\title{Title}
+\title{Barplot for loadings}
 \usage{
 visualize_ropls_loadings_bar(model, options = list())
 }
 \arguments{
-\item{ind_LV}{}
+\item{model}{ropls object}
+
+\item{ind_LV}{latent variable index}
 }
 \value{
 
 }
 \description{
-Title
+Barplot for loadings
 }

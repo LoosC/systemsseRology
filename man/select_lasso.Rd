@@ -2,16 +2,20 @@
 % Please edit documentation in R/select_lasso.R
 \name{select_lasso}
 \alias{select_lasso}
-\title{Title}
+\title{Feature selection using LASSO}
 \usage{
 select_lasso(X, y, options = list())
 }
 \arguments{
-\item{options}{}
+\item{X}{n_samples x n_features matrix}
+
+\item{y}{vector of labels}
+
+\item{options}{with 'alpha' the elastic-net mixing parameter (see glmnet)}
 }
 \value{
-
+names of selected features
 }
 \description{
-Title
+Feature selection using LASSO
 }

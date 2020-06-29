@@ -1,14 +1,12 @@
-#' Title
+#' Model validation performing cross-validation and permutation tests.
 #'
-#' @param X
-#' @param y
+#' @param X n_samples x n_features matrix
+#' @param y vector of labels
 #' @param options
 #' @param method
 #'
 #' @return
 #' @export
-#'
-#' @examples
 #'
 validate <- function(X, y, method, options) {
   # TODO all kinds of debugging, check for data types

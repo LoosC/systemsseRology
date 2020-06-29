@@ -1,12 +1,10 @@
 #' Training the ropls model
 #'
-#' @param X
-#' @param y
+#' @param X n_samples x n_features matrix
+#' @param y vector of labels
 #'
-#' @return
+#' @return ropls object
 #' @export
-#'
-#' @examples
 train_ropls <- function(X, y) {
   # suppress annoying "error"s from ropls
   sink(file = tempfile())
@@ -34,13 +32,11 @@ train_ropls <- function(X, y) {
 
 #' Prediction using a ropls object
 #'
-#' @param model
-#' @param X
+#' @param model ropls object
+#' @param X n_samples x n_features matrix
 #'
-#' @return
+#' @return vector of predicted labels
 #' @export
-#'
-#' @examples
 predict_ropls <- function(model, X) {
   # suppress annoying "error"s from ropls
   sink(file = tempfile())
@@ -51,13 +47,10 @@ predict_ropls <- function(model, X) {
 
 #' PCA using ropls
 #'
-#' @param X
-#' @param y
+#' @param X n_samples x n_features matrix
+#' @return ropls object
 #'
-#' @return
 #' @export
-#'
-#' @examples
 pca_ropls <- function(X) {
   # suppress annoying "error"s from ropls
   sink(file = tempfile())

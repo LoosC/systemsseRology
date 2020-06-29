@@ -1,13 +1,12 @@
-#' Title
-#'
-#' @param model
-#' @param y
+#' Score plot
+
+#' @param model ropls object
+#' @param y vector of labels
 #' @param options
 #'
 #' @return
 #' @export
 #'
-#' @examples
 visualize_ropls_scores <- function(model, y, options = list()) {
 
   # ----------------- OPTIONS ----------------- #
@@ -89,7 +88,6 @@ visualize_ropls_scores <- function(model, y, options = list()) {
                             LV2 = ropls::getScoreMN(model)[,options$LV_ind[2]],
                             y = y)
   }
-
   # --------------------- END GET SCORES ------------------- #
 
 
@@ -121,7 +119,7 @@ visualize_ropls_scores <- function(model, y, options = list()) {
       ggplot2::scale_color_manual(values = options$colors[[y_name]])
   } else {
     plt_scores <- plt_scores +
-      ggplot2::scale_fill_gradient(low = opts_plot$colors$y[["low"]], high = opts_plot$colors$y[["high"]])
+      ggplot2::scale_fill_gradient(low = options$colors$y[["low"]], high = options$colors$y[["high"]])
   }
   # ---------------------- END PLOT ---------------------- #
 
@@ -129,16 +127,15 @@ visualize_ropls_scores <- function(model, y, options = list()) {
 }
 
 
-#' Title
+#' Loadings plot
 #'
-#' @param model
-#' @param y
+#' @param model ropls object
+#' @param y vector with labels
 #' @param options
 #'
 #' @return
 #' @export
 #'
-#' @examples
 visualize_ropls_loadings <- function(model, options = list()) {
 
   # ----------------- BEGIN OPTIONS I ----------------- #
@@ -241,15 +238,14 @@ visualize_ropls_loadings <- function(model, options = list()) {
 }
 
 
-#' Title
+#' Barplot for loadings
 #'
-#' @param model
-#' @param ind_LV
+#' @param model ropls object
+#' @param ind_LV latent variable index
 #'
 #' @return
 #' @export
 #'
-#' @examples
 visualize_ropls_loadings_bar <- function(model, options = list()) {
 
   # ----------------- BEGIN OPTIONS ----------------- #

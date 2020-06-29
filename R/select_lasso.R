@@ -1,28 +1,27 @@
-#' Title
+#' Feature selection using LASSO
 #'
-#' @param X
-#' @param y
-#' @param options
+#' @param X n_samples x n_features matrix
+#' @param y vector of labels
+#' @param options with 'alpha' the elastic-net mixing parameter (see glmnet)
 #'
-#' @return
+#' @return names of selected features
 #' @export
-#'
-#' @examples
 select_lasso <- function(X, y, options = list()) {
   # check zscore?
 
   # decide on type of GLM depending on type of y
   # 2-level factor -> binomial, n-level factor -> multinomial
   # vector -> gaussian, anything else gives an error
-  if (class(y) == "factor") {
+  if (is.factor(y)) {
     if (nlevels(y) == 1) {
       stop("y is a factor with only one level")
     } else if (nlevels(y) == 2) {
       fam <- "binomial"
     } else {
       fam <- "multinomial"
+      stop("feature seelction for more than 2 classes no implemented yet")
     }
-  } else if (class(y) == "numeric") {
+  } else if (is.numeric(y)) {
     fam <- "gaussian"
   } else {
     stop("y must be of type factor or numeric vector")
@@ -34,7 +33,7 @@ select_lasso <- function(X, y, options = list()) {
   }
 
   # cv.glmnet needs at least 3 folds, so we need at least three features
-  n_samples <- length(X[, 1])
+  n_samples <- ncol(X)
   if (n_samples < 3) {
     stop("select_lasso() requires more than three samples for internal cross-validation")
   }
@@ -66,7 +65,7 @@ select_lasso <- function(X, y, options = list()) {
   # fit an appropriate lasso model with a number of trials corresponding to
   # different values of lambda
   lasso <- glmnet::cv.glmnet(X, y, type.measure = "mse", alpha = options$alpha,
-                                    family = fam, nfolds = options$subfolds)
+                             family = fam, nfolds = options$subfolds)
 
   # lasso$lambda[k] is the value of lambda in the k-th trial
   # lasso$nzero[k] is the number of non-zero coefficients in the fitted model

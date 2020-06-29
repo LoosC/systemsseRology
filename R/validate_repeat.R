@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @examples
-validate_repeat <- function(X, y, method, options, n_trials=100) {
+validate_repeat <- function(X, y, method, options, n_trials = 100) {
   # we run validate() n_trials times, returning the vector of real scores
   # and the matrices of random feature scores/permutation test scores
 

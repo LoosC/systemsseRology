@@ -1,12 +1,10 @@
 #' Accuracy
 #'
-#' @param y1
-#' @param y2
+#' @param y true labels
+#' @param y_pred predicted labels
 #'
-#' @return
+#' @return classification accuracy
 #' @export
-#'
-#' @examples
 score_accuracy <- function(y, y_pred) {
   num <- as.numeric(y)
   num_pred <- as.numeric(y_pred)
@@ -18,13 +16,11 @@ score_accuracy <- function(y, y_pred) {
 
 #' Mean squared error
 #'
-#' @param y
-#' @param y_pred
+#' @param y true labels
+#' @param y_pred predicted labels
 #'
-#' @return
+#' @return mean squared error
 #' @export
-#'
-#' @examples
 score_mse <- function(y, y_pred) {
   num <- as.numeric(y)
   num_pred <- as.numeric(y_pred)
@@ -35,13 +31,11 @@ score_mse <- function(y, y_pred) {
 
 #' R^2 (coefficient of determination)
 #'
-#' @param y
-#' @param y_pred
+#' @param y true labels
+#' @param y_pred predicted labels
 #'
-#' @return
+#' @return R2 value
 #' @export
-#'
-#' @examples
 score_r2 <- function(y, y_pred) {
   num <- as.numeric(y)
   num_pred <- as.numeric(y_pred)

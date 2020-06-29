@@ -129,7 +129,7 @@ repeated_vals <- validate_repeat(X, y, method, opts, n_trials = 10)
 
 An example for a regression, i.e., y being continuous.
 
-```{r data}
+```{r data regression}
 rm(list = ls())
 
 library(readxl)
@@ -143,7 +143,7 @@ y <- data[,ncol(data)]
 The variable df_features contains information about the features, mainly used for visualization routines. 
 Here, we assign a label (removing underscores) and extract the antigen. 
 
-```{r annotation}
+```{r annotation regression}
 df_features <- data.frame(name = colnames(X))
 df_features$label <- gsub("_", " ", df_features$name)
 df_features$antigen <- gsub("_.*", "", df_features$name)
@@ -154,9 +154,9 @@ df_features$feature_class[which(grepl("FcR", df_features$name))] <- "FcR"
 df_features$feature_class <- factor(df_features$feature_class)
 ```
 
-Example PCA and PLS-DA (using the package ropls) and visualization.
+Example PCA and PLS-R (using the package ropls) and visualization.
 
-```{r PLSDA vis}
+```{r PLSR vis}
 library(RColorBrewer)
 
 # Define colors
@@ -193,4 +193,23 @@ print(plt_loadings)
 opts_plot$LV_ind <- 1
 plt_loadings_bar <- visualize_ropls_loadings_bar(model, options = opts_plot)
 print(plt_loadings_bar)
+```
+
+
+```{r cross-validate PLSR}
+y_pred <- predict_ropls(model, X)
+r2 <- score_r2(y, y_pred)
+
+print(paste("Performance on full data set:", r2, "R^2"))
+
+method = list(select = select_lasso,
+              train = train_ropls,
+              predict = predict_ropls,
+              score = score_r2)
+
+opts = list(n_folds = 5, rf_trials = 0, pt_trials = 0)
+
+return_vals <- validate(X, y, method, opts)
+
+print(paste("Performance in 5-fold cv:", return_vals$cv_score, "R^2"))
 ```

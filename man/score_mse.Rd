@@ -7,10 +7,12 @@
 score_mse(y, y_pred)
 }
 \arguments{
-\item{y_pred}{}
+\item{y}{true labels}
+
+\item{y_pred}{predicted labels}
 }
 \value{
-
+mean squared error
 }
 \description{
 Mean squared error
