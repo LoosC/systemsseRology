@@ -120,6 +120,7 @@ Permutation testing to assess model significance using two different approaches.
 opts$rf_trials <- 10
 opts$pt_trials <- 10
 return_vals <- validate(X, y, method, opts)
+repeated_vals <- validate_repeat(X, y, method, opts, n_trials = 10)
 ```
 
 

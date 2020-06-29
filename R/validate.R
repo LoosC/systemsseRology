@@ -6,7 +6,7 @@
 #' @param method
 #'
 #' @return
-#' @export validate
+#' @export
 #'
 #' @examples
 #'
