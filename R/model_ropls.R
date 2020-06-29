@@ -12,8 +12,9 @@ train_ropls <- function(X, y) {
                          crossValI = 5, # TODO make this an option
                          permI = 0, # no permutation and other output to save computation time
                          info.txtC = "none",
-                         fig.pdfC = "none"),
-    silent = TRUE  # also need this to suppress errors
+                         fig.pdfC = "none",
+                         silent = TRUE
+                         )
   )
   if (is(try_out, "try-error")) {
     # No model could be build, provide a model with one latent variable
@@ -22,7 +23,9 @@ train_ropls <- function(X, y) {
                          crossValI = 5,
                          permI = 0,
                          info.txtC = "none",
-                         fig.pdfC = "none")
+                         fig.pdfC = "none",
+                         silent = TRUE
+                         )
   }
 
   # print error messages again
@@ -40,7 +43,7 @@ train_ropls <- function(X, y) {
 predict_ropls <- function(model, X) {
   # suppress annoying "error"s from ropls
   sink(file = tempfile())
-  y_pred <- ropls::predict(model, newdata = X)
+  y_pred <- ropls::predict(model, newdata = X, silent = TRUE)
   sink()
   return(y_pred)
 }
@@ -59,9 +62,9 @@ pca_ropls <- function(X) {
                            crossValI = 5, # TODO make this an option
                            permI = 0, # no permutation and other output to save computation time
                            info.txtC = "none",
-                           fig.pdfC = "none"
-                           ),
-      silent = TRUE
+                           fig.pdfC = "none",
+                           silent = TRUE
+                           )
     )
     if (is(try_out, "try-error") | ropls::getSummaryDF(model)$pre < 2) {
       # to ensure that the model has at least two prinicipal components
@@ -69,7 +72,8 @@ pca_ropls <- function(X) {
                            crossValI = 5,
                            permI = 0,
                            info.txtC = "none",
-                           fig.pdfC = "none"
+                           fig.pdfC = "none",
+                           silent = TRUE
                            )
     }
   sink()
