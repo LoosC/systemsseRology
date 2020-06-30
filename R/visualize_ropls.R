@@ -33,33 +33,27 @@ visualize_ropls_scores <- function(model, y, options = list()) {
   } else {
     n_groups <- NA
   }
+  if (!("y_name" %in% names(options))) {
+    y_name <- "y"
+  } else {
+    y_name <- options$y_name
+  }
   # color for the scores and name of the grouping
-  if ("colors" %in% names(options)) {
-    # Classification
+  if (!("colors" %in% names(options)) | length(grep(y_name, names(options$colors))) == 0) {
     if (is.factor(y)) {
-      if (!(length(grep(levels(y)[1], options$colors)) == 0)) {
-        y_name <- names(options$colors)[grep(levels(y)[1], options$colors)]
-      } else {
-          tmp <- rep(NA, length = nlevels(y))
-          names(tmp) <- levels(y)
-          for (ind in 1:nlevels(y)) {
-            tmp[ind] <- RColorBrewer::brewer.pal(n = max(3, nlevels(y)), name = 'Dark2')[ind]
-          }
-          options$colors <- list(y = tmp)
-          y_name <- "y"
-      }
-    } else { # Regression
-      if (!("y_name" %in% names(options))) {
-        y_name <- "y"
-      } else {
-        y_name <- options$y_name
-      }
-      if (length(grep(y_name, names(options$colors))) == 0) {
-        # For regression, a color palette needs to be provided
-        options$colors$y <- list(low = "#C7E4F9", high = "#004D7F")
-      }
+        tmp <- rep(NA, length = nlevels(y))
+        names(tmp) <- levels(y)
+        for (ind in 1:nlevels(y)) {
+          tmp[ind] <- RColorBrewer::brewer.pal(n = max(3, nlevels(y)), name = 'Dark2')[ind]
+        }
+        options$colors <- list()
+        options$colors[[y_name]] <- tmp
+    } else {
+      # For regression, a color palette needs to be provided
+      options$colors$y <- list(low = "#C7E4F9", high = "#004D7F")
     }
   }
+
 
   # which latent variables to check, defaults to the first two
   # if they are provided, ensure that the model has the required number of LVs
@@ -68,6 +62,8 @@ visualize_ropls_scores <- function(model, y, options = list()) {
   } else if (ropls::getSummaryDF(model)$pre +
              ropls::getSummaryDF(model)$ort < max(options$LV_ind)) {
       stop("required LV exceed existing LVs")
+  } else if (!(length(options$LV_ind) == 2)) {
+    stop("two LVs required")
   }
   # ----------------- END OPTIONS ----------------- #
 
@@ -92,7 +88,7 @@ visualize_ropls_scores <- function(model, y, options = list()) {
 
 
   # ---------------------- BEGIN PLOT ---------------------- #
-  plt_scores <- ggplot2::ggplot(df_scores,ggplot2::aes(LV1, LV2, fill = y)) +
+  plt_scores <- ggplot2::ggplot(df_scores, ggplot2::aes(LV1, LV2, fill = y)) +
     ggplot2::geom_vline(xintercept = 0, size = 0.3) +
     ggplot2::geom_hline(yintercept = 0, size = 0.3) +
     ggplot2::geom_point(color = "black",
@@ -147,6 +143,8 @@ visualize_ropls_loadings <- function(model, options = list()) {
   } else if (ropls::getSummaryDF(model)$pre +
              ropls::getSummaryDF(model)$ort < max(options$LV_ind)) {
     stop("required LV exceed existing LVs")
+  } else if (!(length(options$LV_ind) == 2)) {
+    stop("two LVs required")
   }
   # ----------------- END OPTIONS I ----------------- #
 

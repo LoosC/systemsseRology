@@ -93,15 +93,50 @@ plt_loadings_bar <- visualize_ropls_loadings_bar(model, options = opts_plot)
 print(plt_loadings_bar)
 ```
 
+Feature selection and then PLS-DA.
+
+```{r feature selection}
+opts_sel <- list(n_trials = 10, threshold = 0.2, return_count = FALSE)
+sel_features <- select_lasso(X, y)
+print(sel_features)
+# repeat this selection 100 times and pick the features that are chosen in 
+# more than 80% of the repetitions
+sel_features <- select_repeat(X, y, 
+                              selector = select_lasso, 
+                              options = opts_sel)
+X_sel <- X[, sel_features]
+
+# Perform a PLS-DA using the selected features and plot the scores and loadings
+model <- train_ropls(X_sel, y)
+opts_plot$LV_ind <- c(1,2)
+plt_scores <- visualize_ropls_scores(model, y, options = opts_plot)
+print(plt_scores)
+
+plt_loadings <- visualize_ropls_loadings(model, options = opts_plot)
+print(plt_loadings)
+
+# set additional options required to color code enrichment in the bar plot of the loadings
+opts_plot$X <- X_sel
+opts_plot$y <- y
+opts_plot$LV_ind <- 1
+opts_plot$mark_enrichment <- TRUE
+plt_loadings_bar <- visualize_ropls_loadings_bar(model, options = opts_plot)
+print(plt_loadings_bar)
+
+```
+
+
 Analyze model results. First we check the accuracy obtained on the whole data set. 
 
 ```{r cross-validate pls}
-y_pred <- predict_ropls(model, X)
+y_pred <- predict_ropls(model, X_sel)
 acc <- score_accuracy(y, y_pred)
 
 print(paste("Performance on full data set:", acc, "accuracy"))
 
-method = list(select = select_lasso,
+select <- function(X, y) { return(select_repeat(X, y, selector = select_lasso, options = opts_sel)) }
+
+method = list(select = select, 
               train = train_ropls,
               predict = predict_ropls,
               score = score_accuracy)
@@ -118,10 +153,10 @@ Permutation testing to assess model significance using two different approaches.
 2) Shuffled labels
 
 ```{r model validation}
-opts$rf_trials <- 10
-opts$pt_trials <- 10
+opts$rf_trials <- 3
+opts$pt_trials <- 3
 return_vals <- validate(X, y, method, opts)
-repeated_vals <- validate_repeat(X, y, method, opts, n_trials = 10)
+repeated_vals <- validate_repeat(X, y, method, opts, n_trials = 3)
 ```
 
 
@@ -137,7 +172,7 @@ library(readxl)
 data <- as.data.frame(read_excel("../data/RSTR_data_NatureMedicine_subset.xlsx"))
 
 X <- as.matrix(as.data.frame(lapply(data[, 5:(ncol(data) - 1)], as.numeric)))
-X_zscore <- scale(X, center = TRUE, scale = TRUE)
+X <- scale(X, center = TRUE, scale = TRUE)
 y <- data[,ncol(data)]
 ```
 

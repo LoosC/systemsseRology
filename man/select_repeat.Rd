@@ -5,7 +5,7 @@
 \title{Repeat the feature selection and return features that are selected more
 often than a provided threshold}
 \usage{
-select_repeat(X, y, selector, n_trials = 100, threshold = 0.8)
+select_repeat(X, y, selector, options = list())
 }
 \arguments{
 \item{X}{n_samples x n_features matrix}
@@ -14,9 +14,7 @@ select_repeat(X, y, selector, n_trials = 100, threshold = 0.8)
 
 \item{selector}{feature selection method}
 
-\item{n_trials}{number of repetitions}
-
-\item{threshold}{between 0 and 1, features that are selected more often are selected}
+\item{options}{options list}
 }
 \value{
 
