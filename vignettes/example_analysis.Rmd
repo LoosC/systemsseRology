@@ -31,7 +31,8 @@ library(readxl)
 data <- as.data.frame(read_excel("../data/RSTR_data_NatureMedicine_subset.xlsx"))
 
 X <- as.matrix(as.data.frame(lapply(data[, 5:ncol(data)], as.numeric)))
-X_zscore <- scale(X, center = TRUE, scale = TRUE)
+# z-score the data to make features comparable
+X <- scale(X, center = TRUE, scale = TRUE)
 y <- factor(data$y, levels = unique(data$y))
 ```
 
