@@ -4,7 +4,7 @@
 \alias{train_ropls}
 \title{Training the ropls model}
 \usage{
-train_ropls(X, y)
+train_ropls(X, y, options = list())
 }
 \arguments{
 \item{X}{n_samples x n_features matrix}

@@ -5,12 +5,18 @@
 #'
 #' @return ropls object
 #' @export
-train_ropls <- function(X, y) {
+train_ropls <- function(X, y, options = list()) {
   # suppress annoying "error"s from ropls
   sink(file = tempfile())
+  if ("n_LV" %in% names(options)) {
+    predI <- options$n_LV
+  } else {
+    predI <- NA
+  }
   try_out <- try(model <- ropls::opls(X, y,
                          crossValI = 5, # TODO make this an option
                          permI = 0, # no permutation and other output to save computation time
+                         predI = predI,
                          info.txtC = "none",
                          fig.pdfC = "none",
                          silent = TRUE

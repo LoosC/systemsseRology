@@ -96,7 +96,7 @@ print(plt_loadings_bar)
 Feature selection and then PLS-DA.
 
 ```{r feature selection}
-opts_sel <- list(n_trials = 10, threshold = 0.2, return_count = FALSE)
+opts_sel <- list(n_trials = 5, threshold = 0, return_count = FALSE)
 sel_features <- select_lasso(X, y)
 print(sel_features)
 # repeat this selection 100 times and pick the features that are chosen in 
@@ -108,6 +108,12 @@ X_sel <- X[, sel_features]
 
 # Perform a PLS-DA using the selected features and plot the scores and loadings
 model <- train_ropls(X_sel, y)
+# The model only has one latent variable. For visualization purposes we fix it to be two dimensional.
+ropls::getSummaryDF(model)
+
+opts_model <- list(n_LV = 2)
+model <- train_ropls(X_sel, y, options = opts_model)
+
 opts_plot$LV_ind <- c(1,2)
 plt_scores <- visualize_ropls_scores(model, y, options = opts_plot)
 print(plt_scores)
