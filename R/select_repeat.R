@@ -20,7 +20,6 @@ select_repeat <- function(X, y, selector, options = list()) {
     options$return_count <- FALSE
   }
 
-
   # vector counting how often each feature is selected
   feature_count <- rep(0, ncol(X))
   names(feature_count) <- colnames(X)
@@ -40,10 +39,6 @@ select_repeat <- function(X, y, selector, options = list()) {
   if (options$return_count) {
     return(list(feature_count = feature_count, sel_features = names(selected)))
   } else {
-    if (length(selected) == 0) {
-      return(NULL)
-    } else {
-      return(names(selected))
-    }
+    return(names(selected))
   }
 }
