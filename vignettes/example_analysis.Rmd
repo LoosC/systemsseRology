@@ -96,7 +96,7 @@ print(plt_loadings_bar)
 Feature selection and then PLS-DA.
 
 ```{r feature selection}
-opts_sel <- list(n_trials = 5, threshold = 0, return_count = FALSE)
+opts_sel <- list(n_trials = 100, threshold = 0.8, return_count = FALSE)
 sel_features <- select_lasso(X, y)
 print(sel_features)
 # repeat this selection 100 times and pick the features that are chosen in 

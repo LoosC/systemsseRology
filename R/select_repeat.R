@@ -10,15 +10,22 @@
 #' @export
 select_repeat <- function(X, y, selector, options = list()) {
 
+  # ----------------- BEGIN OPTIONS ----------------- #
+  # How often it should be repeated
   if (!("n_trials" %in% names(options))) {
     options$n_trials <- 100
   }
   if (!("threshold" %in% names(options))) {
     options$threshold <- 0.8
   }
+  # returns the whole data frame of how often a feature was selected
   if (!("return_count" %in% names(options))) {
     options$return_count <- FALSE
   }
+  if (!("force_select" %in% names(options))) {
+    options$force_select <- TRUE
+  }
+  # ----------------- END OPTIONS ----------------- #
 
   # vector counting how often each feature is selected
   feature_count <- rep(0, ncol(X))
@@ -35,7 +42,11 @@ select_repeat <- function(X, y, selector, options = list()) {
   # percent of the trials
   selected <- feature_count[-which(feature_count <= options$threshold * options$n_trials)]
 
-  # if no features satisfy this requirement, return NULL instead
+  # if a selection is forced, return the features which are selected the most
+  if (length(selected) == 0 & options$force_select) {
+    selected <- feature_count[which(feature_count == max(feature_count))]
+  }
+
   if (options$return_count) {
     return(list(feature_count = feature_count, sel_features = names(selected)))
   } else {
