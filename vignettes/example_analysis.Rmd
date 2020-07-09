@@ -68,7 +68,8 @@ opts_plot <- list(df_features = df_features,
                   score_alpha = 1, # transparency for the scores
                   LV_ind = c(1,2), # which LVs to plot
                   color_features = "antigen", # according to which property (defined in df_features) the features should be color-coded
-                  colors = my_colors) 
+                  colors = my_colors,
+                  y_name = "group") 
 
 # Perform a simple PCA using the interface function pca_ropls
 model_pca <- pca_ropls(X)
