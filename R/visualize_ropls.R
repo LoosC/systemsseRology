@@ -266,20 +266,32 @@ visualize_ropls_loadings_bar <- function(model, options = list()) {
   if (options$mark_enrichment & (is.na(n_groups) | !("X" %in% names(options))))  {
     stop("Enrichment only works for classification and when X and y are provided")
   }
+
   # color for the scores and name of the grouping
-  if (!is.na(n_groups)) {
-    if (!("color" %in% names(options))) {
+  if (!("y_name" %in% names(options))) {
+    y_name <- "y"
+  } else {
+    y_name <- options$y_name
+  }
+  # color for the scores and name of the grouping
+  if (!("colors" %in% names(options)) | length(grep(y_name, names(options$colors))) == 0) {
+    if (is.factor(y)) {
       tmp <- rep(NA, length = nlevels(y))
       names(tmp) <- levels(y)
       for (ind in 1:nlevels(y)) {
         tmp[ind] <- RColorBrewer::brewer.pal(n = max(3, nlevels(y)), name = 'Dark2')[ind]
       }
-      y_name <- "group"
-      options$colors <- list(group = tmp)
+      options$colors <- list()
+      options$colors[[y_name]] <- tmp
     } else {
-      y_name <- names(options$colors)[grep(levels(y)[1], options$colors)]
+      # For regression, a color palette needs to be provided
+      options$colors$y <- list(low = "#C7E4F9", high = "#004D7F")
     }
   }
+
+
+
+
   if (ropls::getSummaryDF(model)$pre +
       ropls::getSummaryDF(model)$ort < options$LV_ind) {
     stop("required LV exceed existing LVs")
