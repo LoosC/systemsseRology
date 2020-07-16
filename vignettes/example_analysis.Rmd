@@ -104,7 +104,7 @@ opts = list(n_folds = 5, pt_trials = 0)
 
 return_vals <- validate(X, y, method, opts)
 
-print(paste("Performance in 5-fold cv:", return_vals$cv_score, "accuracy"))
+print(paste("Performance in 5-fold cv:", round(return_vals$cv_score, digits = 2), "accuracy"))
 ```
 
 Feature selection and then PLS-DA.
@@ -152,7 +152,7 @@ Analyze model results. First we check the accuracy obtained on the whole data se
 y_pred <- predict_ropls(model, X_sel)
 acc <- score_accuracy(y, y_pred)
 
-print(paste("Performance on full data set:", acc, "accuracy"))
+print(paste("Performance on full data set:", round(acc, digits = 2), "accuracy"))
 
 select <- function(X, y) { return(select_repeat(X, y, selector = select_lasso, options = opts_sel)) }
 
@@ -165,7 +165,7 @@ opts = list(n_folds = 5, rf_trials = 0, pt_trials = 0)
 
 return_vals <- validate(X, y, method, opts)
 
-print(paste("Performance in 5-fold cv:", return_vals$cv_score, "accuracy"))
+print(paste("Performance in 5-fold cv:", round(return_vals$cv_score, digits = 2), "accuracy"))
 ```
 
 Permutation testing to assess model significance using two different approaches.
