@@ -19,7 +19,6 @@ select_lasso <- function(X, y, options = list()) {
       fam <- "binomial"
     } else {
       fam <- "multinomial"
-      stop("feature seelction for more than 2 classes no implemented yet")
     }
   } else if (is.numeric(y)) {
     fam <- "gaussian"
@@ -65,31 +64,41 @@ select_lasso <- function(X, y, options = list()) {
   # fit an appropriate lasso model with a number of trials corresponding to
   # different values of lambda
   lasso <- glmnet::cv.glmnet(X, y, type.measure = "mse", alpha = options$alpha,
-                             family = fam, nfolds = options$subfolds)
+                             family = fam, type.multinomial = "grouped",
+                             nfolds = options$subfolds)
 
   # lasso$lambda[k] is the value of lambda in the k-th trial
   # lasso$nzero[k] is the number of non-zero coefficients in the fitted model
   # (= number of features not including the intercept) in the k-th trial
   # things are arranged such that the first entry of nzero is 0
   # and the final entry of nzero equals the number of total features
-  # lasso$cvm is the cross-validated MSE score of the k-th trial
+  # lasso$cvm is the cross-validated score of the k-th trial
 
-  # find the model with the smallest error that has at least one nonz-ero
+  # find the model with the smallest error that has at least one non-zero
   # coefficient other than the intercept
   indices <- which(lasso$nzero > 0)
   lambdas <- lasso$lambda[indices]
-  mses <- lasso$cvm[indices]
+  scores <- lasso$cvm[indices]
   # if there is more than one index attaining the minimum which.min picks
-  # the smallest one - this corresponds to choosing best mse scofe with the
+  # the smallest one - this corresponds to choosing best score with the
   # minimal number of features selected
-  best <- which.min(mses)
-  coefficients <- coef(lasso, s = lambdas[best])
+  best <- which.min(scores)
+  lasso_coeffs <- coef(lasso, s = lambdas[best])
+
+  if (fam == "multinomial" || fam == "mgaussian") {
+    # if the data has multiple responses, the coefficients are a matrix
+    # that is returned as a list of columns. type.multinomial = "grouped"
+    # forced features to be selected for all responses or for none, so we
+    # can get the selected features also by only considering the first
+    # column. we just replace lasso_coeffs by this column and proceed as usual
+    lasso_coeffs <- lasso_coeffs[[1]]
+  }
 
   # remove the intercept and the entries that are zero
-  coefficients <- coefficients[-1,]
-  coefficients <- coefficients[which(coefficients != 0)]
+  lasso_coeffs <- lasso_coeffs[-1,]
+  lasso_coeffs <- lasso_coeffs[which(lasso_coeffs != 0)]
 
   # return the names of the selected features. previous code turned
   # coefficients into a vector, so use names() rather than rownames()
-  return(names(coefficients))
+  return(names(lasso_coeffs))
 }
