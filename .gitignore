@@ -1,3 +1,4 @@
 .DS_Store
 .Rhistory
 .Rproj.user
+vignettes/per_debug.Rmd

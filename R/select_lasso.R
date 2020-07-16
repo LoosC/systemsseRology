@@ -85,7 +85,7 @@ select_lasso <- function(X, y, options = list()) {
   best <- which.min(scores)
   lasso_coeffs <- coef(lasso, s = lambdas[best])
 
-  if (fam == "multinomial" || fam == "mgaussian") {
+  if (fam == "multinomial") {
     # if the data has multiple responses, the coefficients are a matrix
     # that is returned as a list of columns. type.multinomial = "grouped"
     # forced features to be selected for all responses or for none, so we

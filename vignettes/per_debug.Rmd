@@ -20,7 +20,7 @@ Load the package
 
 ```{r setup}
 library(systemsseRology)
-set.seed(42)
+set.seed(0)
 ```
 
 # Classification
