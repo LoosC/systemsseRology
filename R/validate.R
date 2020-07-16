@@ -16,7 +16,7 @@ validate <- function(X, y, method, options) {
 
   # ----------------- INITIAL PROCESSING ----------------- #
   # give these guys some shorter names
-  if ("select" %in% names(options) ) {
+  if ("select" %in% names(method) ) {
     select <- method$select
   } else {
     select <- function(X,y) {return(colnames(X))}
@@ -157,7 +157,7 @@ validate <- function(X, y, method, options) {
 
       score_list <- lapply(score, f_star)
 
-      pt_scores <- lv_assign(rf_scores, score_list, trial)
+      pt_scores <- lv_assign(pt_scores, score_list, trial)
     }
 
     return_values$pt_scores <- pt_scores
