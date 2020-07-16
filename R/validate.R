@@ -16,7 +16,17 @@ validate <- function(X, y, method, options) {
 
   # ----------------- INITIAL PROCESSING ----------------- #
   # give these guys some shorter names
-  select <- method$select
+  if ("select" %in% names(options) ) {
+    select <- method$select
+  } else {
+    select <- function(X,y) {return(colnames(X))}
+    if ("rf_trials" %in% names(options) && options$rf_trials != 0) {
+      print("validate: no feature selector given but rf_trials != 0")
+      print("validate: forcing rf_trials = 0")
+      options$rf_trials <- 0
+    }
+  }
+
   train <- method$train
   predict <- method$predict
   score <- method$score
