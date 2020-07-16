@@ -15,18 +15,24 @@ validate <- function(X, y, method, options) {
   # check if factors/vectors etc
 
   # ----------------- INITIAL PROCESSING ----------------- #
-  # give these guys some shorter names
+
+  # see if a feature selector is passed, otherwise default
+  # to selecting all features. in the latter case, also make
+  # sure rf_trials = 0 since random features don't make sense
   if ("select" %in% names(method) ) {
     select <- method$select
   } else {
     select <- function(X,y) {return(colnames(X))}
-    if ("rf_trials" %in% names(options) && options$rf_trials != 0) {
+    if (!("rf_trials" %in% names(options))) {
+      options$rf_trials <- 0
+    } else if (options$rf_trials != 0) {
       print("validate: no feature selector given but rf_trials != 0")
       print("validate: forcing rf_trials = 0")
       options$rf_trials <- 0
     }
   }
 
+  # also give these guys some shorter names
   train <- method$train
   predict <- method$predict
   score <- method$score

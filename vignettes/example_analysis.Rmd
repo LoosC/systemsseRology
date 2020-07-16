@@ -92,6 +92,19 @@ opts_plot$LV_ind <- 1
 opts_plot$mark_enrichment <- TRUE
 plt_loadings_bar <- visualize_ropls_loadings_bar(model, options = opts_plot)
 print(plt_loadings_bar)
+
+# print the results of 5-fold cv for the ropls method without any
+# feature selection. if validate() is passed a method with no feature
+# selector it will default to selecting all features and set rf_trials = 0
+method = list(train = train_ropls,
+              predict = predict_ropls,
+              score = score_accuracy)
+
+opts = list(n_folds = 5, pt_trials = 0)
+
+return_vals <- validate(X, y, method, opts)
+
+print(paste("Performance in 5-fold cv:", return_vals$cv_score, "accuracy"))
 ```
 
 Feature selection and then PLS-DA.
