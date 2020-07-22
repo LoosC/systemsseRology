@@ -22,17 +22,17 @@ multilevel_denoising <- function(X, X_labels) {
   }
 
   # if X_labels is a numeric vector, cast it into a factor
-  if (is.numeric(X_labels)){
+  if (is.numeric(X_labels)) {
     X_labels <- as.factor(X_labels)
   }
 
-  # for each cluster of samples with the same label, subtract
-  # the mean over the cluster from the individual samples
+  # for each subject, i.e., group of samples with the same label, subtract
+  # the mean over the samples belonging to the subject
   for (lab in levels(X_labels)) {
-    cluster_inds <- X_labels == lab
-    cluster_means <- colMeans(X[cluster_inds, ])
-    X[cluster_inds, ] <- sweep(X[cluster_inds, ], MARGIN = 2,
-                               STATS = cluster_means, FUN = "-")
+    subject_inds <- X_labels == lab
+    subject_means <- colMeans(X[subject_inds, ])
+    X[subject_inds, ] <- sweep(X[subject_inds, ], MARGIN = 2,
+                               STATS = subject_means, FUN = "-")
   }
 
   # finally z-score the entire data matrix X
