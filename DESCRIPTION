@@ -18,7 +18,8 @@ Imports:
     glmnet,
     ggrepel,
     RColorBrewer,
-    caret
+    caret,
+    matrixStats
 Suggests:
     knitr,
     rmarkdown

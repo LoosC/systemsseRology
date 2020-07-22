@@ -7,7 +7,13 @@
 #' @return names of selected features
 #' @export
 select_lasso <- function(X, y, options = list()) {
-  # check zscore?
+  # check if X is already z-scored and warn if this is not the case
+  # nz_col_means <- abs(colMeans(X)) > 1e-10
+  # nu_col_vars <- abs(matrixStats::colVars(X) - 1) > 1e-10
+  # if (sum(nz_col_means) + sum(nu_col_vars) > 0) {
+  #   message("Warning in select_lasso():")
+  #   message("    X is not z-scored")
+  # }
 
   # decide on type of GLM depending on type of y
   # 2-level factor -> binomial, n-level factor -> multinomial
@@ -50,13 +56,15 @@ select_lasso <- function(X, y, options = list()) {
     }
   } else {
     if (options$subfolds > n_samples) {
-      print("Warning: options$subfolds greater than number of samples")
-      print("         setting options$subfolds = number of samples")
+      message("Warning in select_lasso():")
+      message("    options$subfolds greater than number of samples")
+      message("    setting options$subfolds = number of samples")
       options$subfolds <- n_samples
     }
     if (options$subfolds < 3) {
-      print("Warning: options$subfolds was less than 3")
-      print("         setting options$subfolds = 3")
+      message("Warning in select_lasso():")
+      message("    options$subfolds was less than 3")
+      message("    setting options$subfolds = 3")
       options$subfolds <- 3
     }
   }

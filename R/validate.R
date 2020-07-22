@@ -26,8 +26,9 @@ validate <- function(X, y, method, options) {
     if (!("rf_trials" %in% names(options))) {
       options$rf_trials <- 0
     } else if (options$rf_trials != 0) {
-      print("validate: no feature selector given but rf_trials != 0")
-      print("validate: forcing rf_trials = 0")
+      message("Warning in validate():")
+      message("    no feature selector given but rf_trials != 0")
+      message("    forcing rf_trials = 0")
       options$rf_trials <- 0
     }
   }

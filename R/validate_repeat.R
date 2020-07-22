@@ -17,7 +17,7 @@ validate_repeat <- function(X, y, method, options, n_trials = 100) {
   return_vals <- list()
 
   for (trial in 1:n_trials) {
-    print(paste("validate_repeat: trial", trial, "/", n_trials))
+    message(paste("validate_repeat: trial", trial, "/", n_trials))
     val_scores <- validate(X, y, method, options)
     # remove the actual prediction from the validation
     val_scores["cv_y"] <- NULL
