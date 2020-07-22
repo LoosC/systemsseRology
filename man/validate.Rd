@@ -11,10 +11,12 @@ validate(X, y, method, options)
 
 \item{y}{vector of labels}
 
-\item{method}{}
+\item{method}{method list with train, predict, score, and optionally select}
+
+\item{options}{options list}
 }
 \value{
-
+cv prediction, cv scores, rf scores, pt scores
 }
 \description{
 Model validation performing cross-validation and permutation tests.

@@ -4,13 +4,15 @@
 \alias{multilevel_denoising}
 \title{Multilevel Denoising}
 \usage{
-multilevel_denoising(X, Xlabels)
+multilevel_denoising(X, X_labels)
 }
 \arguments{
-\item{Xlabels}{}
+\item{X}{raw data matrix}
+
+\item{X_labels}{vector/factor indicating subject id}
 }
 \value{
-
+denoised and z-scored data matrix
 }
 \description{
 Multilevel Denoising

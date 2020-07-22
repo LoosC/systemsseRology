@@ -2,10 +2,10 @@
 #'
 #' @param X n_samples x n_features matrix
 #' @param y vector of labels
-#' @param options
-#' @param method
+#' @param options options list
+#' @param method method list with train, predict, score, and optionally select
 #'
-#' @return
+#' @return cv prediction, cv scores, rf scores, pt scores
 #' @export
 #'
 validate <- function(X, y, method, options) {

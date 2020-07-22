@@ -7,10 +7,18 @@
 validate_repeat(X, y, method, options, n_trials = 100)
 }
 \arguments{
-\item{n_trials}{}
+\item{X}{n_samples x n_features matrix}
+
+\item{y}{vector of labels}
+
+\item{method}{method list with train, predict, score, and optionally select}
+
+\item{options}{options list}
+
+\item{n_trials}{number of trials (repetitions) for validate()}
 }
 \value{
-
+list of lists with cv scores, rf scores, pt scores from validate()
 }
 \description{
 Title

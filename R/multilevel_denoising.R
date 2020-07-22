@@ -1,9 +1,9 @@
 #' Multilevel Denoising
 #'
 #' @param X raw data matrix
-#' @param X_labels vector/factor indicating
+#' @param X_labels vector/factor indicating subject id
 #'
-#' @return
+#' @return denoised and z-scored data matrix
 #' @export
 #'
 #' @examples
@@ -13,7 +13,7 @@ multilevel_denoising <- function(X, X_labels) {
   nu_col_vars <- abs(matrixStats::colVars(X) - 1) > 1e-10
   if (sum(nz_col_means) + sum(nu_col_vars) == 0) {
     message("Warning in multilevel_denoising():")
-    message("    X was z-scored before multilevel_denoising()")
+    message("    X was already z-scored")
   }
 
   # throw an error if X_labels is neither numeric nor factor

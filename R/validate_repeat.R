@@ -1,12 +1,12 @@
 #' Title
 #'
-#' @param X
-#' @param y
-#' @param method
-#' @param options
-#' @param n_trials
+#' @param X n_samples x n_features matrix
+#' @param y vector of labels
+#' @param method method list with train, predict, score, and optionally select
+#' @param options options list
+#' @param n_trials number of trials (repetitions) for validate()
 #'
-#' @return
+#' @return list of lists with cv scores, rf scores, pt scores from validate()
 #' @export
 #'
 #' @examples
