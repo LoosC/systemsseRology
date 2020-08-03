@@ -65,9 +65,9 @@ validate <- function(X, y, method, options) {
 
   for (fname in fold_names) {
     indices <- folds[[fname]]
-    X_train <- X[-indices, ]
+    X_train <- X[-indices, , drop = FALSE]
     y_train <- y[-indices]
-    X_pred <- X[indices, ]
+    X_pred <- X[indices, , drop = FALSE]
 
     features <- select(X_train, y_train)
 
@@ -79,9 +79,9 @@ validate <- function(X, y, method, options) {
     # store number of features selected in fold for later
     feats_per_fold[[fname]] <- length(features)
 
-    model <- train(as.matrix(X_train[, features]), y_train)
+    model <- train(as.matrix(X_train[, features, drop = FALSE]), y_train)
 
-    y_pred[indices] <- predict(model, as.matrix(X_pred[, features]))
+    y_pred[indices] <- predict(model, as.matrix(X_pred[, features, drop = FALSE]))
   }
 
   return_values$cv_y <- y_pred
@@ -104,18 +104,18 @@ validate <- function(X, y, method, options) {
 
       for (fname in fold_names) {
         indices <- folds[[fname]]
-        X_train <- X[-indices, ]
+        X_train <- X[-indices, , drop = FALSE]
         y_train <- y[-indices]
-        X_pred <- X[indices, ]
+        X_pred <- X[indices, , drop = FALSE]
 
         # careful with sample() pathology here...
         # select random features
-        total_features <- length(X_train[1, ])
+        total_features <- ncol(X_train)
         features <- sample(1:total_features, feats_per_fold[[fname]])
 
-        model <- train(as.matrix(X_train[, features]), y_train)
+        model <- train(as.matrix(X_train[, features, drop = FALSE]), y_train)
 
-        y_pred[indices] <- predict(model, as.matrix(X_pred[, features]))
+        y_pred[indices] <- predict(model, as.matrix(X_pred[, features, drop = FALSE]))
       }
 
       # compute list of scores
@@ -152,14 +152,14 @@ validate <- function(X, y, method, options) {
 
       for (fname in fold_names) {
         indices <- folds[[fname]]
-        X_train <- X[-indices, ]
+        X_train <- X[-indices, , drop = FALSE]
         y_train <- y_perm[-indices]
-        X_pred <- X[indices, ]
+        X_pred <- X[indices, , drop = FALSE]
 
         features <- select(X_train, y_train)
-        model <- train(as.matrix(X_train[, features]), y_train)
+        model <- train(as.matrix(X_train[, features, drop = FALSE]), y_train)
 
-        y_pred[indices] <- predict(model, as.matrix(X_pred[, features]))
+        y_pred[indices] <- predict(model, as.matrix(X_pred[, features, drop = FALSE]))
       }
 
       score_list <- lapply(score, f_star)
