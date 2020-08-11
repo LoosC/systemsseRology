@@ -9,11 +9,6 @@
 #' @export
 #'
 validate <- function(X, y, method, options) {
-  # TODO all kinds of debugging, check for data types
-  # bad indexing, weird cases, emtpy sets
-  # naming... comments/cleanup
-  # check if factors/vectors etc
-
   # ----------------- INITIAL PROCESSING ----------------- #
 
   # see if a feature selector is passed, otherwise default
