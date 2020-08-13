@@ -82,7 +82,7 @@ validate <- function(X, y, method, options) {
   return_values$cv_y <- y_pred
 
   # apply the list of functions in score to y_pred, y
-  f_star <- function(f) {f(y_pred, y)}
+  f_star <- function(f) {f(y, y_pred)}
   return_values$cv_score <- lapply(score, f_star)
   # ----------------- END CROSS-VALIDATION ----------------- #
 
