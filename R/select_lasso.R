@@ -30,7 +30,7 @@ select_lasso <- function(X, y, options = list()) {
   }
 
   # cv.glmnet needs at least 3 folds, so we need at least three features
-  n_samples <- ncol(X)
+  n_samples <- nrow(X)
   if (n_samples < 3) {
     stop("select_lasso() requires more than three samples for internal cross-validation")
   }
