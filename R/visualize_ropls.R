@@ -289,17 +289,16 @@ visualize_ropls_loadings_bar <- function(model, options = list()) {
     }
   }
 
-
-
-
   if (ropls::getSummaryDF(model)$pre +
       ropls::getSummaryDF(model)$ort < options$LV_ind) {
     stop("required LV exceed existing LVs")
   }
+
   if (!("df_features" %in% names(options))) {
-    options$df_features <- data.frame(name = rownames(df_loadings),
-                                      label = rownames(df_loadings))
+    options$df_features <- data.frame(name = rownames(model@loadingMN),
+                                      label = rownames(model@loadingMN))
   }
+
   # ----------------- END OPTIONS ----------------- #
 
   # check first whether its a orthogonal PLS or a regular PLS
@@ -318,6 +317,8 @@ visualize_ropls_loadings_bar <- function(model, options = list()) {
     df_loadings$features <- rownames(df_loadings)
     df_loadings$labels <- options$df_features$label[match(rownames(df_loadings), options$df_features$name)]
   }
+
+
 
   # TODO: catch if its an orthogonal
 
