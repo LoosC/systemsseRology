@@ -28,6 +28,11 @@ validate <- function(X, y, method, options) {
     }
   }
 
+  # default to five-fold cross-validation
+  if (!("n_folds" %in% names(options))) {
+    options$n_folds <- 5
+  }
+
   # also give these guys some shorter names
   train <- method$train
   predict <- method$predict
