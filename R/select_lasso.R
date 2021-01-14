@@ -35,7 +35,7 @@ select_lasso <- function(X, y, options = list()) {
     stop("select_lasso() requires more than three samples for internal cross-validation")
   }
 
-  # default subfolds if its is not set
+  # default subfolds if it is not set
   # if there are 5 or more samples, default to 5
   # otherwise default to 3
   # while were at it, ensure that subfolds is in [3, n_samples]
