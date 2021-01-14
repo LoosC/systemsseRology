@@ -98,9 +98,9 @@ visualize_ropls_scores <- function(model, y, options = list()) {
                         shape = 21,
                         show.legend = TRUE) +
     ggplot2::labs(x = paste("scores on LV", options$LV_ind[1], " (",
-                            toString(model@modelDF$R2X[options$LV_ind[1]] * 100), "%)", sep = ""),
+                            toString(round(model@modelDF$R2X[options$LV_ind[1]] * 100)), "%)", sep = ""),
                   y = paste("scores on LV", options$LV_ind[2], " (",
-                            toString(model@modelDF$R2X[options$LV_ind[2]] * 100), "%)", sep = ""),
+                            toString(round(model@modelDF$R2X[options$LV_ind[2]] * 100)), "%)", sep = ""),
                   fill = y_name, color = y_name) +
     ggplot2::theme_classic() +
     ggplot2::theme(legend.position = "right",
