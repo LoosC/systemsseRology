@@ -9,10 +9,19 @@
 #' @return list of lists with cv scores, rf scores, pt scores from validate()
 #' @export
 #'
-#' @examples
 validate_repeat <- function(X, y, method, options, n_trials = 100) {
   # we run validate() n_trials times, returning the vector of real scores
   # and the matrices of random feature scores/permutation test scores
+
+  # ----------------- OPTIONS ----------------- #
+  if (!("save" %in% names(options))) {
+    options$save <- FALSE
+  }
+  if (options$save & !("save_file" %in% names(options))) {
+    options$save_file <- paste0("model_validation_", Sys.time())
+  }
+  # ----------------- END OPTIONS ----------------- #
+
 
   return_vals <- list()
 
@@ -22,7 +31,9 @@ validate_repeat <- function(X, y, method, options, n_trials = 100) {
     # remove the actual prediction from the validation
     val_scores["cv_y"] <- NULL
     return_vals[[trial]] <- val_scores
+    if (options$save) {
+      saveRDS(return_vals, file = paste0(options$save_file, ".RDS"))
+    }
   }
-
   return(return_vals)
 }

@@ -5,7 +5,6 @@
 #' @return vector of strings with asteriks
 #' @export
 #'
-#'
 pval_to_asteriks <- function(pval) {
   ret <- rep("", length = length(pval))
   for (ind in 1:length(pval)) {

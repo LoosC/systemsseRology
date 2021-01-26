@@ -2,7 +2,7 @@
 
 #' @param model ropls object
 #' @param y vector of labels
-#' @param options
+#' @param options options
 #'
 #' @return
 #' @export

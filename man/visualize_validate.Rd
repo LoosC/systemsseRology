@@ -7,7 +7,9 @@
 visualize_validate(vals, options = list())
 }
 \arguments{
-\item{options}{}
+\item{vals}{variable with results of model validation}
+
+\item{options}{options}
 }
 \value{
 plot handle

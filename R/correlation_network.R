@@ -6,7 +6,7 @@
 #'
 #' @return plot object
 #' @export
-
+#'
 correlation_network <- function(X, sel_features, options = list()) {
   if (!("threshold" %in% names(options))) {
     options$threshold <- 0.7

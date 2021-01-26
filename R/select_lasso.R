@@ -6,6 +6,7 @@
 #'
 #' @return names of selected features
 #' @export
+#'
 select_lasso <- function(X, y, options = list()) {
   # decide on type of GLM depending on type of y
   # 2-level factor -> binomial, n-level factor -> multinomial

@@ -5,6 +5,7 @@
 #'
 #' @return classification accuracy
 #' @export
+#'
 score_accuracy <- function(y, y_pred) {
   num <- as.numeric(y)
   num_pred <- as.numeric(y_pred)
@@ -12,7 +13,6 @@ score_accuracy <- function(y, y_pred) {
   accuracy <- length(correct) / length(y)
   return(accuracy)
 }
-
 
 #' Mean squared error
 #'

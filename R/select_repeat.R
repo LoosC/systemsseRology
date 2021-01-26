@@ -8,6 +8,7 @@
 
 #' @return
 #' @export
+#'
 select_repeat <- function(X, y, selector, options = list()) {
 
   # ----------------- BEGIN OPTIONS ----------------- #

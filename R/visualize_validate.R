@@ -1,7 +1,7 @@
 #' Visualization of validation results
 #'
-#' @param vals
-#' @param options
+#' @param vals variable with results of model validation
+#' @param options options
 #'
 #' @return plot handle
 #' @export

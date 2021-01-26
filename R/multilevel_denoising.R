@@ -6,7 +6,6 @@
 #' @return denoised and z-scored data matrix
 #' @export
 #'
-#' @examples
 multilevel_denoising <- function(X, X_labels) {
   # check if X is already z-scored and warn if this is the case
   nz_col_means <- abs(colMeans(X)) > 1e-10

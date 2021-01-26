@@ -5,6 +5,7 @@
 #'
 #' @return ropls object
 #' @export
+#'
 train_ropls <- function(X, y, options = list()) {
   # suppress annoying "error"s from ropls
   sink(file = tempfile())

@@ -11,7 +11,7 @@ visualize_ropls_scores(model, y, options = list())
 
 \item{y}{vector of labels}
 
-\item{options}{}
+\item{options}{options}
 }
 \value{
 
