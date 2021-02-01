@@ -171,11 +171,12 @@ print(paste("Performance in 5-fold cv:", round(return_vals$cv_score, digits = 2)
 
 Permutation testing to assess model significance using two different approaches.
 1) Size-matched random features
-2) Shuffled labels
+2) Permuted labels
 
 ```{r model validation}
 opts$rf_trials <- 3
 opts$pt_trials <- 3
+opts$compare_pred <- "y_perm" #whether for the 'permuted labels' the predicted label is compared to the original ("y"), or the permuted vector of labels ("y_perm")
 return_vals <- validate(X, y, method, opts)
 repeated_vals <- validate_repeat(X, y, method, opts, n_trials = 3)
 ```
