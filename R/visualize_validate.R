@@ -42,7 +42,7 @@ visualize_validate <- function(vals, options = list()) {
         pval_rf[ind] <- length(which(vals[[ind]]$rf_scores > vals[[ind]]$cv_score))/length(vals[[ind]]$rf_scores)
       }
 
-      if (median(pval_rf) == 1/length(vals[[ind]]$rf_scores)) {
+      if (median(pval_rf) < 1/length(vals[[ind]]$rf_scores)) {
         label_rf <- paste0("p<", 1/length(vals[[ind]]$rf_scores))
       } else {
         label_rf <- paste0("p=", median(pval_rf))
