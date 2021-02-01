@@ -33,6 +33,25 @@ validate <- function(X, y, method, options) {
     options$n_folds <- 5
   }
 
+  # for permuted labels, to which the predicted outcome should be compared to with the score function
+  if (!("compare_pred" %in% names(options))) {
+    options$compare_pred <- "y"
+  } else {
+    if (!(options$compare_pred %in% c("y", "y_perm"))) {
+      stop("options$compare_pred needs to be \"y\" or \"y_perm\"")
+    }
+  }
+
+  # for paired data, take structure into account
+  if (!("paired" %in% names(options))) {
+    options$paired <- FALSE
+  }
+  if (options$paired) {
+    if (!("X_label" %in% names(options))) {
+      stop("X_label needs to be provided to take into account the paired structure in cross-validation and permutation testing.")
+    }
+  }
+
   # also give these guys some shorter names
   train <- method$train
   predict <- method$predict
@@ -57,8 +76,18 @@ validate <- function(X, y, method, options) {
 
   # ----------------- BEGIN CROSS-VALIDATION ----------------- #
   # split data into folds
-  folds <- caret::createFolds(y, options$n_folds)
-  fold_names <- names(folds)
+  if (options$paired) {
+    folds <- caret::createFolds(seq(1, nrow(X)/2), options$n_folds)
+    fold_names <- names(folds)
+
+    for (fname in fold_names) {
+      folds[[fname]] <- which(options$X_label %in% options$X_label[folds[[fname]]])
+    }
+
+  } else {
+    folds <- caret::createFolds(y, options$n_folds)
+    fold_names <- names(folds)
+  }
 
   # vector of cross-validation predictions
   y_pred <- y
@@ -123,7 +152,6 @@ validate <- function(X, y, method, options) {
 
       # assign them to vectors in the list
       rf_scores <- lv_assign(rf_scores, score_list, trial)
-      #rf_scores[trial] <- score(y_pred, y)
     }
 
     return_values$rf_scores <- rf_scores
@@ -143,11 +171,26 @@ validate <- function(X, y, method, options) {
     y_perm <- y
 
     for (trial in 1:n_trials) {
-      # create permuted y, but only permute inside each fold
-      for (fname in fold_names) {
-        indices <- folds[[fname]]
-        perm <- sample(1:length(indices))
-        y_perm[indices] <- y[indices[perm]]
+      if (options$paired) { # create permuted y, flip pairs with a 50% probability
+        for (fname in fold_names) {
+          indices <- folds[[fname]]
+          tmp_rn <- runif(length(indices)/2)
+          flip_pairs <- which(tmp_rn > 0.5)
+          flip_pairs_labels <- unique(options$X_label[indices])[flip_pairs]
+
+          y_perm[indices] <- y[indices]
+
+          for (ind_pair in flip_pairs_labels) {
+              y_perm[which(options$X_label == ind_pair)[2]] <- y[which(options$X_label == ind_pair)[1]]
+              y_perm[which(options$X_label == ind_pair)[1]] <- y[which(options$X_label == ind_pair)[2]]
+          }
+        }
+      } else {# create permuted y, but only permute inside each fold
+        for (fname in fold_names) {
+          indices <- folds[[fname]]
+          perm <- sample(1:length(indices))
+          y_perm[indices] <- y[indices[perm]]
+        }
       }
 
       for (fname in fold_names) {
@@ -162,7 +205,13 @@ validate <- function(X, y, method, options) {
         y_pred[indices] <- predict(model, as.matrix(X_pred[, features, drop = FALSE]))
       }
 
-      score_list <- lapply(score, f_star)
+      if (options$compare_pred == "y") {
+        # compute list of scores
+        score_list <- lapply(score, f_star)
+      } else if (options$compare_pred == "y_perm") {
+        f_star_perm <- function(f) {f(y_perm, y_pred)}
+        score_list <- lapply(score, f_star_perm)
+      }
 
       pt_scores <- lv_assign(pt_scores, score_list, trial)
     }

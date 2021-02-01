@@ -42,10 +42,10 @@ visualize_validate <- function(vals, options = list()) {
         pval_rf[ind] <- length(which(vals[[ind]]$rf_scores > vals[[ind]]$cv_score))/length(vals[[ind]]$rf_scores)
       }
 
-      if (median(pval_rf) == 0) {
+      if (median(pval_rf) < 1/length(vals[[ind]]$rf_scores)) {
         label_rf <- paste0("p<", 1/length(vals[[ind]]$rf_scores))
       } else {
-        label_rf <- paste0("p=", mean(pval_rf))
+        label_rf <- paste0("p=", median(pval_rf))
       }
     }
 
@@ -57,10 +57,10 @@ visualize_validate <- function(vals, options = list()) {
         pval_pt[ind] <- length(which(vals[[ind]]$pt_scores > vals[[ind]]$cv_score))/length(vals[[ind]]$pt_scores)
       }
 
-      if (median(pval_pt) == 0) {
+      if (median(pval_pt) < 1/length(vals[[ind]]$pt_scores)) {
         label_pt <- paste0("p<", 1/length(vals[[ind]]$pt_scores))
       } else {
-        label_pt <-  paste0("p=", mean(pval_pt))
+        label_pt <-  paste0("p=", median(pval_pt))
       }
     }
   } else {
