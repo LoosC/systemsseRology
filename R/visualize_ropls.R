@@ -19,7 +19,7 @@ visualize_ropls_scores <- function(model, y, options = list()) {
   if (!("stroke" %in% names(options))) {
     options$stroke <- 0.5
   }
-  # confidence levels for ellipses
+  # level at which to draw the ellipse for the data ellipse
   if (!("level" %in% names(options))) {
     options$level <- 0.95
   }
